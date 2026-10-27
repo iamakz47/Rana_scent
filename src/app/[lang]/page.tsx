@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { locales } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
+
+// Canonical and hreflang URLs are per page; each new page should declare its own.
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  return {
+    alternates: {
+      canonical: `/${locale}`,
+      languages: Object.fromEntries(locales.map((l) => [l, `/${l}`])),
+    },
+  };
+}
 
 // Placeholder landing page; the storefront is built separately.
 export default async function Home() {
