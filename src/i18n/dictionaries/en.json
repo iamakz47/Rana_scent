@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "title": "Rana Scent",
+    "description": "Scent diffusers and fragrance cartridges."
+  },
+  "home": {
+    "tagline": "Scent diffusers & fragrance cartridges",
+    "comingSoon": "Our store is coming soon."
+  },
+  "localeSwitcher": {
+    "label": "Change language",
+    "ar": "العربية",
+    "en": "English"
+  }
+}
