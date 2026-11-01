@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, IBM_Plex_Sans_Arabic } from "next/font/google";
 import { getDirection, locales } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
+import { getSiteUrl } from "@/lib/env";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -20,14 +21,11 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [locale, dict] = await Promise.all([getLocale(), getDictionary()]);
+  const dict = await getDictionary();
   return {
+    metadataBase: getSiteUrl(),
     title: { default: dict.meta.title, template: `%s | ${dict.meta.title}` },
     description: dict.meta.description,
-    alternates: {
-      canonical: `/${locale}`,
-      languages: Object.fromEntries(locales.map((l) => [l, `/${l}`])),
-    },
   };
 }
 

@@ -74,3 +74,9 @@ Supabase is wired up but not connected to a project. Set
 `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in
 `.env.local` (and in Vercel project settings) to enable it. Until then the
 proxy skips session refresh and the app runs without a backend.
+
+## Site URL
+
+Canonical and `hreflang` URLs use `NEXT_PUBLIC_SITE_URL` when set, otherwise
+the Vercel production domain, otherwise `http://localhost:3000`. Set it once a
+custom domain is live.
