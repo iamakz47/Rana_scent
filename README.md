@@ -1,18 +1,25 @@
 # Rana Scent
 
-E-commerce website for scent diffusers and fragrance cartridges.
+E-commerce website for scent diffusers and fragrance cartridges, in Arabic
+(RTL, default) and English (LTR), priced in Kuwaiti dinar.
+
+> **Status: visual prototype (Phases 0–1).** Products, prices and stock are
+> sample data, product images are drawn placeholders, and checkout is not yet
+> connected. The official logo slot is in `src/components/brand/logo.tsx`.
 
 ## Stack
 
-- [Next.js 16](https://nextjs.org) (App Router, Cache Components, Turbopack) with TypeScript
-- Tailwind CSS v4
-- ESLint (`eslint-config-next`)
-- Supabase (`@supabase/ssr`) for auth and data
+- [Next.js 16](https://nextjs.org) App Router with Cache Components, React 19.3, TypeScript
+- Tailwind CSS v4 design tokens (`src/app/globals.css`, documented in [`docs/design-system.md`](docs/design-system.md))
+- Motion for React, GSAP + ScrollTrigger, React View Transitions, WebGL scent field
+- Supabase (`@supabase/ssr`), wired up and connected in Phase 2
+- Zod for validating untrusted input (URL params, local storage, env)
+- Vitest (unit) and Playwright + axe (end-to-end, accessibility)
 - Deployed on Vercel
 
 ## Getting started
 
-Requires Node.js 20.9 or newer.
+Requires Node.js 22.
 
 ```bash
 npm install
@@ -20,63 +27,61 @@ cp .env.example .env.local   # optional until Supabase is connected
 npm run dev
 ```
 
-Open http://localhost:3000. You are redirected to `/ar` or `/en` based on your
-browser language.
+Open http://localhost:3000. You are redirected to `/ar` or `/en` from your
+saved choice or browser language.
 
-| Script              | Purpose                                   |
-| ------------------- | ----------------------------------------- |
-| `npm run dev`       | Start the dev server                      |
-| `npm run build`     | Production build                          |
-| `npm run start`     | Serve the production build                |
-| `npm run lint`      | Run ESLint                                |
-| `npm run typecheck` | Generate route types and run `tsc`        |
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` / `npm run start` | Production build / serve it |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Generate route types and run `tsc` |
+| `npm run test` | Unit tests (Vitest) |
+| `npm run test:e2e` | Playwright: 7 widths × 2 languages, axe audit, cart/catalog/nav flows (needs a build) |
+| `npm run check` | Lint, types and unit tests together |
+
+CI (`.github/workflows/ci.yml`) runs all of these on every pull request.
 
 ## Project structure
 
 ```
 src/
   app/
-    [lang]/            # Every route lives under the locale segment
-      layout.tsx       # Root layout: sets <html lang dir>, fonts, metadata
-      page.tsx
-    globals.css        # Tailwind entry and design tokens
-  components/          # Shared UI components
-  i18n/
-    config.ts          # Supported locales, default locale, text direction
-    dictionaries.ts    # getLocale() / getDictionary() for Server Components
-    dictionaries/      # ar.json, en.json translation files
-  lib/
-    env.ts             # Typed access to environment variables
-    supabase/
-      client.ts        # Browser client (Client Components)
-      server.ts        # Server client (Server Components, Actions, Route Handlers)
-      proxy.ts         # Session refresh used by src/proxy.ts
-  types/
-    database.ts        # Supabase generated types (placeholder)
-  proxy.ts             # Locale redirect + Supabase session refresh
+    [lang]/layout.tsx        Root layout: <html lang dir>, fonts, metadata
+    [lang]/(store)/          Storefront: home, shop, collections, products,
+                             cart, wishlist, about, contact, FAQ, policies, 404
+    robots.ts, sitemap.ts    Indexing is off until SITE_INDEXING=true
+    globals.css              Design tokens and motion primitives
+  components/
+    brand/                   Logo slot, ScentField (WebGL mist), ProductArt
+    layout/                  Header, mobile nav, footer, page templates
+    ui/                      Buttons, icons, price, availability
+  features/
+    catalog/                 Types, sample data, queries, cards, gallery, filters
+    cart/                    Local cart store, drawer, cart page
+    home/                    Hero, scent library, story, space finder
+    wishlist/                Local wishlist
+  i18n/                      Locales, dictionaries (ar.json, en.json), client context
+  lib/                       env (Zod), money (integer fils), Supabase clients
+  proxy.ts                   Locale redirect + Supabase session refresh
+e2e/                         Playwright specs
+.claude/skills/              Vetted agent skills for future sessions
 ```
 
-## Internationalization (Arabic / English)
+## Conventions
 
-- Locales are `ar` (default, right-to-left) and `en` (left-to-right), defined in
-  `src/i18n/config.ts`.
-- `src/proxy.ts` redirects paths without a locale using the `NEXT_LOCALE`
-  cookie, then the `Accept-Language` header, then the default locale.
-- The root layout sets `lang` and `dir` on `<html>`. Use Tailwind's logical
-  utilities (`ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`, `text-start`)
-  and the `rtl:` / `ltr:` variants so layouts mirror correctly.
-- Add strings to both `ar.json` and `en.json`; read them in Server Components
-  with `await getDictionary()`.
+- **Money** is integer fils (`1 KWD = 1000 fils`). Client-side prices are for
+  display only; checkout recomputes everything on the server.
+- **RTL**: use logical utilities (`ms-*`, `ps-*`, `start-*`, `end-*`,
+  `text-start`) so layouts mirror automatically.
+- **Copy**: add strings to both `ar.json` and `en.json` (the Arabic file is
+  type-checked against the English shape).
+- **Motion**: respect `prefers-reduced-motion`; see the design system doc.
 
-## Supabase
+## Environment
 
-Supabase is wired up but not connected to a project. Set
-`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in
-`.env.local` (and in Vercel project settings) to enable it. Until then the
-proxy skips session refresh and the app runs without a backend.
-
-## Site URL
-
-Canonical and `hreflang` URLs use `NEXT_PUBLIC_SITE_URL` when set, otherwise
-the Vercel production domain, otherwise `http://localhost:3000`. Set it once a
-custom domain is live.
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase project (publishable key only) |
+| `NEXT_PUBLIC_SITE_URL` | Canonical origin; defaults to the Vercel production domain |
+| `SITE_INDEXING` | Set to `true` at launch to allow search engines |

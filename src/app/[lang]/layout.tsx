@@ -1,19 +1,31 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, IBM_Plex_Sans_Arabic } from "next/font/google";
+import { Bodoni_Moda, Readex_Pro, Reem_Kufi } from "next/font/google";
 import { getDirection, locales } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
-import { getSiteUrl } from "@/lib/env";
+import { getSiteUrl, isIndexingEnabled } from "@/lib/env";
 import "../globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Readex Pro is drawn for Arabic and Latin together, so body text feels like
+// one voice in both languages. Display type switches per script.
+const readex = Readex_Pro({
+  variable: "--font-readex",
+  subsets: ["arabic", "latin"],
+  axes: ["HEXP"],
+  display: "swap",
 });
 
-const plexArabic = IBM_Plex_Sans_Arabic({
-  variable: "--font-arabic",
+const bodoni = Bodoni_Moda({
+  variable: "--font-bodoni",
+  subsets: ["latin"],
+  axes: ["opsz"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const reemKufi = Reem_Kufi({
+  variable: "--font-reem-kufi",
   subsets: ["arabic"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export async function generateStaticParams() {
@@ -26,12 +38,16 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: getSiteUrl(),
     title: { default: dict.meta.title, template: `%s | ${dict.meta.title}` },
     description: dict.meta.description,
+    robots: isIndexingEnabled() ? undefined : { index: false, follow: false },
+    openGraph: { siteName: dict.meta.title, type: "website" },
   };
 }
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#060c17",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
@@ -41,9 +57,9 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
     <html
       lang={locale}
       dir={getDirection(locale)}
-      className={`${geistSans.variable} ${plexArabic.variable} h-full antialiased`}
+      className={`${readex.variable} ${bodoni.variable} ${reemKufi.variable} antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+      <body className="min-h-dvh">{children}</body>
     </html>
   );
 }

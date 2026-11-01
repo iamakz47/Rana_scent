@@ -1,30 +1,398 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ *
+ * Rana Scent design tokens
+ * Navy and charcoal carry the brand at night; porcelain carries it by
+ * day. Gold is reserved for the brand mark, prices and primary actions.
+ * Scent-family hues encode which fragrance family a product belongs to.
+ * ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --font-body: var(--font-geist-sans);
+  --font-body: var(--font-readex);
+  --font-display: var(--font-bodoni);
 }
 
-/* Arabic pages use the Arabic typeface; Latin glyphs fall back to Geist. */
 :root:lang(ar) {
-  --font-body: var(--font-arabic), var(--font-geist-sans);
+  --font-display: var(--font-reem-kufi);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-navy-950: #060c17;
+  --color-navy-900: #0a1424;
+  --color-navy-800: #112038;
+  --color-navy-700: #1a2f4f;
+  --color-navy-600: #2a4570;
+
+  --color-charcoal-950: #141518;
+  --color-charcoal-900: #1c1d21;
+  --color-charcoal-800: #26282d;
+  --color-charcoal-600: #4a4d55;
+  --color-charcoal-400: #8a8d96;
+
+  --color-porcelain: #f1f2f5;
+  --color-porcelain-deep: #e3e5ea;
+  --color-ivory: #ece9e2;
+
+  --color-gold-200: #f3e4b9;
+  --color-gold-300: #e7cf8f;
+  --color-gold-400: #d5b46a;
+  --color-gold-500: #be9549;
+  --color-gold-600: #9a7535;
+  --color-gold-700: #6c5126;
+
+  --color-scent-oud: #b0703a;
+  --color-scent-musk: #d8b5ad;
+  --color-scent-floral: #b48ccc;
+  --color-scent-fresh: #8cc4d4;
+  --color-scent-woody: #9a8662;
+
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-body), serif;
+
+  /* Fluid type scale (minor third at 360px → perfect fourth at 1440px). */
+  --text-step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.875rem);
+  --text-step-0: clamp(0.95rem, 0.92rem + 0.15vw, 1.0625rem);
+  --text-step-1: clamp(1.125rem, 1.05rem + 0.35vw, 1.375rem);
+  --text-step-2: clamp(1.35rem, 1.2rem + 0.7vw, 1.875rem);
+  --text-step-3: clamp(1.65rem, 1.35rem + 1.3vw, 2.625rem);
+  --text-step-4: clamp(2.1rem, 1.55rem + 2.4vw, 3.75rem);
+  --text-step-5: clamp(2.6rem, 1.7rem + 4vw, 5.5rem);
+  --text-step-6: clamp(3.1rem, 1.6rem + 6.6vw, 8.5rem);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+
+  --animate-skeleton: skeleton 1.6s var(--ease-in-out-quint) infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes skeleton {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
   }
 }
 
+html {
+  background: var(--color-navy-950);
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-navy-950);
+  color: var(--color-ivory);
+  font-family: var(--font-sans);
+  font-size: var(--text-step-0);
+  line-height: 1.6;
+  overflow-x: clip;
+}
+
+:lang(ar) body {
+  line-height: 1.8;
+}
+
+::selection {
+  background: var(--color-gold-400);
+  color: var(--color-navy-950);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold-300);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- Utilities ---------- */
+
+@utility container-page {
+  width: 100%;
+  max-width: 1680px;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 3.5rem);
+}
+
+/* Brushed-metal gold for type. Falls back to flat gold. */
+@utility text-gold {
+  color: var(--color-gold-400);
+  background: linear-gradient(
+    112deg,
+    var(--color-gold-600) 0%,
+    var(--color-gold-200) 32%,
+    var(--color-gold-500) 52%,
+    var(--color-gold-300) 70%,
+    var(--color-gold-600) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility bg-gold {
+  background-image: linear-gradient(
+    112deg,
+    var(--color-gold-600) 0%,
+    var(--color-gold-300) 38%,
+    var(--color-gold-500) 60%,
+    var(--color-gold-200) 82%,
+    var(--color-gold-500) 100%
+  );
+}
+
+@utility hairline {
+  border-color: color-mix(in oklab, var(--color-gold-400) 22%, transparent);
+}
+
+/* Film grain keeps large navy fields from banding. */
+@utility grain {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@utility skeleton {
+  background: linear-gradient(
+    100deg,
+    color-mix(in oklab, var(--color-navy-700) 60%, transparent) 30%,
+    color-mix(in oklab, var(--color-gold-400) 14%, var(--color-navy-700)) 50%,
+    color-mix(in oklab, var(--color-navy-700) 60%, transparent) 70%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-skeleton);
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Display type: Bodoni in English, Reem Kufi in Arabic. */
+@utility font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+  :lang(ar) & {
+    letter-spacing: 0;
+  }
+}
+
+/* ---------- Scroll reveal (CSS scroll-driven, progressive) ---------- */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+  /* Below lg only, where GSAP does not drive the element. */
+  @media (prefers-reduced-motion: no-preference) and (max-width: 1023.98px) {
+    .reveal-compact {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(2.5rem);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* ---------- Hero entrance ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-line > span {
+    animation: hero-rise 1.1s var(--ease-out-expo) both;
+  }
+  .hero-fade {
+    animation: hero-fade 1s var(--ease-out-expo) both;
+  }
+  .hero-mist {
+    animation: hero-fade 2.4s ease-out both;
+  }
+  .hero-device {
+    animation: hero-fade 1.6s var(--ease-out-expo) 0.2s both;
+  }
+  @supports (animation-timeline: scroll()) {
+    .hero-device > * {
+      animation: drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Subtle parallax: the device sinks slower than the page scrolls. */
+@keyframes drift {
+  to {
+    transform: translateY(12%);
+  }
+}
+
+/* ---------- FAQ accordion (progressive: animates where supported) ---------- */
+
+:root {
+  interpolate-size: allow-keywords;
+}
+
+details.faq::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 500ms var(--ease-out-expo),
+    content-visibility 500ms allow-discrete;
+}
+
+details.faq[open]::details-content {
+  block-size: auto;
+}
+
+/* ---------- View transitions ---------- */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+::view-transition-group(.product-morph) {
+  animation-duration: 560ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Native <dialog> sheets and drawers ---------- */
+
+dialog.sheet {
+  opacity: 0;
+  transition:
+    opacity 380ms var(--ease-out-expo),
+    overlay 380ms allow-discrete,
+    display 380ms allow-discrete;
+}
+
+dialog.sheet[open] {
+  opacity: 1;
+}
+
+@starting-style {
+  dialog.sheet[open] {
+    opacity: 0;
+  }
+}
+
+dialog.sheet::backdrop {
+  background: transparent;
+}
+
+dialog.drawer {
+  --drawer-x: 100%;
+  margin: 0;
+  margin-inline-start: auto;
+  height: 100dvh;
+  max-height: 100dvh;
+  width: min(30rem, 100vw);
+  max-width: 100vw;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  translate: var(--drawer-x) 0;
+  transition:
+    translate 520ms var(--ease-out-expo),
+    overlay 520ms allow-discrete,
+    display 520ms allow-discrete;
+}
+
+:root[dir="rtl"] dialog.drawer {
+  --drawer-x: -100%;
+}
+
+dialog.drawer[open] {
+  translate: 0 0;
+}
+
+@starting-style {
+  dialog.drawer[open] {
+    translate: var(--drawer-x) 0;
+  }
+}
+
+dialog.drawer::backdrop {
+  background: color-mix(in oklab, var(--color-navy-950) 70%, transparent);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition:
+    opacity 420ms var(--ease-out-expo),
+    overlay 420ms allow-discrete,
+    display 420ms allow-discrete;
+}
+
+dialog.drawer[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  dialog.drawer[open]::backdrop {
+    opacity: 0;
+  }
 }
