@@ -10,7 +10,11 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run typecheck && npm run test"
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "test:db": "vitest run -c vitest.db.config.mts",
+    "db:start": "supabase start -x realtime,studio,imgproxy,edge-runtime,logflare,vector,supavisor,postgres-meta",
+    "db:reset": "supabase db reset",
+    "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",
@@ -33,6 +37,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
+    "supabase": "3.0.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "5.0.5"
