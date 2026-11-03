@@ -4,16 +4,16 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { ProductArt } from "@/components/brand/product-art";
-import type { ArtKind, ProductImage } from "@/features/catalog/types";
+import { ProductVisual } from "@/components/brand/product-visual";
 import { useI18n } from "@/i18n/client";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const frames: Array<{ art: ArtKind; view: ProductImage["view"]; family?: "oud" }> = [
-  { art: "cartridge", view: "front", family: "oud" },
-  { art: "diffuser-compact", view: "front", family: "oud" },
-  { art: "diffuser-tower", view: "context", family: "oud" },
+// One real photo per step: the refill, a home diffuser, a large-space tower.
+const frames = [
+  "/images/products/aroma-oil-500ml.jpg",
+  "/images/products/rana-aura.jpg",
+  "/images/products/rana-tower.jpg",
 ];
 
 // "From refill to atmosphere": on large screens the stage pins while the
@@ -65,12 +65,18 @@ export function Story() {
     <section ref={root} aria-labelledby="story-title" className="relative bg-canvas">
       <div data-story-pin className="lg:flex lg:h-[100svh] lg:items-center">
         <div className="container-page grid gap-12 py-24 lg:grid-cols-2 lg:items-center lg:py-0">
-          <div aria-hidden className="relative hidden aspect-square lg:block">
-            <div className="absolute inset-[8%] rounded-full border border-ink/10 bg-beige/60" />
-            <div className="absolute inset-[22%] rounded-full border border-ink/8" />
-            {frames.map((frame, index) => (
-              <div key={index} data-story-frame className="absolute inset-0">
-                <ProductArt art={frame.art} view={frame.view} family={frame.family} uid={`story-${index}`} label="" className="h-full w-full" />
+          {/* Each frame paints the stage colour itself: GSAP's blur filter
+              isolates blending, so the photos need their own backdrop. */}
+          <div aria-hidden className="relative hidden aspect-square overflow-hidden rounded-[2.5rem] bg-beige lg:block">
+            {frames.map((src) => (
+              <div key={src} data-story-frame className="absolute inset-0">
+                <ProductVisual
+                  src={src}
+                  alt=""
+                  pendingLabel={dict.common.photoComingSoon}
+                  sizes="45vw"
+                  className="h-full w-full"
+                />
               </div>
             ))}
           </div>
@@ -90,14 +96,13 @@ export function Story() {
               <ol className="space-y-12 lg:space-y-10">
                 {steps.map((step, index) => (
                   <li key={step.title} data-story-step className="reveal-compact">
-                    <div aria-hidden className="mb-6 aspect-[4/3] max-w-sm overflow-hidden rounded-[1.5rem] bg-surface lg:hidden">
-                      <ProductArt
-                        art={frames[index].art}
-                        view={frames[index].view}
-                        family={frames[index].family}
-                        uid={`story-m-${index}`}
-                        label=""
-                        className="h-full w-full"
+                    <div aria-hidden className="mb-6 max-w-sm overflow-hidden rounded-[1.5rem] lg:hidden">
+                      <ProductVisual
+                        src={frames[index]}
+                        alt=""
+                        pendingLabel={dict.common.photoComingSoon}
+                        sizes="(min-width: 640px) 24rem, 100vw"
+                        className="aspect-[4/3]"
                       />
                     </div>
                     <p className="text-step--1 text-gold-deep tabular-nums">{index + 1}</p>

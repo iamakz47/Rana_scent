@@ -7,13 +7,13 @@
     "skipToContent": "Skip to content",
     "sampleNotice": "Preview store: products, prices and stock shown are samples.",
     "sampleBadge": "Sample",
-    "placeholderImage": "Placeholder image",
     "from": "From",
     "kwd": "KWD",
     "close": "Close",
     "viewAll": "View all",
     "learnMore": "Learn more",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "photoComingSoon": "Photo coming soon"
   },
   "nav": {
     "primary": "Main navigation",
@@ -68,7 +68,8 @@
     "featuredTitle": "Featured",
     "featuredBody": "Pieces our customers return to.",
     "collectionsTitle": "Fragrance collections",
-    "collectionsBody": "Five families, each with its own character. Start with the one that feels like home."
+    "collectionsBody": "Five families, each with its own character. Start with the one that feels like home.",
+    "setsImageAlt": "Rana Tower with a 500 ml Aroma Oil refill"
   },
   "spaces": {
     "majlis": "Majlis",

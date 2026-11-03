@@ -29,12 +29,11 @@ export function ProductGallery({ product }: { product: Product }) {
                 className="absolute inset-0"
               >
                 <ProductVisual
-                  image={{ ...image, alt: image.alt[locale] }}
-                  family={product.scentFamily}
-                  uid={`gallery-${product.id}-${index}`}
+                  src={image?.src}
+                  alt={image?.alt[locale] ?? product.name[locale]}
+                  pendingLabel={dict.common.photoComingSoon}
                   sizes="(min-width: 1024px) 55vw, 100vw"
                   priority={index === 0}
-                  placeholderTag={dict.common.placeholderImage}
                   className="h-full w-full"
                 />
               </m.div>
@@ -58,11 +57,10 @@ export function ProductGallery({ product }: { product: Product }) {
             )}
           >
             <ProductVisual
-              image={{ ...thumb, alt: "" }}
-              family={product.scentFamily}
-              uid={`thumb-${product.id}-${thumbIndex}`}
+              src={thumb.src}
+              alt=""
+              pendingLabel={dict.common.photoComingSoon}
               sizes="20vw"
-              decorative
               className="aspect-square"
             />
           </button>

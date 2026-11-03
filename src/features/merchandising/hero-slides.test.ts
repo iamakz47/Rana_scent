@@ -64,10 +64,10 @@ describe("hero slides", () => {
     }
   });
 
-  it("ships three valid demo slides", async () => {
+  it("ships valid demo slides; the accessories slide stays hidden until it has photos", async () => {
     const { settings, slides } = await getHeroSlider();
     expect(settings.autoplayIntervalSeconds).toBe(4);
-    expect(slides.map((s) => s.media.artwork)).toEqual(["diffusers", "refills", "accessories"]);
+    expect(slides.map((s) => s.media.artwork)).toEqual(["diffusers", "refills"]);
   });
 });
 

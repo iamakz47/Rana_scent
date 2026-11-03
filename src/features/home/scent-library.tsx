@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, m } from "motion/react";
-import { ProductArt } from "@/components/brand/product-art";
+import { ProductVisual } from "@/components/brand/product-visual";
 import { ScentField } from "@/components/brand/scent-field";
 import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
 import type { Product } from "@/features/catalog/types";
@@ -13,6 +13,7 @@ import { formatKWD } from "@/lib/money";
 
 type Refill = Pick<Product, "id" | "slug" | "name" | "tagline" | "scentFamily" | "notes"> & {
   priceFils: number;
+  image?: string;
 };
 
 // The refill shelf. Hovering or focusing a refill tints the mist behind the
@@ -89,13 +90,18 @@ export function ScentLibrary({ refills }: { refills: Refill[] }) {
                   data-active={isActive}
                   style={{ borderColor: isActive ? `${color}66` : undefined }}
                 >
-                  <ProductArt
-                    art="cartridge"
-                    family={refill.scentFamily}
-                    uid={`shelf-${refill.id}`}
-                    label={refill.name[locale]}
-                    className="aspect-[3/5]"
-                  />
+                  <div className="relative">
+                    {/* A light stage inside the dark section, so the photo's
+                        white background falls away. */}
+                    <ProductVisual
+                      src={refill.image}
+                      alt={refill.name[locale]}
+                      pendingLabel={dict.common.photoComingSoon}
+                      sizes="(min-width: 1024px) 16vw, 42vw"
+                      className="aspect-[3/4] rounded-[1.1rem] bg-[#efe7db]"
+                    />
+                    <span aria-hidden className="absolute inset-x-4 top-3 h-1 rounded-full" style={{ background: color }} />
+                  </div>
                   <span className="mt-2 block px-1 text-step--1 leading-snug text-ink">{refill.name[locale]}</span>
                   <span className="block px-1 pb-1 text-step--1 text-gold-deep tabular-nums">
                     {formatKWD(refill.priceFils, locale)}

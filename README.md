@@ -54,7 +54,7 @@ src/
     robots.ts, sitemap.ts    Indexing is off until SITE_INDEXING=true
     globals.css              Design tokens and motion primitives
   components/
-    brand/                   Logo slot, ScentField (WebGL mist), ProductArt
+    brand/                   Logo slot, ScentField (WebGL mist), ProductVisual (photos)
     layout/                  Header, mobile nav, footer, page templates
     ui/                      Buttons, icons, price, availability
   features/

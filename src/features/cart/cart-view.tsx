@@ -4,7 +4,6 @@ import Link from "next/link";
 import { AnimatePresence, m } from "motion/react";
 import { ProductVisual } from "@/components/brand/product-visual";
 import { Button, ButtonLink } from "@/components/ui/button";
-import type { ArtKind, ScentFamily } from "@/features/catalog/types";
 import { useI18n } from "@/i18n/client";
 import { localePath } from "@/i18n/config";
 import { formatKWD } from "@/lib/money";
@@ -41,9 +40,9 @@ export function CartView() {
             >
               <Link href={localePath(locale, `/products/${line.productSlug}`)} className="shrink-0">
                 <ProductVisual
-                  image={{ src: line.image, art: line.art as ArtKind, view: "front", alt: line.name[locale] }}
-                  family={line.scentFamily as ScentFamily | undefined}
-                  uid={`cart-${line.variantId}`}
+                  src={line.image}
+                  alt={line.name[locale]}
+                  pendingLabel={dict.common.photoComingSoon}
                   sizes="144px"
                   className="size-28 rounded-2xl bg-beige sm:size-36"
                 />

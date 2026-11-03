@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ProductArt } from "@/components/brand/product-art";
+import { ProductVisual } from "@/components/brand/product-visual";
 import { ButtonLink } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ProductCard } from "@/features/catalog/components/product-card";
@@ -115,6 +115,7 @@ export default async function HomePage() {
           scentFamily: refill.scentFamily,
           notes: refill.notes,
           priceFils: lowestPrice(refill),
+          image: refill.images[0]?.src,
         }))}
       />
 
@@ -147,9 +148,13 @@ export default async function HomePage() {
                 {dict.home.setsCta}
               </ButtonLink>
             </div>
-            <div aria-hidden className="reveal relative aspect-square overflow-hidden rounded-[2.5rem] bg-canvas">
-              <ProductArt art="bundle" family="oud" uid="sets-art" label="" className="h-full w-full" />
-            </div>
+            <ProductVisual
+              src="/images/products/rana-tower.jpg"
+              alt={dict.home.setsImageAlt}
+              pendingLabel={dict.common.photoComingSoon}
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="reveal aspect-square rounded-[2.5rem] bg-canvas"
+            />
           </div>
         </section>
       )}

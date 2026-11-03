@@ -8,7 +8,6 @@ export function toCartLine(product: Product, variant: ProductVariant): Omit<Cart
     name: product.name,
     variantLabel: variant.label,
     unitPriceFils: variant.priceFils,
-    art: product.images[0]?.art ?? "cartridge",
     image: product.images[0]?.src,
     scentFamily: product.scentFamily,
   };

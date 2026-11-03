@@ -6,7 +6,6 @@ import { AnimatePresence, m } from "motion/react";
 import { ProductVisual } from "@/components/brand/product-visual";
 import { Button, ButtonLink, IconButton } from "@/components/ui/button";
 import { CloseIcon } from "@/components/ui/icons";
-import type { ArtKind, ScentFamily } from "@/features/catalog/types";
 import { useI18n } from "@/i18n/client";
 import { localePath } from "@/i18n/config";
 import { format } from "@/i18n/format";
@@ -89,9 +88,9 @@ export function CartDrawer() {
                       className="shrink-0"
                     >
                       <ProductVisual
-                        image={{ src: line.image, art: line.art as ArtKind, view: "front", alt: line.name[locale] }}
-                        family={line.scentFamily as ScentFamily | undefined}
-                        uid={`drawer-${line.variantId}`}
+                        src={line.image}
+                        alt={line.name[locale]}
+                        pendingLabel={dict.common.photoComingSoon}
                         sizes="96px"
                         className="size-24 rounded-xl bg-beige"
                       />

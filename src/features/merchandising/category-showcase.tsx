@@ -35,11 +35,10 @@ export function CategoryShowcase({
               >
                 <div className="relative aspect-square w-24 shrink-0 overflow-hidden rounded-[1.1rem] bg-beige sm:aspect-[4/5] sm:w-full sm:rounded-[1.5rem] lg:aspect-[5/4]">
                   <ProductVisual
-                    image={{ src: category.image.src, art: category.image.art, view: "front", alt: "" }}
-                    family={category.image.family}
-                    uid={`category-${category.slug}`}
+                    src={category.image?.src}
+                    alt=""
+                    pendingLabel={dict.common.photoComingSoon}
                     sizes="(min-width: 640px) 33vw, 96px"
-                    decorative
                     backdrop={
                     <svg
                       aria-hidden

@@ -7,13 +7,13 @@
     "skipToContent": "انتقل إلى المحتوى",
     "sampleNotice": "متجر تجريبي: المنتجات والأسعار والكميات المعروضة نماذج للعرض فقط.",
     "sampleBadge": "نموذج",
-    "placeholderImage": "صورة مؤقتة",
     "from": "ابتداءً من",
     "kwd": "د.ك",
     "close": "إغلاق",
     "viewAll": "عرض الكل",
     "learnMore": "اعرف المزيد",
-    "comingSoon": "قريباً"
+    "comingSoon": "قريباً",
+    "photoComingSoon": "الصورة قريباً"
   },
   "nav": {
     "primary": "القائمة الرئيسية",
@@ -68,7 +68,8 @@
     "featuredTitle": "مختارات",
     "featuredBody": "قطع يعود إليها عملاؤنا دائماً.",
     "collectionsTitle": "مجموعات العطور",
-    "collectionsBody": "خمس عائلات لكل منها شخصيتها. ابدأ بالعائلة التي تشعرك بالبيت."
+    "collectionsBody": "خمس عائلات لكل منها شخصيتها. ابدأ بالعائلة التي تشعرك بالبيت.",
+    "setsImageAlt": "رنا تاور مع عبوة زيت عطري 500 مل"
   },
   "spaces": {
     "majlis": "المجلس",

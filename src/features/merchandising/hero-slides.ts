@@ -39,7 +39,7 @@ export const heroSlideSchema = z.object({
   primaryCta: z.object({ label: localized(32), href: internalPath }),
   secondaryCta: z.object({ label: localized(32), href: internalPath }).optional(),
   media: z.object({
-    // Uploaded banners (Phase 2+). When absent, the drawn artwork shows.
+    // Uploaded banners (Phase 2+). When absent, the named photo composition shows.
     desktop: bannerImage.optional(),
     mobile: bannerImage.optional(),
     artwork: z.enum(slideArtworks).optional(),
@@ -97,13 +97,14 @@ const demoSlides: HeroSlide[] = [
     media: {
       artwork: "refills",
       accent: "oud",
-      alt: { ar: "عبوات عطر رنا سنت (صورة توضيحية)", en: "Rana Scent fragrance refills (illustration)" },
+      alt: { ar: "عبوة زيت عطري من رنا سنت", en: "Rana Scent aroma oil refill" },
     },
   },
   {
     id: "slide-accessories",
     position: 2,
-    enabled: true,
+    // Disabled until Rana Scent supplies accessory photography.
+    enabled: false,
     status: "published",
     theme: "light",
     title: { ar: "لمسات تكمل التجربة", en: "The finishing touches" },
@@ -114,7 +115,7 @@ const demoSlides: HeroSlide[] = [
     primaryCta: { label: { ar: "تسوّق الإكسسوارات", en: "Shop accessories" }, href: "/collections/accessories" },
     media: {
       artwork: "accessories",
-      alt: { ar: "إكسسوارات الفواحات (صورة توضيحية)", en: "Diffuser accessories (illustration)" },
+      alt: { ar: "إكسسوارات الفواحات", en: "Diffuser accessories" },
     },
   },
 ];

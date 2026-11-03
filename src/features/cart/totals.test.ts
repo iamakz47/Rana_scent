@@ -7,7 +7,6 @@ const line = (variantId: string, unitPriceFils: number, quantity: number): CartL
   name: { ar: variantId, en: variantId },
   variantLabel: { ar: "", en: "" },
   unitPriceFils,
-  art: "cartridge",
   quantity,
 });
 

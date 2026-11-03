@@ -18,7 +18,7 @@ export async function HeroSlider({ locale, dict }: { locale: Locale; dict: Dicti
         slides={slides.map((slide, index) => ({
           id: slide.id,
           label: slide.title[locale],
-          content: <HeroSlideContent slide={slide} locale={locale} dict={dict} priority={index === 0} />,
+          content: <HeroSlideContent slide={slide} locale={locale} priority={index === 0} />,
         }))}
       />
     </>

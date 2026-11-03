@@ -10,22 +10,10 @@ export type ScentFamily = (typeof scentFamilies)[number];
 export const spaces = ["majlis", "living", "bedroom", "office", "car"] as const;
 export type Space = (typeof spaces)[number];
 
-// Placeholder artwork until real photography exists. Each "art" kind maps to
-// a drawn illustration in ProductArt; `src` takes over once photos are added.
-export type ArtKind =
-  | "diffuser-tower"
-  | "diffuser-compact"
-  | "diffuser-car"
-  | "cartridge"
-  | "bundle"
-  | "accessory";
-
-// `src` is a real photo (served via next/image); without it the drawn
-// `art` placeholder renders.
+// A real product photo (served via next/image). Products without photos
+// show a neutral "photo coming soon" panel: no drawn stand-ins.
 export type ProductImage = {
-  src?: string;
-  art: ArtKind;
-  view: "front" | "detail" | "context";
+  src: string;
   alt: Localized;
 };
 
@@ -61,13 +49,13 @@ export type Product = {
 };
 
 // Admin-managed in Phase 2 (create, edit, reorder, enable/disable, upload
-// image). `image.src` takes over from the drawn artwork once uploaded.
+// image).
 export type Category = {
   slug: string;
   type: ProductType;
   name: Localized;
   description: Localized;
-  image: { src?: string; art: ArtKind; family?: ScentFamily; alt: Localized };
+  image?: ProductImage;
   position: number;
   enabled: boolean;
   // Shown in the homepage quick-access row.

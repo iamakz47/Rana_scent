@@ -1,18 +1,10 @@
 import type { Localized } from "@/i18n/config";
-import type { ArtKind, Category, Product, ProductImage } from "./types";
+import type { Category, Product, ProductImage } from "./types";
 
 // SAMPLE CATALOG for the visual prototype. Device photos are Rana Scent's
 // own; names, prices, stock and specifications are PROVISIONAL assumptions
 // until Rana Scent supplies the real details. Replaced by Supabase data in
 // Phase 3.
-
-function images(art: ArtKind, name: Localized): ProductImage[] {
-  return [
-    { art, view: "front", alt: { ar: `${name.ar} — صورة توضيحية`, en: `${name.en} — illustration` } },
-    { art, view: "detail", alt: { ar: `${name.ar} — تفاصيل`, en: `${name.en} — detail` } },
-    { art, view: "context", alt: { ar: `${name.ar} — في المكان`, en: `${name.en} — in a room` } },
-  ];
-}
 
 // Real product photography (public/images/products), processed for the web.
 const PHOTO = {
@@ -24,11 +16,9 @@ const PHOTO = {
   aromaOil: "/images/products/aroma-oil-500ml.jpg",
 };
 
-function photos(art: ArtKind, name: Localized, srcs: string[]): ProductImage[] {
+function photos(name: Localized, srcs: string[]): ProductImage[] {
   return srcs.map((src, index) => ({
     src,
-    art,
-    view: "front",
     alt: {
       ar: index === 0 ? name.ar : `${name.ar}: زاوية ${index + 1}`,
       en: index === 0 ? name.en : `${name.en}: view ${index + 1}`,
@@ -49,11 +39,7 @@ export const categories: Category[] = [
       ar: "فواحات تنشر العطر بهدوء في المجلس والبيت والسيارة.",
       en: "Devices that carry fragrance quietly through majlis, home and car.",
     },
-    image: {
-      src: PHOTO.aura,
-      art: "diffuser-tower",
-      alt: { ar: "فواح رنا أورا", en: "Rana Aura diffuser" },
-    },
+    image: { src: PHOTO.aura, alt: { ar: "فواح رنا أورا", en: "Rana Aura diffuser" } },
     position: 0,
     enabled: true,
     showOnHome: true,
@@ -66,12 +52,7 @@ export const categories: Category[] = [
       ar: "عبوات عطرية مصممة لفواحات رنا سنت.",
       en: "Fragrance cartridges made for Rana Scent diffusers.",
     },
-    image: {
-      src: PHOTO.aromaOil,
-      art: "cartridge",
-      family: "oud",
-      alt: { ar: "عبوة زيت عطري 500 مل", en: "500 ml aroma oil refill" },
-    },
+    image: { src: PHOTO.aromaOil, alt: { ar: "عبوة زيت عطري 500 مل", en: "500 ml aroma oil refill" } },
     position: 1,
     enabled: true,
     showOnHome: true,
@@ -84,10 +65,6 @@ export const categories: Category[] = [
       ar: "قطع تكمل تجربة التعطير.",
       en: "Pieces that complete the ritual.",
     },
-    image: {
-      art: "accessory",
-      alt: { ar: "إكسسوار للفواح (صورة توضيحية)", en: "Diffuser accessory (illustration)" },
-    },
     position: 2,
     enabled: true,
     showOnHome: true,
@@ -99,11 +76,6 @@ export const categories: Category[] = [
     description: {
       ar: "فواح وعطور مختارة في مجموعة واحدة.",
       en: "A diffuser and chosen fragrances, together.",
-    },
-    image: {
-      art: "bundle",
-      family: "oud",
-      alt: { ar: "مجموعة (صورة توضيحية)", en: "Set (illustration)" },
     },
     position: 3,
     enabled: true,
@@ -137,7 +109,7 @@ function refill(
     compatibleWith: ALL_DEVICES,
     spaces: ["majlis", "living", "bedroom", "office", "car"],
     // Every scent ships in the same Aroma Oil bottle, so they share a photo.
-    images: photos("cartridge", name, [PHOTO.aromaOil]),
+    images: photos(name, [PHOTO.aromaOil]),
     variants: [
       {
         id: `${id}-200`,
@@ -172,7 +144,7 @@ export const products: Product[] = [
     },
     compatibleWith: [],
     spaces: ["majlis", "living", "office"],
-    images: photos("diffuser-tower", { ar: "رنا تاور", en: "Rana Tower" }, [PHOTO.tower]),
+    images: photos({ ar: "رنا تاور", en: "Rana Tower" }, [PHOTO.tower]),
     variants: [
       {
         id: "dev-tower-bronze",
@@ -205,7 +177,7 @@ export const products: Product[] = [
     },
     compatibleWith: [],
     spaces: ["majlis", "office", "living"],
-    images: photos("diffuser-tower", { ar: "رنا مجلس", en: "Rana Majlis" }, [PHOTO.majlis]),
+    images: photos({ ar: "رنا مجلس", en: "Rana Majlis" }, [PHOTO.majlis]),
     variants: [
       {
         id: "dev-majlis-black",
@@ -238,7 +210,7 @@ export const products: Product[] = [
     },
     compatibleWith: [],
     spaces: ["living", "bedroom", "office"],
-    images: photos("diffuser-compact", { ar: "رنا أورا", en: "Rana Aura" }, [PHOTO.aura, PHOTO.auraSide]),
+    images: photos({ ar: "رنا أورا", en: "Rana Aura" }, [PHOTO.aura, PHOTO.auraSide]),
     variants: [
       {
         id: "dev-aura-champagne",
@@ -271,7 +243,7 @@ export const products: Product[] = [
     },
     compatibleWith: [],
     spaces: ["bedroom", "office"],
-    images: photos("diffuser-compact", { ar: "رنا ميني", en: "Rana Mini" }, [PHOTO.mini]),
+    images: photos({ ar: "رنا ميني", en: "Rana Mini" }, [PHOTO.mini]),
     variants: [
       {
         id: "dev-mini-white",
@@ -305,7 +277,7 @@ export const products: Product[] = [
     },
     compatibleWith: ["vent-mount"],
     spaces: ["car"],
-    images: images("diffuser-car", { ar: "رنا درايف", en: "Rana Drive" }),
+    images: [],
     variants: [
       {
         id: "dev-drive-gold",
@@ -431,7 +403,7 @@ export const products: Product[] = [
     ],
     compatibleWith: [],
     spaces: ["majlis", "living"],
-    images: images("bundle", { ar: "مجموعة المجلس", en: "Majlis Signature Set" }),
+    images: [],
     variants: [
       {
         id: "set-majlis-std",
@@ -465,7 +437,7 @@ export const products: Product[] = [
     ],
     compatibleWith: ALL_DEVICES,
     spaces: ["majlis", "living", "bedroom", "office", "car"],
-    images: images("bundle", { ar: "ثلاثية الاكتشاف", en: "Discovery Trio" }),
+    images: [],
     variants: [
       {
         id: "set-discovery-std",
@@ -494,7 +466,7 @@ export const products: Product[] = [
     },
     compatibleWith: ["rana-drive"],
     spaces: ["car"],
-    images: images("accessory", { ar: "حامل فتحة التكييف", en: "Vent Mount" }),
+    images: [],
     variants: [
       {
         id: "acc-vent-std",
@@ -521,7 +493,7 @@ export const products: Product[] = [
     },
     compatibleWith: [],
     spaces: ["car"],
-    images: images("accessory", { ar: "حقيبة السفر", en: "Travel Case" }),
+    images: [],
     variants: [
       {
         id: "acc-case-std",

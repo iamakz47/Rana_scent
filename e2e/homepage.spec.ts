@@ -6,13 +6,12 @@ const activeSlide = (page: Page) => page.locator('.hero-slide[data-active="true"
 test.describe("hero slider", () => {
   test("autoplays every 4 seconds and loops", async ({ page }) => {
     await page.goto("/en");
-    await expect(page.locator(".hero-slide")).toHaveCount(3);
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 3");
+    await expect(page.locator(".hero-slide")).toHaveCount(2);
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 2");
     // Keep the pointer away from the carousel so hover doesn't pause it.
     await page.mouse.move(5, 5);
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 3", { timeout: 6_000 });
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "3 of 3", { timeout: 6_000 });
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 3", { timeout: 6_000 });
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2", { timeout: 6_000 });
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 2", { timeout: 6_000 });
   });
 
   test("manual navigation: next, previous, dots and keyboard", async ({ page }) => {
@@ -20,38 +19,38 @@ test.describe("hero slider", () => {
     const next = page.getByRole("button", { name: "Next slide" });
     const prev = page.getByRole("button", { name: "Previous slide" });
     await next.click();
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2");
     await prev.click();
     await prev.click();
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "3 of 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2");
     await page.getByRole("button", { name: /Go to slide 1/ }).click();
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 2");
     await next.focus();
     await page.keyboard.press("ArrowRight");
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2");
   });
 
   test("RTL: next follows reading order and arrow keys mirror", async ({ page }) => {
     await page.goto("/ar");
     await page.getByRole("button", { name: "الشريحة التالية" }).click();
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 من 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 من 2");
     await page.keyboard.press("ArrowLeft");
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "3 من 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 من 2");
   });
 
   test("pauses on hover and with the pause button", async ({ page }) => {
     await page.goto("/en");
     await page.locator('[aria-roledescription="carousel"]').hover();
     await page.waitForTimeout(5_000);
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 2");
 
     await page.getByRole("button", { name: "Pause slideshow" }).click();
     await page.mouse.move(5, 5);
     await page.waitForTimeout(5_000);
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 2");
     await page.getByRole("button", { name: "Play slideshow" }).click();
     await page.mouse.move(5, 5);
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 3", { timeout: 6_000 });
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2", { timeout: 6_000 });
   });
 
   test("does not autoplay with reduced motion", async ({ page }) => {
@@ -59,10 +58,10 @@ test.describe("hero slider", () => {
     await page.goto("/en");
     await page.mouse.move(5, 5);
     await page.waitForTimeout(5_000);
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 2");
     await expect(page.getByRole("button", { name: "Pause slideshow" })).toHaveCount(0);
     await page.getByRole("button", { name: "Next slide" }).click();
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 3");
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2");
   });
 
   test("hidden slides are inert and not announced", async ({ page }) => {

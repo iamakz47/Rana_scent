@@ -85,6 +85,6 @@ placeholder until the file is added). Do not redesign the logo.
   them with `mix-blend-multiply` on a stage colour, so the white falls away
   into the warm card. A blended photo's wrapper must paint its own stage
   colour (transforms and masks isolate blending).
-- Without a photo, `ProductArt` draws an illustration tagged "Placeholder image".
+- Without a photo, a neutral "Photo coming soon" panel shows. There are no drawn stand-ins.
 - Every product is flagged `isSample`; device specs are marked provisional
   until Rana Scent confirms them.

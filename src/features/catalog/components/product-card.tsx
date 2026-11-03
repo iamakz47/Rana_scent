@@ -49,9 +49,9 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
         />
         <ViewTransition name={morph ? `product-${product.slug}` : undefined} share="product-morph" default="none">
           <ProductVisual
-            image={{ ...product.images[0], alt: product.images[0].alt[locale] }}
-            family={product.scentFamily}
-            uid={`card-${product.id}`}
+            src={product.images[0]?.src}
+            alt={product.images[0]?.alt[locale] ?? product.name[locale]}
+            pendingLabel={dict.common.photoComingSoon}
             sizes="(min-width: 1536px) 25vw, (min-width: 1024px) 33vw, 50vw"
             className={cn(
               "transition-transform duration-[900ms] ease-[var(--ease-out-expo)] group-hover/card:-translate-y-2 group-hover/card:scale-[1.03] motion-reduce:transform-none",

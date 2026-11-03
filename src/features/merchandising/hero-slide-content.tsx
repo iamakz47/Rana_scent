@@ -1,25 +1,23 @@
 import Image from "next/image";
-import { ProductArt } from "@/components/brand/product-art";
 import { ButtonLink } from "@/components/ui/button";
-import type { Dictionary } from "@/i18n/dictionaries";
 import { localePath, type Locale } from "@/i18n/config";
 import { cn } from "@/lib/cn";
 import type { HeroSlide } from "./hero-slides";
 
-type Props = { slide: HeroSlide; locale: Locale; dict: Dictionary; priority: boolean };
+type Props = { slide: HeroSlide; locale: Locale; priority: boolean };
 
 // One slide: copy on the reading-start side, composition on the end side
 // (stacked on phones). Uploaded banners (desktop + mobile) replace the drawn
 // artwork once the admin adds them.
-export function HeroSlideContent({ slide, locale, dict, priority }: Props) {
+export function HeroSlideContent({ slide, locale, priority }: Props) {
   const dark = slide.theme === "dark";
   const { media } = slide;
-  // The diffusers composition uses real product photos and draws its own arch.
-  const photographic = media.artwork === "diffusers" && !media.desktop && !media.mobile;
+  // Compositions draw their own stage; the plain arch only backs uploaded banners.
+  const composed = Boolean(media.artwork) && !media.desktop && !media.mobile;
 
   return (
     <div className={cn("relative h-full w-full overflow-hidden", dark ? "theme-dark" : "bg-beige")}>
-      {!photographic && <Arch dark={dark} className="absolute bottom-0 end-[-12%] h-[96%] lg:end-[2%]" />}
+      {!composed && <Arch dark={dark} className="absolute bottom-0 end-[-12%] h-[96%] lg:end-[2%]" />}
 
       <div className="container-page relative flex h-full flex-col pb-24 pt-6 sm:pb-28 lg:grid lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-10 lg:py-0">
         <div className="slide-art relative min-h-0 flex-1 lg:order-last lg:h-[78%]">
@@ -47,12 +45,7 @@ export function HeroSlideContent({ slide, locale, dict, priority }: Props) {
               )}
             </>
           ) : (
-            media.artwork && <SlideArtwork kind={media.artwork} id={slide.id} label={media.alt[locale]} />
-          )}
-          {!media.desktop && !media.mobile && !photographic && (
-            <span className="absolute end-0 top-0 rounded-full border border-ink/12 bg-canvas/85 px-2.5 py-1 text-[0.625rem] text-ink-soft">
-              {dict.common.placeholderImage}
-            </span>
+            media.artwork && <SlideArtwork kind={media.artwork} label={media.alt[locale]} />
           )}
         </div>
 
@@ -97,10 +90,9 @@ function Arch({ dark, className }: { dark: boolean; className?: string }) {
   );
 }
 
-// Slide compositions used until a designed banner is uploaded. The diffusers
-// slide composes real product photos; the others are drawn placeholders, each
-// piece in its own positioned frame (ProductArt is itself relative).
-function SlideArtwork({ kind, id, label }: { kind: NonNullable<HeroSlide["media"]["artwork"]>; id: string; label: string }) {
+// Slide compositions built from real product photos, used until a designed
+// banner is uploaded for the slide.
+function SlideArtwork({ kind, label }: { kind: NonNullable<HeroSlide["media"]["artwork"]>; label: string }) {
   if (kind === "diffusers") {
     // One isolated stage painted in the slide colour, so multiply-blended
     // studio photos lose their white background against the arch. The mask
@@ -138,34 +130,23 @@ function SlideArtwork({ kind, id, label }: { kind: NonNullable<HeroSlide["media"
     );
   }
   if (kind === "refills") {
-    const families = ["oud", "musk", "floral", "fresh", "woody"] as const;
-    const heights = ["74%", "88%", "100%", "88%", "74%"];
+    // A light arch panel inside the dark slide: the bottle photo blends into
+    // it, and the panel itself becomes the composition.
     return (
-      <div role="img" aria-label={label} className="absolute inset-x-[4%] inset-y-[8%] flex items-end justify-center gap-[3%]">
-        {families.map((family, index) => (
-          <ProductArt
-            key={family}
-            art="cartridge"
-            family={family}
-            uid={`${id}-${family}`}
-            label=""
-            viewBox="120 96 160 372"
-            halo={false}
-            className="w-[16%]"
-            style={{ height: heights[index] }}
+      <div role="img" aria-label={label} className="absolute inset-0 flex items-end justify-center">
+        <div className="relative isolate h-[94%] w-[min(78%,26rem)] overflow-hidden rounded-t-full bg-[#efe7db]">
+          <Image
+            src="/images/products/aroma-oil-500ml.jpg"
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 26rem, 78vw"
+            className="object-contain object-bottom p-[8%] pt-[18%] mix-blend-multiply"
           />
-        ))}
+        </div>
       </div>
     );
   }
-  return (
-    <div role="img" aria-label={label} className="absolute inset-0">
-      <div className="absolute inset-y-[4%] end-[10%] w-[50%]">
-        <ProductArt art="diffuser-car" uid={`${id}-a`} label="" className="h-full w-full" />
-      </div>
-      <div className="absolute bottom-0 start-0 h-[56%] w-[54%]">
-        <ProductArt art="accessory" uid={`${id}-b`} label="" className="h-full w-full" />
-      </div>
-    </div>
-  );
+  // No real photography for this composition yet: show nothing rather than
+  // a stand-in. (The accessories slide is disabled until photos arrive.)
+  return null;
 }
