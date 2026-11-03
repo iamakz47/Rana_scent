@@ -17,10 +17,10 @@ import { formatKWD } from "@/lib/money";
 
 // Curated pairings for the space finder (sample merchandising).
 const finderPicks: Record<Space, { device: string; refills: [string, string] }> = {
-  majlis: { device: "rana-majlis", refills: ["oud-royale", "cedar-smoke"] },
+  majlis: { device: "rana-tower", refills: ["oud-royale", "cedar-smoke"] },
   living: { device: "rana-aura", refills: ["midnight-musk", "damask-rose"] },
-  bedroom: { device: "rana-aura", refills: ["midnight-musk", "white-jasmine"] },
-  office: { device: "rana-aura", refills: ["sea-salt-vetiver", "cedar-smoke"] },
+  bedroom: { device: "rana-mini", refills: ["midnight-musk", "white-jasmine"] },
+  office: { device: "rana-majlis", refills: ["sea-salt-vetiver", "cedar-smoke"] },
   car: { device: "rana-drive", refills: ["sea-salt-vetiver", "oud-royale"] },
 };
 

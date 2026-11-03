@@ -1,6 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ProductArt } from "@/components/brand/product-art";
+import { ProductVisual } from "@/components/brand/product-visual";
 import { ChevronIcon } from "@/components/ui/icons";
 import type { Category } from "@/features/catalog/types";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -34,33 +33,26 @@ export function CategoryShowcase({
                 href={localePath(locale, `/collections/${category.slug}`)}
                 className="group/cat flex h-full items-center gap-4 rounded-[1.5rem] border border-ink/8 bg-surface p-3 transition-[background-color,border-color,box-shadow,transform] duration-500 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:border-gold/60 hover:bg-beige hover:shadow-[0_24px_50px_-32px_rgba(53,42,36,0.5)] active:translate-y-0 motion-reduce:transform-none sm:flex-col sm:items-stretch sm:gap-0 sm:rounded-[2rem] sm:p-3"
               >
-                <div className="relative aspect-square w-24 shrink-0 overflow-hidden rounded-[1.1rem] bg-beige transition-colors duration-500 group-hover/cat:bg-sand/70 sm:aspect-[4/5] sm:w-full sm:rounded-[1.5rem] lg:aspect-[5/4]">
-                  <svg
-                    aria-hidden
-                    viewBox="0 0 400 500"
-                    className="absolute inset-x-[12%] bottom-0 h-[88%] w-[76%] text-sand"
-                    fill="none"
-                    preserveAspectRatio="none"
-                  >
-                    <path d="M0 500 V200 a200 200 0 0 1 400 0 V500" fill="currentColor" fillOpacity="0.6" />
-                  </svg>
-                  {category.image.src ? (
-                    <Image
-                      src={category.image.src}
-                      alt=""
-                      fill
-                      sizes="(min-width: 640px) 33vw, 96px"
-                      className="object-cover transition-transform duration-700 group-hover/cat:scale-[1.04]"
-                    />
-                  ) : (
-                    <ProductArt
-                      art={category.image.art}
-                      family={category.image.family}
-                      uid={`category-${category.slug}`}
-                      label=""
-                      className="h-full w-full transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover/cat:-translate-y-1.5 group-hover/cat:scale-[1.04] motion-reduce:transform-none"
-                    />
-                  )}
+                <div className="relative aspect-square w-24 shrink-0 overflow-hidden rounded-[1.1rem] bg-beige sm:aspect-[4/5] sm:w-full sm:rounded-[1.5rem] lg:aspect-[5/4]">
+                  <ProductVisual
+                    image={{ src: category.image.src, art: category.image.art, view: "front", alt: "" }}
+                    family={category.image.family}
+                    uid={`category-${category.slug}`}
+                    sizes="(min-width: 640px) 33vw, 96px"
+                    decorative
+                    backdrop={
+                    <svg
+                      aria-hidden
+                      viewBox="0 0 400 500"
+                      className="absolute inset-x-[12%] bottom-0 h-[88%] w-[76%] text-sand"
+                      fill="none"
+                      preserveAspectRatio="none"
+                    >
+                      <path d="M0 500 V200 a200 200 0 0 1 400 0 V500" fill="currentColor" fillOpacity="0.6" />
+                    </svg>
+                    }
+                    className="h-full w-full transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover/cat:-translate-y-1.5 group-hover/cat:scale-[1.04] motion-reduce:transform-none"
+                  />
                 </div>
 
                 <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:px-2 sm:pb-2 sm:pt-5">

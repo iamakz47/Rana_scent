@@ -78,7 +78,13 @@ All motion respects `prefers-reduced-motion` (the slider does not autoplay).
 `src/components/brand/logo.tsx` holds the official logo slot (typographic
 placeholder until the file is added). Do not redesign the logo.
 
-## Placeholder imagery
+## Product imagery
 
-`ProductArt` draws illustrations until photography exists. Product images and
-slides show a "Placeholder image" tag; every product is flagged `isSample`.
+- Real photos live in `public/images/products/` (processed: 1600px, compressed,
+  near-white studio background lifted to pure white). `ProductVisual` renders
+  them with `mix-blend-multiply` on a stage colour, so the white falls away
+  into the warm card. A blended photo's wrapper must paint its own stage
+  colour (transforms and masks isolate blending).
+- Without a photo, `ProductArt` draws an illustration tagged "Placeholder image".
+- Every product is flagged `isSample`; device specs are marked provisional
+  until Rana Scent confirms them.

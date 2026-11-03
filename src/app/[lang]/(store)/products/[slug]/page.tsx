@@ -138,7 +138,21 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                   <h2 id="specs-title" className="font-display text-step-2 text-ink">
                     {dict.product.specs}
                   </h2>
-                  <p className="mt-3 text-ink-soft">{dict.product.specsPending}</p>
+                  {product.specs?.length ? (
+                    <>
+                      <dl className="mt-5 divide-y divide-ink/10 border-y border-ink/10">
+                        {product.specs.map((item) => (
+                          <div key={item.label.en} className="grid grid-cols-[minmax(7rem,40%)_1fr] gap-4 py-3">
+                            <dt className="text-ink-soft">{item.label[locale]}</dt>
+                            <dd className="text-ink">{item.value[locale]}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      <p className="mt-3 text-step--1 text-ink-soft">{dict.product.specsProvisional}</p>
+                    </>
+                  ) : (
+                    <p className="mt-3 text-ink-soft">{dict.product.specsPending}</p>
+                  )}
                 </section>
               )}
 

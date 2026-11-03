@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AnimatePresence, m } from "motion/react";
-import { ProductArt } from "@/components/brand/product-art";
+import { ProductVisual } from "@/components/brand/product-visual";
 import { Button, ButtonLink } from "@/components/ui/button";
 import type { ArtKind, ScentFamily } from "@/features/catalog/types";
 import { useI18n } from "@/i18n/client";
@@ -40,12 +40,12 @@ export function CartView() {
               className="flex gap-4 py-6 sm:gap-6"
             >
               <Link href={localePath(locale, `/products/${line.productSlug}`)} className="shrink-0">
-                <ProductArt
-                  art={line.art as ArtKind}
+                <ProductVisual
+                  image={{ src: line.image, art: line.art as ArtKind, view: "front", alt: line.name[locale] }}
                   family={line.scentFamily as ScentFamily | undefined}
                   uid={`cart-${line.variantId}`}
-                  label={line.name[locale]}
-                  className="size-28 rounded-2xl bg-surface sm:size-36"
+                  sizes="144px"
+                  className="size-28 rounded-2xl bg-beige sm:size-36"
                 />
               </Link>
               <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

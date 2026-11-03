@@ -2,7 +2,7 @@
 
 import { useState, ViewTransition } from "react";
 import { AnimatePresence, m } from "motion/react";
-import { ProductArt } from "@/components/brand/product-art";
+import { ProductVisual } from "@/components/brand/product-visual";
 import { useI18n } from "@/i18n/client";
 import { format } from "@/i18n/format";
 import { cn } from "@/lib/cn";
@@ -15,7 +15,7 @@ export function ProductGallery({ product }: { product: Product }) {
 
   return (
     <div className="space-y-3" aria-label={dict.product.gallery} role="group">
-      <div className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-beige/70">
+      <div className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-beige">
         {/* Only the first image is the shared element morphing from the card. */}
         <ViewTransition name={`product-${product.slug}`} share="product-morph" default="none">
           <div className="relative aspect-[4/5]">
@@ -28,13 +28,13 @@ export function ProductGallery({ product }: { product: Product }) {
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0"
               >
-                <ProductArt
-                  art={image.art}
-                  view={image.view}
+                <ProductVisual
+                  image={{ ...image, alt: image.alt[locale] }}
                   family={product.scentFamily}
                   uid={`gallery-${product.id}-${index}`}
-                  label={image.alt[locale]}
-                  tagLabel={dict.common.placeholderImage}
+                  sizes="(min-width: 1024px) 55vw, 100vw"
+                  priority={index === 0}
+                  placeholderTag={dict.common.placeholderImage}
                   className="h-full w-full"
                 />
               </m.div>
@@ -43,6 +43,7 @@ export function ProductGallery({ product }: { product: Product }) {
         </ViewTransition>
       </div>
 
+      {product.images.length > 1 && (
       <div className="grid grid-cols-3 gap-3">
         {product.images.map((thumb, thumbIndex) => (
           <button
@@ -56,17 +57,18 @@ export function ProductGallery({ product }: { product: Product }) {
               thumbIndex === index ? "border-gold" : "border-ink/10 opacity-60 hover:opacity-100",
             )}
           >
-            <ProductArt
-              art={thumb.art}
-              view={thumb.view}
+            <ProductVisual
+              image={{ ...thumb, alt: "" }}
               family={product.scentFamily}
               uid={`thumb-${product.id}-${thumbIndex}`}
-              label=""
+              sizes="20vw"
+              decorative
               className="aspect-square"
             />
           </button>
         ))}
       </div>
+      )}
     </div>
   );
 }

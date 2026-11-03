@@ -17,6 +17,8 @@ const cartLineSchema = z.object({
   variantLabel: localized,
   unitPriceFils: z.number().int().nonnegative(),
   art: z.string(),
+  // Product photo path for thumbnails; must be a same-site path.
+  image: z.string().regex(/^\/images\//).optional(),
   scentFamily: z.string().optional(),
   quantity: z.number().int().min(1).max(20),
 });

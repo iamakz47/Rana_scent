@@ -79,7 +79,7 @@ const demoSlides: HeroSlide[] = [
     secondaryCta: { label: { ar: "اعثر على فواحك", en: "Find your diffuser" }, href: "/#find-your-diffuser" },
     media: {
       artwork: "diffusers",
-      alt: { ar: "فواحات رنا سنت (صورة توضيحية)", en: "Rana Scent diffusers (illustration)" },
+      alt: { ar: "فواحا رنا تاور ورنا أورا", en: "Rana Tower and Rana Aura diffusers" },
     },
   },
   {

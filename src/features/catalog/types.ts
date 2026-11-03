@@ -20,6 +20,8 @@ export type ArtKind =
   | "bundle"
   | "accessory";
 
+// `src` is a real photo (served via next/image); without it the drawn
+// `art` placeholder renders.
 export type ProductImage = {
   src?: string;
   art: ArtKind;
@@ -46,6 +48,8 @@ export type Product = {
   scentFamily?: ScentFamily;
   notes?: { top: Localized; heart: Localized; base: Localized };
   bundleContents?: Array<{ slug: string; quantity: number }>;
+  // Device specifications. PROVISIONAL until Rana Scent confirms them.
+  specs?: Array<{ label: Localized; value: Localized }>;
   compatibleWith: string[];
   spaces: Space[];
   images: ProductImage[];

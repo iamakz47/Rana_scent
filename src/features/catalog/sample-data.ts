@@ -1,10 +1,10 @@
 import type { Localized } from "@/i18n/config";
 import type { ArtKind, Category, Product, ProductImage } from "./types";
 
-// SAMPLE CATALOG — placeholder products for the visual prototype. Names,
-// prices and stock are illustrative only. Device specifications are
-// deliberately omitted until Rana Scent supplies them. Replaced by Supabase
-// data in Phase 3.
+// SAMPLE CATALOG for the visual prototype. Device photos are Rana Scent's
+// own; names, prices, stock and specifications are PROVISIONAL assumptions
+// until Rana Scent supplies the real details. Replaced by Supabase data in
+// Phase 3.
 
 function images(art: ArtKind, name: Localized): ProductImage[] {
   return [
@@ -14,7 +14,31 @@ function images(art: ArtKind, name: Localized): ProductImage[] {
   ];
 }
 
-const ALL_DEVICES = ["rana-majlis", "rana-aura", "rana-drive"];
+// Real product photography (public/images/products), processed for the web.
+const PHOTO = {
+  mini: "/images/products/rana-mini.jpg",
+  aura: "/images/products/rana-aura.jpg",
+  auraSide: "/images/products/rana-aura-side.jpg",
+  majlis: "/images/products/rana-majlis.jpg",
+  tower: "/images/products/rana-tower.jpg",
+  aromaOil: "/images/products/aroma-oil-500ml.jpg",
+};
+
+function photos(art: ArtKind, name: Localized, srcs: string[]): ProductImage[] {
+  return srcs.map((src, index) => ({
+    src,
+    art,
+    view: "front",
+    alt: {
+      ar: index === 0 ? name.ar : `${name.ar}: زاوية ${index + 1}`,
+      en: index === 0 ? name.en : `${name.en}: view ${index + 1}`,
+    },
+  }));
+}
+
+const spec = (label: Localized, value: Localized) => ({ label, value });
+
+const ALL_DEVICES = ["rana-mini", "rana-aura", "rana-majlis", "rana-tower", "rana-drive"];
 
 export const categories: Category[] = [
   {
@@ -26,8 +50,9 @@ export const categories: Category[] = [
       en: "Devices that carry fragrance quietly through majlis, home and car.",
     },
     image: {
+      src: PHOTO.aura,
       art: "diffuser-tower",
-      alt: { ar: "فواح إلكتروني (صورة توضيحية)", en: "Electronic diffuser (illustration)" },
+      alt: { ar: "فواح رنا أورا", en: "Rana Aura diffuser" },
     },
     position: 0,
     enabled: true,
@@ -42,9 +67,10 @@ export const categories: Category[] = [
       en: "Fragrance cartridges made for Rana Scent diffusers.",
     },
     image: {
+      src: PHOTO.aromaOil,
       art: "cartridge",
       family: "oud",
-      alt: { ar: "عبوة عطر (صورة توضيحية)", en: "Fragrance refill (illustration)" },
+      alt: { ar: "عبوة زيت عطري 500 مل", en: "500 ml aroma oil refill" },
     },
     position: 1,
     enabled: true,
@@ -103,28 +129,28 @@ function refill(
     name,
     tagline,
     description: {
-      ar: `${tagline.ar} عبوة مصممة لتعمل مع أجهزة رنا سنت المنزلية وجهاز السيارة.`,
-      en: `${tagline.en} A cartridge designed for Rana Scent home and car devices.`,
+      ar: `${tagline.ar} زيت عطري مصمم لفواحات رنا سنت.`,
+      en: `${tagline.en} Aroma oil made for Rana Scent diffusers.`,
     },
     scentFamily: family,
     notes,
     compatibleWith: ALL_DEVICES,
     spaces: ["majlis", "living", "bedroom", "office", "car"],
-    images: images("cartridge", name),
+    // Every scent ships in the same Aroma Oil bottle, so they share a photo.
+    images: photos("cartridge", name, [PHOTO.aromaOil]),
     variants: [
       {
-        id: `${id}-single`,
-        sku: `RS-${id.toUpperCase()}-1`,
-        label: { ar: "عبوة واحدة", en: "Single" },
+        id: `${id}-200`,
+        sku: `RS-${id.toUpperCase()}-200`,
+        label: { ar: "200 مل", en: "200 ml" },
         priceFils,
         stock: stock[0],
       },
       {
-        id: `${id}-twin`,
-        sku: `RS-${id.toUpperCase()}-2`,
-        label: { ar: "عبوتان", en: "Twin pack" },
-        priceFils: priceFils * 2 - 1500,
-        compareAtFils: priceFils * 2,
+        id: `${id}-500`,
+        sku: `RS-${id.toUpperCase()}-500`,
+        label: { ar: "500 مل", en: "500 ml" },
+        priceFils: priceFils * 2,
         stock: stock[1],
       },
     ],
@@ -135,36 +161,67 @@ function refill(
 
 export const products: Product[] = [
   {
+    id: "dev-tower",
+    slug: "rana-tower",
+    type: "diffuser",
+    name: { ar: "رنا تاور", en: "Rana Tower" },
+    tagline: { ar: "حضور عطري يملأ المكان.", en: "A presence that fills the room." },
+    description: {
+      ar: "فواح أرضي بتصميم عمودي من الأسود اللامع والبرونز، للمجالس والصالات الواسعة.",
+      en: "A floor-standing tower in gloss black and bronze, for majlis and generous halls.",
+    },
+    compatibleWith: [],
+    spaces: ["majlis", "living", "office"],
+    images: photos("diffuser-tower", { ar: "رنا تاور", en: "Rana Tower" }, [PHOTO.tower]),
+    variants: [
+      {
+        id: "dev-tower-bronze",
+        sku: "RS-DEV-TOWER-BRZ",
+        label: { ar: "أسود وبرونز", en: "Black & bronze" },
+        priceFils: 119000,
+        stock: 4,
+      },
+    ],
+    specs: [
+      spec({ ar: "النوع", en: "Type" }, { ar: "فواح أرضي", en: "Floor-standing diffuser" }),
+      spec({ ar: "التغطية", en: "Coverage" }, { ar: "حتى 1,000 م²", en: "Up to 1,000 m²" }),
+      spec({ ar: "سعة العبوة", en: "Refill" }, { ar: "زيت عطري 500 مل", en: "500 ml aroma oil" }),
+      spec({ ar: "التحكم", en: "Controls" }, { ar: "زر لمس", en: "Touch button" }),
+      spec({ ar: "اللون", en: "Finish" }, { ar: "أسود لامع مع جوانب برونزية", en: "Gloss black with bronze sides" }),
+    ],
+    featured: true,
+    isNew: true,
+    isSample: true,
+  },
+  {
     id: "dev-majlis",
     slug: "rana-majlis",
     type: "diffuser",
     name: { ar: "رنا مجلس", en: "Rana Majlis" },
-    tagline: {
-      ar: "حضور عطري يليق بالمجلس.",
-      en: "A presence worthy of the majlis.",
-    },
+    tagline: { ar: "تحكم كامل بأجواء المجلس.", en: "Complete control of the majlis atmosphere." },
     description: {
-      ar: "جهاز تعطير بتصميم عمودي للمساحات الواسعة واستقبال الضيوف. المواصفات التقنية ستُضاف عند اعتمادها.",
-      en: "A tall diffuser for generous rooms and receiving guests. Technical specifications will be added once confirmed.",
+      ar: "فواح للمساحات الكبيرة بواجهة زجاجية سوداء وشاشة لبرمجة أوقات التعطير.",
+      en: "A large-space diffuser with a black glass face and a display for scheduling.",
     },
     compatibleWith: [],
-    spaces: ["majlis", "living", "office"],
-    images: images("diffuser-tower", { ar: "رنا مجلس", en: "Rana Majlis" }),
+    spaces: ["majlis", "office", "living"],
+    images: photos("diffuser-tower", { ar: "رنا مجلس", en: "Rana Majlis" }, [PHOTO.majlis]),
     variants: [
       {
-        id: "dev-majlis-gold",
-        sku: "RS-DEV-MAJLIS-GLD",
-        label: { ar: "ذهبي", en: "Gold" },
-        priceFils: 129000,
-        stock: 12,
+        id: "dev-majlis-black",
+        sku: "RS-DEV-MAJLIS-BLK",
+        label: { ar: "أسود", en: "Black" },
+        priceFils: 79000,
+        stock: 9,
       },
-      {
-        id: "dev-majlis-onyx",
-        sku: "RS-DEV-MAJLIS-ONX",
-        label: { ar: "أسود عقيقي", en: "Onyx" },
-        priceFils: 129000,
-        stock: 3,
-      },
+    ],
+    specs: [
+      spec({ ar: "النوع", en: "Type" }, { ar: "فواح للمساحات الكبيرة", en: "Large-space diffuser" }),
+      spec({ ar: "التغطية", en: "Coverage" }, { ar: "حتى 500 م²", en: "Up to 500 m²" }),
+      spec({ ar: "الشاشة", en: "Display" }, { ar: "شاشة LCD ومؤقت قابل للبرمجة", en: "LCD with programmable timer" }),
+      spec({ ar: "سعة العبوة", en: "Refill" }, { ar: "500 مل", en: "500 ml" }),
+      spec({ ar: "التركيب", en: "Installation" }, { ar: "قائم أو معلّق على الجدار", en: "Freestanding or wall-mounted" }),
+      spec({ ar: "اللون", en: "Finish" }, { ar: "زجاج أسود", en: "Black glass" }),
     ],
     featured: true,
     isSample: true,
@@ -174,33 +231,63 @@ export const products: Product[] = [
     slug: "rana-aura",
     type: "diffuser",
     name: { ar: "رنا أورا", en: "Rana Aura" },
-    tagline: {
-      ar: "هدوء العطر في كل غرفة.",
-      en: "Quiet fragrance, room by room.",
-    },
+    tagline: { ar: "ذكاء العطر في كل غرفة.", en: "Smart fragrance, room by room." },
     description: {
-      ar: "جهاز تعطير مدمج لغرف المعيشة والنوم والمكاتب. المواصفات التقنية ستُضاف عند اعتمادها.",
-      en: "A compact diffuser for living rooms, bedrooms and studies. Technical specifications will be added once confirmed.",
+      ar: "فواح يُركّب في مقبس الكهرباء بلوحة لمس لضبط شدة العطر وأوضاع النهار والليل.",
+      en: "A plug-in diffuser with a touch panel for intensity and day and night modes.",
     },
     compatibleWith: [],
     spaces: ["living", "bedroom", "office"],
-    images: images("diffuser-compact", { ar: "رنا أورا", en: "Rana Aura" }),
+    images: photos("diffuser-compact", { ar: "رنا أورا", en: "Rana Aura" }, [PHOTO.aura, PHOTO.auraSide]),
     variants: [
       {
-        id: "dev-aura-pearl",
-        sku: "RS-DEV-AURA-PRL",
-        label: { ar: "لؤلؤي", en: "Pearl" },
-        priceFils: 69000,
-        stock: 24,
+        id: "dev-aura-champagne",
+        sku: "RS-DEV-AURA-CHP",
+        label: { ar: "شامبين", en: "Champagne" },
+        priceFils: 29000,
+        stock: 18,
       },
+    ],
+    specs: [
+      spec({ ar: "النوع", en: "Type" }, { ar: "فواح ذكي يُركّب في المقبس", en: "Smart plug-in diffuser" }),
+      spec({ ar: "التغطية", en: "Coverage" }, { ar: "حتى 120 م²", en: "Up to 120 m²" }),
+      spec({ ar: "التحكم", en: "Controls" }, { ar: "لوحة لمس وأربع درجات شدة", en: "Touch panel, 4 intensity levels" }),
+      spec({ ar: "الأوضاع", en: "Modes" }, { ar: "نهار وليل، وتحكم عبر التطبيق", en: "Day and night, app control" }),
+      spec({ ar: "القابس", en: "Plug" }, { ar: "قابس بريطاني ثلاثي", en: "UK 3-pin (Type G)" }),
+      spec({ ar: "سعة العبوة", en: "Refill" }, { ar: "150 مل", en: "150 ml" }),
+    ],
+    featured: true,
+    isSample: true,
+  },
+  {
+    id: "dev-mini",
+    slug: "rana-mini",
+    type: "diffuser",
+    name: { ar: "رنا ميني", en: "Rana Mini" },
+    tagline: { ar: "عطر هادئ للمساحات الصغيرة.", en: "Quiet fragrance for smaller spaces." },
+    description: {
+      ar: "فواح أبيض صغير يُركّب مباشرة في مقبس الكهرباء، لغرف النوم والمكاتب.",
+      en: "A compact white diffuser that plugs straight into the wall, for bedrooms and studies.",
+    },
+    compatibleWith: [],
+    spaces: ["bedroom", "office"],
+    images: photos("diffuser-compact", { ar: "رنا ميني", en: "Rana Mini" }, [PHOTO.mini]),
+    variants: [
       {
-        id: "dev-aura-navy",
-        sku: "RS-DEV-AURA-NVY",
-        label: { ar: "كحلي", en: "Navy" },
-        priceFils: 69000,
-        compareAtFils: 79000,
-        stock: 9,
+        id: "dev-mini-white",
+        sku: "RS-DEV-MINI-WHT",
+        label: { ar: "أبيض", en: "White" },
+        priceFils: 15000,
+        stock: 30,
       },
+    ],
+    specs: [
+      spec({ ar: "النوع", en: "Type" }, { ar: "فواح يُركّب في المقبس", en: "Plug-in diffuser" }),
+      spec({ ar: "التغطية", en: "Coverage" }, { ar: "حتى 40 م²", en: "Up to 40 m²" }),
+      spec({ ar: "الشدة", en: "Intensity" }, { ar: "قابلة للتعديل", en: "Adjustable" }),
+      spec({ ar: "القابس", en: "Plug" }, { ar: "قابس بريطاني ثلاثي", en: "UK 3-pin (Type G)" }),
+      spec({ ar: "سعة العبوة", en: "Refill" }, { ar: "100 مل", en: "100 ml" }),
+      spec({ ar: "اللون", en: "Finish" }, { ar: "أبيض لامع", en: "Gloss white" }),
     ],
     featured: true,
     isNew: true,
@@ -211,13 +298,10 @@ export const products: Product[] = [
     slug: "rana-drive",
     type: "diffuser",
     name: { ar: "رنا درايف", en: "Rana Drive" },
-    tagline: {
-      ar: "عطرك يرافقك في الطريق.",
-      en: "Your signature, on the road.",
-    },
+    tagline: { ar: "عطرك يرافقك في الطريق.", en: "Your signature, on the road." },
     description: {
-      ar: "جهاز تعطير للسيارة بتصميم أنيق. المواصفات التقنية ستُضاف عند اعتمادها.",
-      en: "An elegant diffuser for the car. Technical specifications will be added once confirmed.",
+      ar: "فواح للسيارة بتصميم أنيق. الصور والمواصفات ستُضاف عند اعتمادها.",
+      en: "An elegant diffuser for the car. Photos and specifications will be added once confirmed.",
     },
     compatibleWith: ["vent-mount"],
     spaces: ["car"],
@@ -238,7 +322,6 @@ export const products: Product[] = [
         stock: 15,
       },
     ],
-    featured: true,
     isSample: true,
   },
   refill(
@@ -269,7 +352,7 @@ export const products: Product[] = [
     },
     11500,
     [32, 4],
-    { isNew: true, featured: true },
+    { isNew: true },
   ),
   refill(
     "white-jasmine",

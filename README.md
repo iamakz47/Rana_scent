@@ -3,9 +3,10 @@
 E-commerce website for scent diffusers and fragrance cartridges, in Arabic
 (RTL, default) and English (LTR), priced in Kuwaiti dinar.
 
-> **Status: visual prototype (Phases 0–1).** Products, prices and stock are
-> sample data, product images are drawn placeholders, and checkout is not yet
-> connected. The official logo slot is in `src/components/brand/logo.tsx`.
+> **Status: visual prototype (Phases 0–1).** Diffuser photos are Rana Scent's
+> own; names, prices, stock and specifications are provisional until confirmed.
+> Checkout is not yet connected. The official logo slot is in
+> `src/components/brand/logo.tsx`.
 
 ## Stack
 

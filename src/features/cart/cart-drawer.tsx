@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { AnimatePresence, m } from "motion/react";
-import { ProductArt } from "@/components/brand/product-art";
+import { ProductVisual } from "@/components/brand/product-visual";
 import { Button, ButtonLink, IconButton } from "@/components/ui/button";
 import { CloseIcon } from "@/components/ui/icons";
 import type { ArtKind, ScentFamily } from "@/features/catalog/types";
@@ -88,12 +88,12 @@ export function CartDrawer() {
                       onClick={close}
                       className="shrink-0"
                     >
-                      <ProductArt
-                        art={line.art as ArtKind}
+                      <ProductVisual
+                        image={{ src: line.image, art: line.art as ArtKind, view: "front", alt: line.name[locale] }}
                         family={line.scentFamily as ScentFamily | undefined}
                         uid={`drawer-${line.variantId}`}
-                        label={line.name[locale]}
-                        className="size-24 rounded-xl bg-canvas"
+                        sizes="96px"
+                        className="size-24 rounded-xl bg-beige"
                       />
                     </Link>
                     <div className="flex min-w-0 flex-1 flex-col">

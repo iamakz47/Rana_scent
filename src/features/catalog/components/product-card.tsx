@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
-import { ProductArt } from "@/components/brand/product-art";
+import { ProductVisual } from "@/components/brand/product-visual";
 import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
 import { Availability } from "@/components/ui/availability";
 import { Price } from "@/components/ui/price";
@@ -40,7 +40,7 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
         transitionTypes={["nav-forward"]}
         tabIndex={-1}
         aria-hidden
-        className="relative block overflow-hidden rounded-[1.75rem] border border-ink/10 bg-beige/70 transition-[border-color,box-shadow] duration-700 ease-[var(--ease-out-expo)] group-hover/card:border-[color-mix(in_oklab,var(--accent)_45%,transparent)] group-hover/card:shadow-[0_28px_60px_-34px_rgba(53,42,36,0.45)]"
+        className="relative block overflow-hidden rounded-[1.75rem] border border-ink/10 bg-beige transition-[border-color,box-shadow] duration-700 ease-[var(--ease-out-expo)] group-hover/card:border-[color-mix(in_oklab,var(--accent)_45%,transparent)] group-hover/card:shadow-[0_28px_60px_-34px_rgba(53,42,36,0.45)]"
       >
         <span
           aria-hidden
@@ -48,11 +48,11 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
           style={{ background: "radial-gradient(70% 55% at 50% 45%, color-mix(in oklab, var(--accent) 28%, transparent), transparent 70%)" }}
         />
         <ViewTransition name={morph ? `product-${product.slug}` : undefined} share="product-morph" default="none">
-          <ProductArt
-            art={product.images[0].art}
+          <ProductVisual
+            image={{ ...product.images[0], alt: product.images[0].alt[locale] }}
             family={product.scentFamily}
             uid={`card-${product.id}`}
-            label={product.images[0].alt[locale]}
+            sizes="(min-width: 1536px) 25vw, (min-width: 1024px) 33vw, 50vw"
             className={cn(
               "transition-transform duration-[900ms] ease-[var(--ease-out-expo)] group-hover/card:-translate-y-2 group-hover/card:scale-[1.03] motion-reduce:transform-none",
               size === "feature" ? "aspect-[4/5] lg:aspect-[5/6]" : "aspect-[4/5]",

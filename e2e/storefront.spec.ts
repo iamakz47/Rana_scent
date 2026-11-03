@@ -46,22 +46,22 @@ test.describe("routing", () => {
 test.describe("cart", () => {
   test("adds a variant, updates quantity and persists across reloads", async ({ page }) => {
     await page.goto("/en/products/oud-royale");
-    await page.getByText("Twin pack").click();
+    await page.getByText("500 ml", { exact: true }).click();
     await page.getByRole("button", { name: "Add to cart", exact: true }).click();
 
     const drawer = page.getByRole("dialog", { name: /Your cart/ });
     await expect(drawer).toBeVisible();
     await expect(drawer.getByText("Oud Royale")).toBeVisible();
-    await expect(drawer.getByText("Twin pack")).toBeVisible();
-    await expect(drawer.getByText("KWD 27.500").first()).toBeVisible();
+    await expect(drawer.getByText("500 ml")).toBeVisible();
+    await expect(drawer.getByText("KWD 29.000").first()).toBeVisible();
 
     await drawer.getByRole("button", { name: "Increase quantity" }).click();
-    await expect(drawer.getByText("KWD 55.000").first()).toBeVisible();
+    await expect(drawer.getByText("KWD 58.000").first()).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(drawer).toBeHidden();
 
     await page.goto("/en/cart");
-    await expect(page.getByText("KWD 55.000").first()).toBeVisible();
+    await expect(page.getByText("KWD 58.000").first()).toBeVisible();
     await page.getByRole("button", { name: "Remove" }).click();
     await expect(page.locator("#main").getByText("Your cart is empty")).toBeVisible();
   });
