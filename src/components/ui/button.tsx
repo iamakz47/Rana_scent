@@ -2,16 +2,17 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-type Variant = "gold" | "outline" | "ghost";
+type Variant = "primary" | "outline" | "ghost";
 type Size = "md" | "lg";
 
 const base =
   "group/btn relative inline-flex select-none items-center justify-center gap-2 overflow-hidden rounded-full font-medium tracking-wide transition-[transform,background-color,border-color,color,box-shadow] duration-300 ease-[var(--ease-out-expo)] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45";
 
 const variants: Record<Variant, string> = {
-  gold: "bg-gold text-navy-950 shadow-[0_8px_30px_-12px_rgba(213,180,106,0.7)] hover:shadow-[0_12px_40px_-10px_rgba(213,180,106,0.9)]",
-  outline: "border border-gold-400/50 text-gold-200 hover:border-gold-300 hover:bg-gold-400/10",
-  ghost: "text-ivory/80 hover:bg-white/5 hover:text-ivory",
+  primary:
+    "bg-ink text-canvas shadow-[0_10px_30px_-14px_rgba(53,42,36,0.55)] hover:bg-espresso hover:shadow-[0_14px_36px_-14px_rgba(53,42,36,0.7)]",
+  outline: "border border-ink/25 text-ink hover:border-gold hover:bg-gold/10",
+  ghost: "text-ink hover:bg-ink/5",
 };
 
 const sizes: Record<Size, string> = {
@@ -19,13 +20,13 @@ const sizes: Record<Size, string> = {
   lg: "min-h-13 px-7 text-step-0",
 };
 
-// The gold variant carries a light sweep on hover, like light on metal.
+// The primary button carries a gold light sweep on hover, like light on metal.
 function Sheen({ variant }: { variant: Variant }) {
-  if (variant !== "gold") return null;
+  if (variant !== "primary") return null;
   return (
     <span
       aria-hidden
-      className="pointer-events-none absolute inset-y-0 -start-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/45 to-transparent transition-[inset-inline-start] duration-700 ease-[var(--ease-out-expo)] group-hover/btn:start-[150%] motion-reduce:hidden"
+      className="pointer-events-none absolute inset-y-0 -start-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-gold-light/40 to-transparent transition-[inset-inline-start] duration-700 ease-[var(--ease-out-expo)] group-hover/btn:start-[150%] motion-reduce:hidden"
     />
   );
 }
@@ -33,7 +34,7 @@ function Sheen({ variant }: { variant: Variant }) {
 type Common = { variant?: Variant; size?: Size; children: ReactNode; className?: string };
 
 export function Button({
-  variant = "gold",
+  variant = "primary",
   size = "md",
   className,
   children,
@@ -48,7 +49,7 @@ export function Button({
 }
 
 export function ButtonLink({
-  variant = "gold",
+  variant = "primary",
   size = "md",
   className,
   children,
@@ -72,7 +73,7 @@ export function IconButton({
     <button
       aria-label={label}
       className={cn(
-        "relative inline-flex size-11 items-center justify-center rounded-full text-ivory/85 transition-colors duration-300 hover:bg-white/8 hover:text-gold-200",
+        "relative inline-flex size-11 items-center justify-center rounded-full text-ink transition-colors duration-300 hover:bg-ink/5 hover:text-gold-deep",
         className,
       )}
       {...props}

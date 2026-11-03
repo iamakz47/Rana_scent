@@ -19,9 +19,9 @@ export function ProductGrid({
 }) {
   if (products.length === 0) {
     return (
-      <div className="rounded-[2rem] border border-dashed border-gold-400/25 px-6 py-20 text-center">
-        <p className="font-display text-step-3 text-ivory">{dict.shop.emptyTitle}</p>
-        <p className="mx-auto mt-3 max-w-md text-ivory/60">{dict.shop.emptyBody}</p>
+      <div className="rounded-[2rem] border border-dashed border-gold/50 px-6 py-20 text-center">
+        <p className="font-display text-step-3 text-ink">{dict.shop.emptyTitle}</p>
+        <p className="mx-auto mt-3 max-w-md text-ink-soft">{dict.shop.emptyBody}</p>
         <ButtonLink href={localePath(locale, "/shop")} variant="outline" className="mt-8">
           {dict.shop.clear}
         </ButtonLink>
@@ -32,7 +32,7 @@ export function ProductGrid({
   return (
     <div>
       {showCount && (
-        <p className="mb-6 text-step--1 text-ivory/55" aria-live="polite">
+        <p className="mb-6 text-step--1 text-ink-soft" aria-live="polite">
           {products.length === 1 ? dict.shop.resultsOne : format(dict.shop.results, { count: products.length })}
         </p>
       )}

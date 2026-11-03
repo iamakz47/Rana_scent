@@ -48,11 +48,11 @@ export function CartDrawer() {
       aria-labelledby="cart-drawer-title"
       className="drawer"
     >
-      <div className="flex h-full flex-col border-s border-gold-400/15 bg-navy-900 shadow-2xl">
+      <div className="flex h-full flex-col border-s border-ink/10 bg-surface shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 sm:px-7">
           <h2 id="cart-drawer-title" className="font-display text-step-2">
             {dict.cart.title}
-            <span className="ms-3 align-middle text-step--1 text-ivory/50 tabular-nums">
+            <span className="ms-3 align-middle text-step--1 text-ink-soft tabular-nums">
               {count === 1 ? dict.cart.itemCountOne : format(dict.cart.itemCount, { count })}
             </span>
           </h2>
@@ -64,7 +64,7 @@ export function CartDrawer() {
         {lines.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
             <p className="font-display text-step-3">{dict.cart.empty}</p>
-            <p className="text-ivory/60">{dict.cart.emptyBody}</p>
+            <p className="text-ink-soft">{dict.cart.emptyBody}</p>
             <ButtonLink href={localePath(locale, "/shop")} variant="outline" onClick={close} className="mt-2">
               {dict.cart.startShopping}
             </ButtonLink>
@@ -81,7 +81,7 @@ export function CartDrawer() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: locale === "ar" ? -40 : 40, transition: { duration: 0.25 } }}
                     transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex gap-4 rounded-2xl border border-white/6 bg-navy-800/50 p-3"
+                    className="flex gap-4 rounded-2xl border border-ink/10 bg-beige/60 p-3"
                   >
                     <Link
                       href={localePath(locale, `/products/${line.productSlug}`)}
@@ -93,16 +93,16 @@ export function CartDrawer() {
                         family={line.scentFamily as ScentFamily | undefined}
                         uid={`drawer-${line.variantId}`}
                         label={line.name[locale]}
-                        className="size-24 rounded-xl bg-navy-950"
+                        className="size-24 rounded-xl bg-canvas"
                       />
                     </Link>
                     <div className="flex min-w-0 flex-1 flex-col">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="truncate font-medium">{line.name[locale]}</p>
-                          <p className="text-step--1 text-ivory/55">{line.variantLabel[locale]}</p>
+                          <p className="text-step--1 text-ink-soft">{line.variantLabel[locale]}</p>
                         </div>
-                        <p className="shrink-0 text-step--1 text-gold-200 tabular-nums">
+                        <p className="shrink-0 text-step--1 text-gold-deep tabular-nums">
                           {formatKWD(line.unitPriceFils * line.quantity, locale)}
                         </p>
                       </div>
@@ -116,7 +116,7 @@ export function CartDrawer() {
                         <button
                           type="button"
                           onClick={() => removeLine(line.variantId)}
-                          className="min-h-11 px-2 text-step--1 text-ivory/50 underline-offset-4 transition-colors hover:text-ivory hover:underline"
+                          className="min-h-11 px-2 text-step--1 text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
                         >
                           {dict.cart.remove}
                         </button>
@@ -127,12 +127,12 @@ export function CartDrawer() {
               </AnimatePresence>
             </ul>
 
-            <div className="space-y-4 border-t border-gold-400/15 px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-7">
+            <div className="space-y-4 border-t border-ink/10 px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-7">
               <div className="flex items-baseline justify-between">
-                <span className="text-ivory/70">{dict.cart.subtotal}</span>
-                <span className="text-step-2 text-gold-200 tabular-nums">{formatKWD(subtotalFils, locale)}</span>
+                <span className="text-ink-soft">{dict.cart.subtotal}</span>
+                <span className="text-step-2 text-gold-deep tabular-nums">{formatKWD(subtotalFils, locale)}</span>
               </div>
-              <p className="text-step--1 text-ivory/50">{dict.cart.taxesNote}</p>
+              <p className="text-step--1 text-ink-soft">{dict.cart.taxesNote}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 <ButtonLink href={localePath(locale, "/cart")} variant="outline" onClick={close}>
                   {dict.cart.viewCart}

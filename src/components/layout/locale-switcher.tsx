@@ -6,7 +6,11 @@ import { useI18n } from "@/i18n/client";
 import { localeCookie, locales } from "@/i18n/config";
 import { cn } from "@/lib/cn";
 
-export function LocaleSwitcher({ className }: { className?: string }) {
+const shortLabel = { ar: "ع", en: "EN" } as const;
+
+// Links to the same page in the other language. `compact` shows a short
+// label on small screens so the switcher always fits in the header.
+export function LocaleSwitcher({ className, compact }: { className?: string; compact?: boolean }) {
   const { locale, dict } = useI18n();
   const pathname = usePathname();
 
@@ -26,9 +30,18 @@ export function LocaleSwitcher({ className }: { className?: string }) {
             onClick={() => {
               document.cookie = `${localeCookie}=${target}; path=/; max-age=31536000; samesite=lax`;
             }}
-            className="inline-flex min-h-11 items-center rounded-full px-3 text-step--1 text-ivory/80 transition-colors hover:bg-white/8 hover:text-gold-200"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-ink/12 px-3 text-step--1 text-ink transition-colors hover:border-gold hover:text-gold-deep"
           >
-            {dict.localeSwitcher[target]}
+            {compact ? (
+              <>
+                <span className="sm:hidden" aria-hidden>
+                  {shortLabel[target]}
+                </span>
+                <span className="sr-only sm:not-sr-only">{dict.localeSwitcher[target]}</span>
+              </>
+            ) : (
+              dict.localeSwitcher[target]
+            )}
           </Link>
         ))}
     </nav>

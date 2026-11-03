@@ -62,12 +62,12 @@ export function Story() {
   );
 
   return (
-    <section ref={root} aria-labelledby="story-title" className="relative bg-navy-950">
+    <section ref={root} aria-labelledby="story-title" className="relative bg-canvas">
       <div data-story-pin className="lg:flex lg:h-[100svh] lg:items-center">
         <div className="container-page grid gap-12 py-24 lg:grid-cols-2 lg:items-center lg:py-0">
           <div aria-hidden className="relative hidden aspect-square lg:block">
-            <div className="absolute inset-[8%] rounded-full border border-gold-400/15" />
-            <div className="absolute inset-[22%] rounded-full border border-gold-400/10" />
+            <div className="absolute inset-[8%] rounded-full border border-ink/10 bg-beige/60" />
+            <div className="absolute inset-[22%] rounded-full border border-ink/8" />
             {frames.map((frame, index) => (
               <div key={index} data-story-frame className="absolute inset-0">
                 <ProductArt art={frame.art} view={frame.view} family={frame.family} uid={`story-${index}`} label="" className="h-full w-full" />
@@ -76,21 +76,21 @@ export function Story() {
           </div>
 
           <div className="relative">
-            <h2 id="story-title" className="reveal font-display text-step-5 leading-[1] text-ivory">
+            <h2 id="story-title" className="reveal font-display text-step-5 leading-[1] text-ink">
               {dict.home.storyTitle}
             </h2>
             <div className="relative mt-12 ps-8">
-              <span aria-hidden className="absolute inset-y-1 start-0 w-px bg-white/10" />
+              <span aria-hidden className="absolute inset-y-1 start-0 w-px bg-ink/8" />
               <span
                 aria-hidden
                 data-story-progress
-                className="absolute inset-y-1 start-0 hidden w-px origin-top bg-gold-300 lg:block"
+                className="absolute inset-y-1 start-0 hidden w-px origin-top bg-gold lg:block"
                 style={{ transform: "scaleY(0)" }}
               />
               <ol className="space-y-12 lg:space-y-10">
                 {steps.map((step, index) => (
                   <li key={step.title} data-story-step className="reveal-compact">
-                    <div aria-hidden className="mb-6 aspect-[4/3] max-w-sm overflow-hidden rounded-[1.5rem] bg-navy-900 lg:hidden">
+                    <div aria-hidden className="mb-6 aspect-[4/3] max-w-sm overflow-hidden rounded-[1.5rem] bg-surface lg:hidden">
                       <ProductArt
                         art={frames[index].art}
                         view={frames[index].view}
@@ -100,9 +100,9 @@ export function Story() {
                         className="h-full w-full"
                       />
                     </div>
-                    <p className="text-step--1 text-gold-300 tabular-nums">{index + 1}</p>
-                    <h3 className="mt-1 font-display text-step-3 text-ivory">{step.title}</h3>
-                    <p className="mt-2 max-w-md text-step-1 text-ivory/65">{step.body}</p>
+                    <p className="text-step--1 text-gold-deep tabular-nums">{index + 1}</p>
+                    <h3 className="mt-1 font-display text-step-3 text-ink">{step.title}</h3>
+                    <p className="mt-2 max-w-md text-step-1 text-ink-soft">{step.body}</p>
                   </li>
                 ))}
               </ol>

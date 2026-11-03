@@ -19,12 +19,12 @@ export function Availability({ stock, labels, className }: { stock: number; labe
         aria-hidden
         className={cn(
           "size-1.5 rounded-full",
-          status === "in_stock" && "bg-emerald-300 shadow-[0_0_10px] shadow-emerald-300/70",
-          status === "low_stock" && "bg-gold-300 shadow-[0_0_10px] shadow-gold-300/70",
-          status === "out_of_stock" && "bg-ivory/30",
+          status === "in_stock" && "bg-emerald-600 shadow-[0_0_10px] shadow-emerald-600/40",
+          status === "low_stock" && "bg-gold shadow-[0_0_10px] shadow-gold/60",
+          status === "out_of_stock" && "bg-taupe",
         )}
       />
-      <span className={status === "out_of_stock" ? "text-ivory/50" : "text-ivory/80"}>{text}</span>
+      <span className={status === "out_of_stock" ? "text-ink-soft" : "text-ink"}>{text}</span>
     </span>
   );
 }

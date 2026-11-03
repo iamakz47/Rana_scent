@@ -14,13 +14,17 @@ export function SpaceFinder({ spaces, panels }: { spaces: Space[]; panels: Recor
   const groupId = useId();
 
   return (
-    <section aria-labelledby={`${groupId}-title`} className="relative bg-navy-900 py-24 lg:py-32">
+    <section
+      id="find-your-diffuser"
+      aria-labelledby={`${groupId}-title`}
+      className="relative scroll-mt-24 bg-surface py-24 lg:py-32"
+    >
       <div className="container-page">
         <div className="reveal max-w-2xl">
-          <h2 id={`${groupId}-title`} className="font-display text-step-5 leading-[1] text-ivory">
+          <h2 id={`${groupId}-title`} className="font-display text-step-5 leading-[1] text-ink">
             {dict.home.finderTitle}
           </h2>
-          <p className="mt-5 text-step-1 text-ivory/65">{dict.home.finderBody}</p>
+          <p className="mt-5 text-step-1 text-ink-soft">{dict.home.finderBody}</p>
         </div>
 
         <div
@@ -54,8 +58,8 @@ export function SpaceFinder({ spaces, panels }: { spaces: Space[]; panels: Recor
                 className={cn(
                   "relative min-h-11 shrink-0 rounded-full border px-5 text-step--1 transition-colors duration-300",
                   checked
-                    ? "border-gold-300 text-navy-950"
-                    : "border-white/12 text-ivory/75 hover:border-gold-400/50 hover:text-ivory",
+                    ? "border-gold text-ink"
+                    : "border-ink/12 text-ink-soft hover:border-gold/50 hover:text-ink",
                 )}
               >
                 {checked && (

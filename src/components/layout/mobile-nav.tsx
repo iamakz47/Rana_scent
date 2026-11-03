@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { m } from "motion/react";
 import { Logo } from "@/components/brand/logo";
-import { CloseIcon } from "@/components/ui/icons";
+import { CloseIcon, HeartIcon, SearchIcon } from "@/components/ui/icons";
 import { IconButton } from "@/components/ui/button";
 import { useI18n } from "@/i18n/client";
 import { localePath } from "@/i18n/config";
@@ -45,21 +45,17 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
       ref={ref}
       onClose={onClose}
       aria-label={dict.nav.primary}
-      className="sheet m-0 h-dvh max-h-none w-screen max-w-none bg-navy-950 p-0 text-ivory"
+      className="sheet m-0 h-dvh max-h-none w-screen max-w-none bg-canvas p-0 text-ink"
     >
       <div className="grain relative flex h-full flex-col overflow-y-auto">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_50%_at_85%_100%,color-mix(in_oklab,var(--color-gold-500)_22%,transparent),transparent_70%)]"
-        />
-        <div className="container-page relative flex h-[4.5rem] items-center justify-between">
+        <div className="container-page relative flex h-16 items-center justify-between border-b border-ink/10">
           <Logo label={dict.meta.title} className="text-[0.95rem]" />
           <IconButton label={dict.nav.closeMenu} onClick={onClose} autoFocus>
             <CloseIcon />
           </IconButton>
         </div>
 
-        <nav className="container-page relative flex flex-1 flex-col justify-center py-10">
+        <nav className="container-page relative flex flex-1 flex-col justify-center py-8">
           <ul className="space-y-1">
             {open &&
               links.map((link, index) => (
@@ -72,18 +68,32 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
                   <Link
                     href={link.href}
                     aria-current={pathname === link.href ? "page" : undefined}
-                    className="block py-2 font-display text-step-4 leading-tight text-ivory transition-colors hover:text-gold-200 aria-[current=page]:text-gold-300"
+                    className="block py-1.5 font-display text-step-3 leading-tight text-ink transition-colors hover:text-gold-deep aria-[current=page]:text-gold-deep"
                   >
                     {link.label}
                   </Link>
                 </m.li>
               ))}
           </ul>
+          <div className="mt-8 flex flex-wrap gap-2">
+            <Link
+              href={`${localePath(locale, "/shop")}#search`}
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/12 px-4 text-step--1 text-ink"
+            >
+              <SearchIcon size={18} /> {dict.nav.search}
+            </Link>
+            <Link
+              href={localePath(locale, "/wishlist")}
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/12 px-4 text-step--1 text-ink"
+            >
+              <HeartIcon size={18} /> {dict.nav.wishlist}
+            </Link>
+          </div>
         </nav>
 
-        <div className="container-page relative flex items-center justify-between border-t border-gold-400/15 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+        <div className="container-page relative flex items-center justify-between border-t border-ink/10 bg-beige/60 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
           <LocaleSwitcher />
-          <p className="text-step--1 text-ivory/50">{dict.announcement}</p>
+          <p className="text-step--1 text-ink-soft">{dict.announcement}</p>
         </div>
       </div>
     </dialog>

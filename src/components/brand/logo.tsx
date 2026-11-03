@@ -45,7 +45,7 @@ export function Logo({ className, label, priority }: Props) {
       </span>
       <span
         aria-hidden
-        className="mt-[0.28em] font-[family-name:var(--font-readex)] text-[0.5em] font-light tracking-[0.62em] text-gold-300 [margin-inline-end:-0.62em]"
+        className="mt-[0.28em] font-[family-name:var(--font-readex)] text-[0.5em] font-light tracking-[0.62em] text-gold-deep [margin-inline-end:-0.62em]"
       >
         SCENT
       </span>

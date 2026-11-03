@@ -20,38 +20,68 @@ export const categories: Category[] = [
   {
     slug: "diffusers",
     type: "diffuser",
-    name: { ar: "أجهزة التعطير", en: "Diffusers" },
+    name: { ar: "الفواحات الإلكترونية", en: "Electronic Diffusers" },
     description: {
-      ar: "أجهزة تنشر العطر بهدوء في المجلس والبيت والسيارة.",
+      ar: "فواحات تنشر العطر بهدوء في المجلس والبيت والسيارة.",
       en: "Devices that carry fragrance quietly through majlis, home and car.",
     },
+    image: {
+      art: "diffuser-tower",
+      alt: { ar: "فواح إلكتروني (صورة توضيحية)", en: "Electronic diffuser (illustration)" },
+    },
+    position: 0,
+    enabled: true,
+    showOnHome: true,
   },
   {
     slug: "refills",
     type: "refill",
-    name: { ar: "عبوات العطور", en: "Fragrance refills" },
+    name: { ar: "عبوات العطر", en: "Fragrance Refills" },
     description: {
-      ar: "عبوات عطرية مصممة لأجهزة رنا سنت.",
-      en: "Fragrance cartridges made for Rana Scent devices.",
+      ar: "عبوات عطرية مصممة لفواحات رنا سنت.",
+      en: "Fragrance cartridges made for Rana Scent diffusers.",
     },
+    image: {
+      art: "cartridge",
+      family: "oud",
+      alt: { ar: "عبوة عطر (صورة توضيحية)", en: "Fragrance refill (illustration)" },
+    },
+    position: 1,
+    enabled: true,
+    showOnHome: true,
+  },
+  {
+    slug: "accessories",
+    type: "accessory",
+    name: { ar: "إكسسوارات الفواحات", en: "Diffuser Accessories" },
+    description: {
+      ar: "قطع تكمل تجربة التعطير.",
+      en: "Pieces that complete the ritual.",
+    },
+    image: {
+      art: "accessory",
+      alt: { ar: "إكسسوار للفواح (صورة توضيحية)", en: "Diffuser accessory (illustration)" },
+    },
+    position: 2,
+    enabled: true,
+    showOnHome: true,
   },
   {
     slug: "bundles",
     type: "bundle",
     name: { ar: "المجموعات", en: "Sets" },
     description: {
-      ar: "جهاز وعطور مختارة في مجموعة واحدة.",
-      en: "A device and chosen fragrances, together.",
+      ar: "فواح وعطور مختارة في مجموعة واحدة.",
+      en: "A diffuser and chosen fragrances, together.",
     },
-  },
-  {
-    slug: "accessories",
-    type: "accessory",
-    name: { ar: "الإكسسوارات", en: "Accessories" },
-    description: {
-      ar: "قطع تكمل تجربة التعطير.",
-      en: "Pieces that complete the ritual.",
+    image: {
+      art: "bundle",
+      family: "oud",
+      alt: { ar: "مجموعة (صورة توضيحية)", en: "Set (illustration)" },
     },
+    position: 3,
+    enabled: true,
+    showOnHome: false,
   },
 ];
 
@@ -239,7 +269,7 @@ export const products: Product[] = [
     },
     11500,
     [32, 4],
-    { isNew: true },
+    { isNew: true, featured: true },
   ),
   refill(
     "white-jasmine",

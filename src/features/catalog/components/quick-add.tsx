@@ -26,7 +26,7 @@ export function QuickAdd({ line, disabled, className }: { line: Omit<CartLine, "
         window.setTimeout(() => setAdded(false), 1600);
       }}
       className={cn(
-        "inline-flex size-11 items-center justify-center rounded-full bg-gold text-navy-950 shadow-lg transition-transform duration-300 hover:scale-105 active:scale-95 disabled:bg-none disabled:bg-white/10 disabled:text-ivory/40",
+        "inline-flex size-11 items-center justify-center rounded-full bg-gold text-ink shadow-lg transition-transform duration-300 hover:scale-105 active:scale-95 disabled:bg-none disabled:bg-ink/8 disabled:text-ink-soft",
         className,
       )}
     >

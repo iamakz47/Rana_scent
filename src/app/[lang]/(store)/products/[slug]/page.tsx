@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ScentField } from "@/components/brand/scent-field";
 import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
@@ -75,24 +74,23 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
         // JSON.stringify output is escaped for "<" so it cannot close the tag.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
-      <section className="grain relative isolate overflow-hidden pb-20 pt-28 lg:pt-32">
-        <ScentField tint={tint} originX={0.28} originY={-0.3} intensity={0.55} className="opacity-70" />
-        <div className="container-page relative">
-          <nav aria-label={dict.product.breadcrumb} className="mb-8 text-step--1 text-ivory/55">
+      <section className="relative pb-20 pt-8 lg:pt-12">
+        <div className="container-page">
+          <nav aria-label={dict.product.breadcrumb} className="mb-8 text-step--1 text-ink-soft">
             <ol className="flex flex-wrap items-center gap-2">
               <li>
-                <Link href={localePath(locale)} className="hover:text-ivory">
+                <Link href={localePath(locale)} className="hover:text-ink">
                   {dict.nav.home}
                 </Link>
               </li>
               <li aria-hidden>/</li>
               <li>
-                <Link href={localePath(locale, "/shop")} className="hover:text-ivory">
+                <Link href={localePath(locale, "/shop")} className="hover:text-ink">
                   {dict.nav.shop}
                 </Link>
               </li>
               <li aria-hidden>/</li>
-              <li aria-current="page" className="text-ivory/85">
+              <li aria-current="page" className="text-ink">
                 {product.name[locale]}
               </li>
             </ol>
@@ -103,32 +101,32 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
 
             <div className="lg:sticky lg:top-28 lg:self-start">
               {product.scentFamily && (
-                <p className="flex items-center gap-2 text-step--1" style={{ color: tint }}>
-                  <span aria-hidden className="h-px w-8 bg-current" />
+                <p className="flex items-center gap-2 text-step--1 text-ink-soft">
+                  <span aria-hidden className="h-0.5 w-8 rounded-full" style={{ background: tint }} />
                   {dict.families[product.scentFamily]}
                 </p>
               )}
-              <h1 className="mt-3 font-display text-step-5 leading-[1] text-ivory">{product.name[locale]}</h1>
-              <p className="mt-4 text-step-1 text-ivory/70">{product.tagline[locale]}</p>
-              <p className="mt-4 max-w-prose text-ivory/60">{product.description[locale]}</p>
-              <p className="mt-4 inline-block rounded-full border border-white/12 px-3 py-1 text-step--1 text-ivory/55">
+              <h1 className="mt-3 font-display text-step-5 leading-[1] text-ink">{product.name[locale]}</h1>
+              <p className="mt-4 text-step-1 text-ink-soft">{product.tagline[locale]}</p>
+              <p className="mt-4 max-w-prose text-ink-soft">{product.description[locale]}</p>
+              <p className="mt-4 inline-block rounded-full border border-ink/12 px-3 py-1 text-step--1 text-ink-soft">
                 {dict.common.sampleNotice}
               </p>
 
-              <div className="mt-8 border-t border-gold-400/15 pt-8">
+              <div className="mt-8 border-t border-ink/10 pt-8">
                 <PurchasePanel product={product} />
               </div>
 
               {product.notes && (
-                <section aria-labelledby="notes-title" className="mt-10 border-t border-gold-400/15 pt-8">
-                  <h2 id="notes-title" className="font-display text-step-2 text-ivory">
+                <section aria-labelledby="notes-title" className="mt-10 border-t border-ink/10 pt-8">
+                  <h2 id="notes-title" className="font-display text-step-2 text-ink">
                     {dict.product.notes}
                   </h2>
                   <dl className="mt-5 grid grid-cols-3 gap-4">
                     {(["top", "heart", "base"] as const).map((key) => (
-                      <div key={key} className="rounded-2xl border border-white/8 bg-navy-900/50 p-4">
-                        <dt className="text-step--1 text-ivory/50">{dict.product[key]}</dt>
-                        <dd className="mt-1 text-ivory">{product.notes![key][locale]}</dd>
+                      <div key={key} className="rounded-2xl border border-ink/10 bg-surface p-4">
+                        <dt className="text-step--1 text-ink-soft">{dict.product[key]}</dt>
+                        <dd className="mt-1 text-ink">{product.notes![key][locale]}</dd>
                       </div>
                     ))}
                   </dl>
@@ -136,17 +134,17 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
               )}
 
               {product.type === "diffuser" && (
-                <section aria-labelledby="specs-title" className="mt-10 border-t border-gold-400/15 pt-8">
-                  <h2 id="specs-title" className="font-display text-step-2 text-ivory">
+                <section aria-labelledby="specs-title" className="mt-10 border-t border-ink/10 pt-8">
+                  <h2 id="specs-title" className="font-display text-step-2 text-ink">
                     {dict.product.specs}
                   </h2>
-                  <p className="mt-3 text-ivory/60">{dict.product.specsPending}</p>
+                  <p className="mt-3 text-ink-soft">{dict.product.specsPending}</p>
                 </section>
               )}
 
               {contents.length > 0 && (
-                <section aria-labelledby="contents-title" className="mt-10 border-t border-gold-400/15 pt-8">
-                  <h2 id="contents-title" className="font-display text-step-2 text-ivory">
+                <section aria-labelledby="contents-title" className="mt-10 border-t border-ink/10 pt-8">
+                  <h2 id="contents-title" className="font-display text-step-2 text-ink">
                     {dict.product.inTheSet}
                   </h2>
                   <ul className="mt-4 space-y-2">
@@ -154,10 +152,10 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                       <li key={item.id}>
                         <Link
                           href={localePath(locale, `/products/${item.slug}`)}
-                          className="flex min-h-11 items-center justify-between rounded-xl px-1 text-ivory/85 hover:text-gold-200"
+                          className="flex min-h-11 items-center justify-between rounded-xl px-1 text-ink hover:text-gold-deep"
                         >
                           {item.name[locale]}
-                          <span className="text-ivory/45 tabular-nums">
+                          <span className="text-ink-soft tabular-nums">
                             × {product.bundleContents?.find((entry) => entry.slug === item.slug)?.quantity}
                           </span>
                         </Link>
@@ -172,9 +170,9 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
       </section>
 
       {compatible.length > 0 && (
-        <section aria-labelledby="compat-title" className="bg-navy-900 py-20">
+        <section aria-labelledby="compat-title" className="bg-beige/60 py-20">
           <div className="container-page">
-            <h2 id="compat-title" className="font-display text-step-4 text-ivory">
+            <h2 id="compat-title" className="font-display text-step-4 text-ink">
               {compatibilityTitle}
             </h2>
             <ul className="scrollbar-none -mx-4 mt-10 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
@@ -190,7 +188,7 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
 
       <section aria-labelledby="related-title" className="py-20 lg:py-28">
         <div className="container-page">
-          <h2 id="related-title" className="font-display text-step-4 text-ivory">
+          <h2 id="related-title" className="font-display text-step-4 text-ink">
             {dict.product.related}
           </h2>
           <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 lg:grid-cols-4">

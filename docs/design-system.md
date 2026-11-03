@@ -1,34 +1,40 @@
-# Rana Scent design system — "Visible Scent"
+# Rana Scent design system — warm luxury
 
-Scent is invisible; Rana Scent makes the machines that carry it through a
-room. The identity makes scent visible, built on the brand's gold, deep
-charcoal and dark navy.
+A premium home-fragrance identity: warm ivory and beige carry the page,
+espresso carries type and primary actions, and muted gold is a quiet accent
+taken from the logo. Deep espresso sections (scent experience, footer,
+announcement bar) give the page contrast so it never reads as one flat beige.
 
 ## Principles
 
-1. **One bold thing.** The scent field (animated mist) is the signature. Everything
-   around it stays quiet: no decorative gradients, no eyebrow labels, no
-   motion that doesn't answer the visitor or reveal something.
-2. **Gold means value or action.** Gold is used for the logo, prices and the
-   primary button. Never as decoration.
+1. **Hierarchy through contrast and space, not decoration.** Alternate canvas,
+   surface and beige sections; use espresso for the moments that need weight.
+2. **Gold is an accent.** Logo, hairlines, the hover sheen, small badges. Text in
+   gold uses `gold-deep` for contrast. Primary buttons are espresso.
 3. **Colour carries meaning.** Each fragrance family has a hue, used on refills,
    filters and the mist, so colour helps people find scents.
-4. **Mirrors by default.** Every layout uses logical properties (`ms-`, `ps-`,
-   `start-`, `end-`), so Arabic (RTL) and English (LTR) mirror without
-   overrides.
+4. **Mirrors by default.** Logical properties (`ms-`, `ps-`, `start-`, `end-`)
+   so Arabic (RTL) and English (LTR) mirror without overrides.
 
 ## Tokens (`src/app/globals.css`)
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `navy-950` → `navy-600` | `#060c17` → `#2a4570` | Night surfaces, the "chamber" |
-| `charcoal-950` → `charcoal-400` | `#141518` → `#8a8d96` | Text on light, neutrals |
-| `porcelain` | `#f1f2f5` | Light editorial sections |
-| `ivory` | `#ece9e2` | Text on dark |
-| `gold-200` → `gold-700` | `#f3e4b9` → `#6c5126` | Brushed metal (`text-gold`, `bg-gold`) |
-| `scent-oud/musk/floral/fresh/woody` | see file | Fragrance families |
+Colours are semantic roles. Wrapping a section in `.theme-dark` swaps every
+role to the espresso palette, so components work unchanged on dark.
 
-Type scale: fluid `text-step--1` … `text-step-6` (clamp-based, 360px → 1440px).
+| Role | Light | `.theme-dark` | Use |
+| --- | --- | --- | --- |
+| `canvas` | `#f8f5ef` warm ivory | `#231b17` | Page background |
+| `surface` | `#f1ebe1` | `#2e241f` | Panels, inputs, drawers |
+| `beige` | `#eae0d2` | `#3a2e27` | Product stages, bands |
+| `sand` | `#d8c7ae` | `#4b3c33` | Arches, deeper fills |
+| `taupe` | `#a99580` | `#8d7a66` | Decoration only (not text) |
+| `ink` | `#352a24` espresso | `#f5efe6` | Type, primary buttons |
+| `ink-soft` | `#66574b` (6.4:1) | `#cdbfae` | Secondary type |
+| `gold` / `gold-light` | `#b69a65` / `#dcc8a0` | same | Accents, badges |
+| `gold-deep` | `#7a5f33` (5.5:1) | `#d6bb85` | Gold-coloured text |
+| `scent-*` | oud, musk, floral, fresh, woody | same | Fragrance families |
+
+Type scale: fluid `text-step--1` … `text-step-6`.
 
 ## Typography
 
@@ -36,28 +42,43 @@ Type scale: fluid `text-step--1` … `text-step-6` (clamp-based, 360px → 1440p
 - **Bodoni Moda**: English display; the perfume-house voice.
 - **Reem Kufi**: Arabic display; geometric Kufic with the same formality.
 
-Display type is set large and tight; body copy stays under ~65 characters.
+## Layout
+
+Header → hero slider → category quick access → featured products →
+fragrance collections → scent experience (dark) → find your diffuser →
+brand story → featured sets → footer (dark).
+
+The header is sticky and always visible; it never hides on scroll and has its
+own view-transition layer so navigation never cross-fades it.
 
 ## Motion
 
 | Tool | Used for |
 | --- | --- |
-| CSS (`@starting-style`, scroll-driven `view()`) | Drawers, sheets, section reveals, hero entrance, parallax |
-| Motion (`motion/react`, `LazyMotion`) | Cart line items, badges, finder pill, wishlist heart |
-| GSAP + ScrollTrigger | The single pinned story section (≥1024px only) |
-| React `<ViewTransition>` | Product image morph from card to product page; list reorders |
-| WebGL (`ScentField`) | The mist, paused off-screen, frozen under reduced motion |
+| CSS | Slide cross-fades and entrances, progress bars, drawers, reveals |
+| Motion (`motion/react`) | Cart line items, badges, finder pill, wishlist heart |
+| GSAP + ScrollTrigger | The pinned brand story (≥1024px only) |
+| React `<ViewTransition>` | Card-to-product image morph, list reorders |
+| WebGL (`ScentField`) | The mist in the dark scent-experience section |
 
-All motion respects `prefers-reduced-motion`.
+All motion respects `prefers-reduced-motion` (the slider does not autoplay).
+
+## Admin-managed content (Phase 2)
+
+- **Hero slider**: `src/features/merchandising/hero-slides.ts`. Zod schemas for
+  slides (position, enabled, draft/published, ar/en title and description, CTA
+  labels and internal destinations, desktop + mobile images) and settings
+  (`autoplayIntervalSeconds`, default 4). The carousel receives the interval as
+  a prop; it is never hardcoded.
+- **Categories**: `Category` in `src/features/catalog/types.ts` (image, position,
+  enabled, `showOnHome`). The quick-access row reads `listHomeCategories()`.
 
 ## Logo
 
-`src/components/brand/logo.tsx` holds the official logo slot. Until the file
-is added, a typographic placeholder renders (marked `data-logo-placeholder`).
-Do not redesign the logo.
+`src/components/brand/logo.tsx` holds the official logo slot (typographic
+placeholder until the file is added). Do not redesign the logo.
 
 ## Placeholder imagery
 
-`ProductArt` draws illustrations until product photography exists. Every
-product image shows a "Placeholder image" tag; every product is flagged
-`isSample`. Device specifications are intentionally absent until supplied.
+`ProductArt` draws illustrations until photography exists. Product images and
+slides show a "Placeholder image" tag; every product is flagged `isSample`.

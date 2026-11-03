@@ -56,11 +56,18 @@ export type Product = {
   isSample: true;
 };
 
+// Admin-managed in Phase 2 (create, edit, reorder, enable/disable, upload
+// image). `image.src` takes over from the drawn artwork once uploaded.
 export type Category = {
   slug: string;
   type: ProductType;
   name: Localized;
   description: Localized;
+  image: { src?: string; art: ArtKind; family?: ScentFamily; alt: Localized };
+  position: number;
+  enabled: boolean;
+  // Shown in the homepage quick-access row.
+  showOnHome: boolean;
 };
 
 export type Availability = "in_stock" | "low_stock" | "out_of_stock";

@@ -33,21 +33,21 @@ export function SiteFooter({ locale, dict }: { locale: Locale; dict: Dictionary 
   ];
 
   return (
-    <footer className="grain relative overflow-hidden border-t border-gold-400/15 bg-navy-950">
+    <footer className="theme-dark grain relative overflow-hidden">
       <div className="container-page grid gap-12 py-16 md:grid-cols-[1.4fr_repeat(3,1fr)] md:py-20">
         <div className="max-w-xs">
           <Logo label={dict.meta.title} className="text-[1.15rem]" />
-          <p className="mt-6 text-ivory/60">{dict.footer.tagline}</p>
+          <p className="mt-6 text-ink-soft">{dict.footer.tagline}</p>
         </div>
         {columns.map((column) => (
           <nav key={column.title} aria-label={column.title}>
-            <h2 className="text-step--1 text-gold-300">{column.title}</h2>
+            <h2 className="text-step--1 text-gold-deep">{column.title}</h2>
             <ul className="mt-4 space-y-1">
               {column.links.map((link) => (
                 <li key={link.path}>
                   <Link
                     href={localePath(locale, link.path)}
-                    className="inline-flex min-h-11 items-center text-ivory/70 transition-colors hover:text-ivory md:min-h-9"
+                    className="inline-flex min-h-11 items-center text-ink-soft transition-colors hover:text-ink md:min-h-9"
                   >
                     {link.label}
                   </Link>
@@ -57,7 +57,7 @@ export function SiteFooter({ locale, dict }: { locale: Locale; dict: Dictionary 
           </nav>
         ))}
       </div>
-      <div className="container-page flex flex-col gap-3 border-t border-white/6 py-6 text-step--1 text-ivory/45 md:flex-row md:items-center md:justify-between">
+      <div className="container-page flex flex-col gap-3 border-t border-ink/10 py-6 text-step--1 text-ink-soft md:flex-row md:items-center md:justify-between">
         <p>{dict.footer.payments}</p>
         <p>
           © {dict.meta.title}. {dict.footer.rights}

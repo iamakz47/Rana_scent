@@ -18,9 +18,9 @@ export function CartView() {
 
   if (lines.length === 0) {
     return (
-      <div className="rounded-[2rem] border border-dashed border-gold-400/25 px-6 py-24 text-center">
-        <p className="font-display text-step-4 text-ivory">{dict.cart.empty}</p>
-        <p className="mx-auto mt-3 max-w-md text-ivory/60">{dict.cart.emptyBody}</p>
+      <div className="rounded-[2rem] border border-dashed border-gold/50 px-6 py-24 text-center">
+        <p className="font-display text-step-4 text-ink">{dict.cart.empty}</p>
+        <p className="mx-auto mt-3 max-w-md text-ink-soft">{dict.cart.emptyBody}</p>
         <ButtonLink href={localePath(locale, "/shop")} className="mt-8" size="lg">
           {dict.cart.startShopping}
         </ButtonLink>
@@ -30,7 +30,7 @@ export function CartView() {
 
   return (
     <div className="grid gap-10 lg:grid-cols-[1fr_24rem] lg:items-start xl:gap-16">
-      <ul className="divide-y divide-white/8 border-y border-white/8">
+      <ul className="divide-y divide-ink/10 border-y border-ink/10">
         <AnimatePresence initial={false}>
           {lines.map((line) => (
             <m.li
@@ -45,29 +45,29 @@ export function CartView() {
                   family={line.scentFamily as ScentFamily | undefined}
                   uid={`cart-${line.variantId}`}
                   label={line.name[locale]}
-                  className="size-28 rounded-2xl bg-navy-900 sm:size-36"
+                  className="size-28 rounded-2xl bg-surface sm:size-36"
                 />
               </Link>
               <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <Link
                     href={localePath(locale, `/products/${line.productSlug}`)}
-                    className="font-display text-step-2 text-ivory hover:text-gold-200"
+                    className="font-display text-step-2 text-ink hover:text-gold-deep"
                   >
                     {line.name[locale]}
                   </Link>
-                  <p className="text-step--1 text-ivory/55">{line.variantLabel[locale]}</p>
-                  <p className="mt-1 text-step--1 text-ivory/55 tabular-nums">{formatKWD(line.unitPriceFils, locale)}</p>
+                  <p className="text-step--1 text-ink-soft">{line.variantLabel[locale]}</p>
+                  <p className="mt-1 text-step--1 text-ink-soft tabular-nums">{formatKWD(line.unitPriceFils, locale)}</p>
                 </div>
                 <div className="flex items-center gap-3 sm:flex-col sm:items-end">
-                  <p className="text-gold-200 tabular-nums sm:text-step-1">
+                  <p className="text-gold-deep tabular-nums sm:text-step-1">
                     {formatKWD(line.unitPriceFils * line.quantity, locale)}
                   </p>
                   <QuantityStepper value={line.quantity} onChange={(q) => setLineQuantity(line.variantId, q)} compact />
                   <button
                     type="button"
                     onClick={() => removeLine(line.variantId)}
-                    className="min-h-11 px-1 text-step--1 text-ivory/50 underline-offset-4 hover:text-ivory hover:underline"
+                    className="min-h-11 px-1 text-step--1 text-ink-soft underline-offset-4 hover:text-ink hover:underline"
                   >
                     {dict.cart.remove}
                   </button>
@@ -80,16 +80,16 @@ export function CartView() {
 
       <aside
         aria-labelledby="summary-title"
-        className="rounded-[2rem] border border-gold-400/20 bg-navy-900/70 p-6 lg:sticky lg:top-28 lg:p-8"
+        className="rounded-[2rem] border border-gold/50 bg-surface p-6 lg:sticky lg:top-28 lg:p-8"
       >
-        <h2 id="summary-title" className="font-display text-step-2 text-ivory">
+        <h2 id="summary-title" className="font-display text-step-2 text-ink">
           {dict.cart.summary}
         </h2>
-        <div className="mt-6 flex items-baseline justify-between border-b border-white/8 pb-6">
-          <span className="text-ivory/70">{dict.cart.subtotal}</span>
-          <span className="text-step-2 text-gold-200 tabular-nums">{formatKWD(subtotalFils, locale)}</span>
+        <div className="mt-6 flex items-baseline justify-between border-b border-ink/10 pb-6">
+          <span className="text-ink-soft">{dict.cart.subtotal}</span>
+          <span className="text-step-2 text-gold-deep tabular-nums">{formatKWD(subtotalFils, locale)}</span>
         </div>
-        <p className="mt-6 text-step--1 text-ivory/55">{dict.cart.taxesNote}</p>
+        <p className="mt-6 text-step--1 text-ink-soft">{dict.cart.taxesNote}</p>
         <Button className="mt-6 w-full" size="lg" disabled>
           {dict.cart.checkoutSoon}
         </Button>

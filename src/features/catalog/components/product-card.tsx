@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
 import { ProductArt } from "@/components/brand/product-art";
-import { scentHex } from "@/components/brand/scent-colors";
+import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
 import { Availability } from "@/components/ui/availability";
 import { Price } from "@/components/ui/price";
 import { toCartLine } from "@/features/cart/to-cart-line";
@@ -25,7 +25,7 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
   const stock = productStock(product);
   const firstAvailable = product.variants.find((variant) => variant.stock > 0) ?? product.variants[0];
   const multiplePrices = new Set(product.variants.map((v) => v.priceFils)).size > 1;
-  const accent = product.scentFamily ? scentHex[product.scentFamily] : "#d5b46a";
+  const accent = product.scentFamily ? scentHex[product.scentFamily] : GOLD_HEX;
   const href = localePath(locale, `/products/${product.slug}`);
 
   return (
@@ -40,7 +40,7 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
         transitionTypes={["nav-forward"]}
         tabIndex={-1}
         aria-hidden
-        className="relative block overflow-hidden rounded-[1.75rem] border border-white/6 bg-gradient-to-b from-navy-800/80 to-navy-950 transition-[border-color,box-shadow] duration-700 ease-[var(--ease-out-expo)] group-hover/card:border-[color-mix(in_oklab,var(--accent)_45%,transparent)] group-hover/card:shadow-[0_30px_80px_-40px_var(--accent)]"
+        className="relative block overflow-hidden rounded-[1.75rem] border border-ink/10 bg-beige/70 transition-[border-color,box-shadow] duration-700 ease-[var(--ease-out-expo)] group-hover/card:border-[color-mix(in_oklab,var(--accent)_45%,transparent)] group-hover/card:shadow-[0_28px_60px_-34px_rgba(53,42,36,0.45)]"
       >
         <span
           aria-hidden
@@ -61,11 +61,11 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
         </ViewTransition>
         <span className="absolute start-4 top-4 flex gap-1.5">
           {product.isNew && (
-            <span className="rounded-full bg-gold px-2.5 py-1 text-[0.65rem] font-semibold text-navy-950">
+            <span className="rounded-full bg-gold px-2.5 py-1 text-[0.65rem] font-semibold text-ink">
               {dict.product.new}
             </span>
           )}
-          <span className="rounded-full border border-white/15 bg-navy-950/60 px-2.5 py-1 text-[0.65rem] text-ivory/70 backdrop-blur-sm">
+          <span className="rounded-full border border-ink/12 bg-canvas/85 px-2.5 py-1 text-[0.65rem] text-ink-soft backdrop-blur-sm">
             {dict.common.sampleBadge}
           </span>
         </span>
@@ -78,13 +78,13 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
       <div className="flex flex-1 items-start justify-between gap-3 px-1 pt-4">
         <div className="min-w-0">
           {product.scentFamily && (
-            <p className="mb-1 flex items-center gap-2 text-step--1 text-ivory/55">
+            <p className="mb-1 flex items-center gap-2 text-step--1 text-ink-soft">
               <span aria-hidden className="h-px w-5" style={{ background: accent }} />
               {dict.families[product.scentFamily]}
             </p>
           )}
-          <h3 className={cn("font-display leading-tight text-ivory", size === "feature" ? "text-step-3" : "text-step-2")}>
-            <Link href={href} transitionTypes={["nav-forward"]} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none">
+          <h3 className={cn("font-display leading-tight text-ink", size === "feature" ? "text-step-3" : "text-step-2")}>
+            <Link href={href} transitionTypes={["nav-forward"]} className="after:absolute after:inset-0 after:rounded-[1.75rem] after:content-[''] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-gold-deep">
               {product.name[locale]}
             </Link>
           </h3>

@@ -14,9 +14,9 @@ export function WishlistGrid({ cards }: { cards: Record<string, ReactNode> }) {
 
   if (saved.length === 0) {
     return (
-      <div className="rounded-[2rem] border border-dashed border-gold-400/25 px-6 py-24 text-center">
-        <p className="font-display text-step-4 text-ivory">{dict.wishlist.empty}</p>
-        <p className="mx-auto mt-3 max-w-md text-ivory/60">{dict.wishlist.emptyBody}</p>
+      <div className="rounded-[2rem] border border-dashed border-gold/50 px-6 py-24 text-center">
+        <p className="font-display text-step-4 text-ink">{dict.wishlist.empty}</p>
+        <p className="mx-auto mt-3 max-w-md text-ink-soft">{dict.wishlist.emptyBody}</p>
         <ButtonLink href={localePath(locale, "/shop")} className="mt-8" size="lg">
           {dict.cart.startShopping}
         </ButtonLink>

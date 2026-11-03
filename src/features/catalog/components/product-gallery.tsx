@@ -15,7 +15,7 @@ export function ProductGallery({ product }: { product: Product }) {
 
   return (
     <div className="space-y-3" aria-label={dict.product.gallery} role="group">
-      <div className="relative overflow-hidden rounded-[2rem] border border-white/6 bg-gradient-to-b from-navy-800/70 to-navy-950">
+      <div className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-beige/70">
         {/* Only the first image is the shared element morphing from the card. */}
         <ViewTransition name={`product-${product.slug}`} share="product-morph" default="none">
           <div className="relative aspect-[4/5]">
@@ -52,8 +52,8 @@ export function ProductGallery({ product }: { product: Product }) {
             aria-label={format(dict.product.showImage, { index: thumbIndex + 1 })}
             aria-current={thumbIndex === index}
             className={cn(
-              "overflow-hidden rounded-2xl border bg-navy-900 transition-[border-color,opacity] duration-300",
-              thumbIndex === index ? "border-gold-300/70" : "border-white/8 opacity-60 hover:opacity-100",
+              "overflow-hidden rounded-2xl border bg-surface transition-[border-color,opacity] duration-300",
+              thumbIndex === index ? "border-gold" : "border-ink/10 opacity-60 hover:opacity-100",
             )}
           >
             <ProductArt

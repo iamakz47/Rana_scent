@@ -39,12 +39,7 @@
   },
   "announcement": "Delivering across all of Kuwait",
   "home": {
-    "heroEyebrow": "Fragrance technology",
-    "heroTitle": "Scent, made visible.",
-    "heroBody": "Diffusers and fragrance refills composed for the majlis, the home and the drive.",
-    "heroPrimary": "Shop diffusers",
-    "heroSecondary": "Explore the scents",
-    "libraryTitle": "The scent library",
+    "libraryTitle": "The scent experience",
     "libraryBody": "Five families, each with its own colour. Choose a mood, then a refill.",
     "storyTitle": "From refill to atmosphere",
     "storySteps": [
@@ -61,8 +56,6 @@
         "body": "The fragrance spreads evenly through the room, without smoke or flame."
       }
     ],
-    "devicesTitle": "Devices",
-    "devicesBody": "Three forms for three kinds of space.",
     "finderTitle": "Find your diffuser",
     "finderBody": "Tell us where the scent will live.",
     "finderDevice": "Recommended device",
@@ -70,8 +63,12 @@
     "setsTitle": "Sets, ready to give",
     "setsBody": "A device and chosen fragrances, wrapped as one.",
     "setsCta": "Shop sets",
-    "closingTitle": "A signature for every room",
-    "closingBody": "Rana Scent brings the hospitality of fragrance into everyday spaces."
+    "pageTitle": "Rana Scent: electronic diffusers, fragrance refills and accessories",
+    "categoriesTitle": "Shop by category",
+    "featuredTitle": "Featured",
+    "featuredBody": "Pieces our customers return to.",
+    "collectionsTitle": "Fragrance collections",
+    "collectionsBody": "Five families, each with its own character. Start with the one that feels like home."
   },
   "spaces": {
     "majlis": "Majlis",
@@ -296,5 +293,23 @@
     "title": "This page drifted away",
     "body": "The page you're looking for doesn't exist or has moved.",
     "cta": "Back to the store"
+  },
+  "heroSlider": {
+    "label": "Featured collections",
+    "roleDescription": "carousel",
+    "slide": "slide",
+    "slideOf": "{index} of {count}",
+    "goTo": "Go to slide {index}: {label}",
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "pause": "Pause slideshow",
+    "play": "Play slideshow"
+  },
+  "familyNotes": {
+    "oud": "Warm, smoky, regal",
+    "musk": "Soft, clean, intimate",
+    "floral": "Bright, romantic, luminous",
+    "fresh": "Light, airy, uplifting",
+    "woody": "Dry, grounded, calm"
   }
 }

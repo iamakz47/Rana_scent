@@ -12,15 +12,16 @@ export default async function StoreLayout({ children }: LayoutProps<"/[lang]">) 
     <StoreProviders locale={locale} dir={getDirection(locale)} dict={dict}>
       <a
         href="#main"
-        className="fixed start-4 top-4 z-50 -translate-y-24 rounded-full bg-gold px-5 py-3 text-navy-950 transition-transform focus:translate-y-0"
+        className="fixed start-4 top-4 z-50 -translate-y-24 rounded-full bg-gold px-5 py-3 text-ink transition-transform focus:translate-y-0"
       >
         {dict.common.skipToContent}
       </a>
+      <p className="theme-dark px-4 py-2 text-center text-step--1 text-ink-soft">{dict.announcement}</p>
       <SiteHeader />
       <main id="main" tabIndex={-1} className="outline-none">
         {children}
       </main>
-      <p className="border-t border-gold-400/15 bg-navy-900 px-4 py-2.5 text-center text-step--1 text-ivory/55">
+      <p className="border-t border-ink/10 bg-surface px-4 py-2.5 text-center text-step--1 text-ink-soft">
         {dict.common.sampleNotice}
       </p>
       <SiteFooter locale={locale} dict={dict} />

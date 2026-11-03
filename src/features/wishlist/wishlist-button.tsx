@@ -21,8 +21,8 @@ export function WishlistButton({ slug, className }: { slug: string; className?: 
         toggleWishlist(slug);
       }}
       className={cn(
-        "inline-flex size-11 items-center justify-center rounded-full border border-white/10 bg-navy-950/50 backdrop-blur-md transition-colors hover:border-gold-300/60",
-        saved ? "text-gold-300" : "text-ivory/80",
+        "inline-flex size-11 items-center justify-center rounded-full border border-ink/12 bg-canvas/85 backdrop-blur-md transition-colors hover:border-gold",
+        saved ? "text-gold-deep" : "text-ink",
         className,
       )}
     >

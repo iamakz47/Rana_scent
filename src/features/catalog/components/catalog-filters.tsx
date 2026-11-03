@@ -68,7 +68,7 @@ export function CatalogFilters() {
     <div className="space-y-5">
       <label id="search" className="relative block scroll-mt-28">
         <span className="sr-only">{dict.shop.searchLabel}</span>
-        <SearchIcon className="pointer-events-none absolute start-5 top-1/2 -translate-y-1/2 text-gold-300" />
+        <SearchIcon className="pointer-events-none absolute start-5 top-1/2 -translate-y-1/2 text-gold-deep" />
         <input
           ref={searchRef}
           type="search"
@@ -76,7 +76,7 @@ export function CatalogFilters() {
           onChange={(event) => setQuery(event.target.value)}
           placeholder={dict.shop.searchPlaceholder}
           maxLength={80}
-          className="h-14 w-full rounded-full border border-white/12 bg-navy-900/70 ps-14 pe-5 text-step-0 text-ivory placeholder:text-ivory/40 transition-colors focus:border-gold-300/70 focus:outline-none"
+          className="h-14 w-full rounded-full border border-ink/12 bg-surface ps-14 pe-5 text-step-0 text-ink placeholder:text-ink-soft transition-colors focus:border-gold focus:outline-none"
         />
       </label>
 
@@ -92,7 +92,7 @@ export function CatalogFilters() {
                   type="button"
                   aria-pressed={on}
                   onClick={() => toggleList("type", type)}
-                  className={cn(chip, on ? "border-gold-300 bg-gold-400/15 text-gold-200" : "border-white/12 text-ivory/75 hover:border-gold-400/50")}
+                  className={cn(chip, on ? "border-gold bg-gold/15 text-gold-deep" : "border-ink/12 text-ink-soft hover:border-gold/50")}
                 >
                   {dict.types[type]}
                 </button>
@@ -112,7 +112,7 @@ export function CatalogFilters() {
                   type="button"
                   aria-pressed={on}
                   onClick={() => toggleList("family", family)}
-                  className={cn(chip, on ? "text-ivory" : "border-white/12 text-ivory/75 hover:border-white/30")}
+                  className={cn(chip, on ? "text-ink" : "border-ink/12 text-ink-soft hover:border-ink/25")}
                   style={on ? { borderColor: scentHex[family], background: `${scentHex[family]}26` } : undefined}
                 >
                   <span aria-hidden className="size-2.5 rounded-full" style={{ background: scentHex[family] }} />
@@ -124,19 +124,19 @@ export function CatalogFilters() {
         </fieldset>
 
         <div className="flex flex-wrap items-center gap-3">
-          <label className={cn(chip, "cursor-pointer border-white/12 text-ivory/80 has-[:checked]:border-gold-300 has-[:checked]:text-gold-200")}>
+          <label className={cn(chip, "cursor-pointer border-ink/12 text-ink has-[:checked]:border-gold has-[:checked]:text-gold-deep")}>
             <input
               type="checkbox"
               checked={current.get("inStock") === "1"}
               onChange={(event) =>
                 update((next) => (event.target.checked ? next.set("inStock", "1") : next.delete("inStock")))
               }
-              className="size-4 accent-[var(--color-gold-400)]"
+              className="size-4 accent-[var(--color-gold-deep)]"
             />
             {dict.shop.inStock}
           </label>
 
-          <label className="flex items-center gap-2 text-step--1 text-ivory/70">
+          <label className="flex items-center gap-2 text-step--1 text-ink-soft">
             {dict.shop.sort}
             <select
               value={current.get("sort") ?? "featured"}
@@ -145,7 +145,7 @@ export function CatalogFilters() {
                   event.target.value === "featured" ? next.delete("sort") : next.set("sort", event.target.value),
                 )
               }
-              className="min-h-11 rounded-full border border-white/12 bg-navy-900 px-4 text-ivory focus:border-gold-300/70 focus:outline-none"
+              className="min-h-11 rounded-full border border-ink/12 bg-surface px-4 text-ink focus:border-gold focus:outline-none"
             >
               {sortOptions.map((option) => (
                 <option key={option} value={option}>
@@ -162,7 +162,7 @@ export function CatalogFilters() {
                 setQuery("");
                 update((next) => [...next.keys()].forEach((key) => next.delete(key)));
               }}
-              className="min-h-11 px-2 text-step--1 text-ivory/60 underline-offset-4 hover:text-ivory hover:underline"
+              className="min-h-11 px-2 text-step--1 text-ink-soft underline-offset-4 hover:text-ink hover:underline"
             >
               {dict.shop.clear}
             </button>

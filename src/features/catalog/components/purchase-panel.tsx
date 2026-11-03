@@ -40,7 +40,7 @@ export function PurchasePanel({ product }: { product: Product }) {
 
       {product.variants.length > 1 && (
         <fieldset className="min-w-0">
-          <legend className="mb-3 text-step--1 text-ivory/60">{dict.product.option}</legend>
+          <legend className="mb-3 text-step--1 text-ink-soft">{dict.product.option}</legend>
           <div className="flex flex-wrap gap-2">
             {product.variants.map((item) => {
               const checked = item.id === variant.id;
@@ -48,8 +48,8 @@ export function PurchasePanel({ product }: { product: Product }) {
                 <label
                   key={item.id}
                   className={cn(
-                    "relative inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full border px-5 transition-colors duration-300 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold-300",
-                    checked ? "border-gold-300 text-gold-200" : "border-white/12 text-ivory/80 hover:border-white/30",
+                    "relative inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full border px-5 transition-colors duration-300 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold-deep",
+                    checked ? "border-gold text-gold-deep" : "border-ink/12 text-ink hover:border-ink/25",
                     item.stock <= 0 && "opacity-50",
                   )}
                 >
@@ -110,7 +110,7 @@ export function PurchasePanel({ product }: { product: Product }) {
         <WishlistButton slug={product.slug} className="size-13" />
       </div>
 
-      <p className="text-step--1 text-ivory/55">{dict.product.deliveryNote}</p>
+      <p className="text-step--1 text-ink-soft">{dict.product.deliveryNote}</p>
     </div>
   );
 }

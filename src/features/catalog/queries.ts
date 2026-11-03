@@ -126,12 +126,17 @@ export async function getProductsBySlug(slugs: readonly string[]): Promise<Produ
     .filter((product): product is Product => Boolean(product));
 }
 
+// Enabled categories in admin-defined order.
 export async function listCategories(): Promise<Category[]> {
-  return categories;
+  return categories.filter((category) => category.enabled).sort((a, b) => a.position - b.position);
+}
+
+export async function listHomeCategories(): Promise<Category[]> {
+  return (await listCategories()).filter((category) => category.showOnHome);
 }
 
 export async function getCategory(slug: string): Promise<Category | undefined> {
-  return categories.find((category) => category.slug === slug);
+  return categories.find((category) => category.slug === slug && category.enabled);
 }
 
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {

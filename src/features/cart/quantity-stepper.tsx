@@ -16,13 +16,13 @@ type Props = {
 export function QuantityStepper({ value, onChange, min = 1, max = MAX_LINE_QUANTITY, compact }: Props) {
   const { dict } = useI18n();
   const button =
-    "grid place-items-center rounded-full text-ivory/80 transition-colors hover:bg-white/8 hover:text-gold-200 disabled:opacity-30";
+    "grid place-items-center rounded-full text-ink transition-colors hover:bg-ink/5 hover:text-gold-deep disabled:opacity-30";
 
   return (
     <div
       role="group"
       aria-label={dict.product.quantity}
-      className={cn("inline-flex items-center rounded-full border border-white/12", compact ? "h-11" : "h-13")}
+      className={cn("inline-flex items-center rounded-full border border-ink/12", compact ? "h-11" : "h-13")}
     >
       <button
         type="button"

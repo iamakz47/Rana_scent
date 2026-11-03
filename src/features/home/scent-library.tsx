@@ -5,7 +5,7 @@ import { useState } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { ProductArt } from "@/components/brand/product-art";
 import { ScentField } from "@/components/brand/scent-field";
-import { scentHex } from "@/components/brand/scent-colors";
+import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
 import type { Product } from "@/features/catalog/types";
 import { useI18n } from "@/i18n/client";
 import { localePath } from "@/i18n/config";
@@ -21,7 +21,7 @@ export function ScentLibrary({ refills }: { refills: Refill[] }) {
   const { locale, dict } = useI18n();
   const [activeId, setActiveId] = useState(refills[0]?.id);
   const active = refills.find((refill) => refill.id === activeId) ?? refills[0];
-  const tint = active?.scentFamily ? scentHex[active.scentFamily] : "#d5b46a";
+  const tint = active?.scentFamily ? scentHex[active.scentFamily] : GOLD_HEX;
 
   if (!active) return null;
 
@@ -29,17 +29,17 @@ export function ScentLibrary({ refills }: { refills: Refill[] }) {
     <section
       id="scent-library"
       aria-labelledby="scent-library-title"
-      className="relative isolate scroll-mt-20 overflow-hidden bg-navy-950 py-24 lg:py-32"
+      className="theme-dark relative isolate scroll-mt-24 overflow-hidden py-24 lg:py-32"
     >
-      <ScentField tint={tint} originX={0.5} originY={-0.2} intensity={0.75} className="opacity-80" />
+      <ScentField tint={tint} originX={0.5} originY={-0.2} intensity={0.55} className="opacity-70" />
 
       <div className="container-page relative">
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div className="reveal">
-            <h2 id="scent-library-title" className="font-display text-step-5 leading-[1] text-ivory">
+            <h2 id="scent-library-title" className="font-display text-step-5 leading-[1] text-ink">
               {dict.home.libraryTitle}
             </h2>
-            <p className="mt-5 max-w-md text-step-1 text-ivory/65">{dict.home.libraryBody}</p>
+            <p className="mt-5 max-w-md text-step-1 text-ink-soft">{dict.home.libraryBody}</p>
           </div>
 
           <div aria-live="polite" className="min-h-40 lg:justify-self-end">
@@ -58,14 +58,14 @@ export function ScentLibrary({ refills }: { refills: Refill[] }) {
                     {dict.families[active.scentFamily]}
                   </p>
                 )}
-                <p className="mt-2 font-display text-step-3 text-ivory">{active.name[locale]}</p>
-                <p className="mt-1 text-ivory/65">{active.tagline[locale]}</p>
+                <p className="mt-2 font-display text-step-3 text-ink">{active.name[locale]}</p>
+                <p className="mt-1 text-ink-soft">{active.tagline[locale]}</p>
                 {active.notes && (
                   <dl className="mt-4 grid grid-cols-3 gap-4 text-step--1">
                     {(["top", "heart", "base"] as const).map((key) => (
                       <div key={key}>
-                        <dt className="text-ivory/45">{dict.product[key]}</dt>
-                        <dd className="text-ivory/85">{active.notes![key][locale]}</dd>
+                        <dt className="text-ink-soft">{dict.product[key]}</dt>
+                        <dd className="text-ink">{active.notes![key][locale]}</dd>
                       </div>
                     ))}
                   </dl>
@@ -78,14 +78,14 @@ export function ScentLibrary({ refills }: { refills: Refill[] }) {
         <ul className="scrollbar-none -mx-4 mt-14 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-visible">
           {refills.map((refill) => {
             const isActive = refill.id === active.id;
-            const color = refill.scentFamily ? scentHex[refill.scentFamily] : "#d5b46a";
+            const color = refill.scentFamily ? scentHex[refill.scentFamily] : GOLD_HEX;
             return (
               <li key={refill.id} className="w-[42vw] max-w-52 shrink-0 snap-start sm:w-48 lg:w-auto lg:max-w-none">
                 <Link
                   href={localePath(locale, `/products/${refill.slug}`)}
                   onPointerEnter={() => setActiveId(refill.id)}
                   onFocus={() => setActiveId(refill.id)}
-                  className="group/tube relative block rounded-[1.5rem] border border-white/6 bg-navy-900/40 p-3 backdrop-blur-sm transition-[transform,border-color,background-color] duration-700 ease-[var(--ease-out-expo)] hover:-translate-y-2 data-[active=true]:-translate-y-2 data-[active=true]:bg-navy-800/50 motion-reduce:transform-none"
+                  className="group/tube relative block rounded-[1.5rem] border border-ink/10 bg-surface p-3 backdrop-blur-sm transition-[transform,border-color,background-color] duration-700 ease-[var(--ease-out-expo)] hover:-translate-y-2 data-[active=true]:-translate-y-2 data-[active=true]:bg-beige/60 motion-reduce:transform-none"
                   data-active={isActive}
                   style={{ borderColor: isActive ? `${color}66` : undefined }}
                 >
@@ -96,8 +96,8 @@ export function ScentLibrary({ refills }: { refills: Refill[] }) {
                     label={refill.name[locale]}
                     className="aspect-[3/5]"
                   />
-                  <span className="mt-2 block px-1 text-step--1 leading-snug text-ivory">{refill.name[locale]}</span>
-                  <span className="block px-1 pb-1 text-step--1 text-gold-200/80 tabular-nums">
+                  <span className="mt-2 block px-1 text-step--1 leading-snug text-ink">{refill.name[locale]}</span>
+                  <span className="block px-1 pb-1 text-step--1 text-gold-deep tabular-nums">
                     {formatKWD(refill.priceFils, locale)}
                   </span>
                 </Link>
