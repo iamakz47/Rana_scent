@@ -1,30 +1,444 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ *
+ * Rana Scent design tokens: warm luxury.
+ * Ivory and beige carry the page; espresso carries type; muted gold is a
+ * quiet accent. Colours are semantic roles (canvas, surface, ink…) so a
+ * section can switch to the espresso "night" palette with .theme-dark
+ * and every component inside follows.
+ * Scent-family hues encode which fragrance family a product belongs to.
+ * ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --font-body: var(--font-geist-sans);
+  --font-body: var(--font-readex);
+  --font-display: var(--font-bodoni);
 }
 
-/* Arabic pages use the Arabic typeface; Latin glyphs fall back to Geist. */
 :root:lang(ar) {
-  --font-body: var(--font-arabic), var(--font-geist-sans);
+  --font-display: var(--font-reem-kufi);
+}
+
+/* Non-inline so utilities resolve through variables and can be re-themed. */
+@theme {
+  --color-canvas: #f8f5ef; /* warm ivory: page */
+  --color-surface: #f1ebe1; /* raised panels, inputs */
+  --color-beige: #eae0d2; /* product stages, cards */
+  --color-sand: #d8c7ae; /* deeper fills, arches */
+  --color-taupe: #a99580; /* decoration only, not text */
+  --color-ink: #352a24; /* espresso: type, primary actions */
+  --color-ink-soft: #66574b; /* secondary type (6.4:1 on ivory) */
+  --color-espresso: #2b211c;
+
+  --color-gold: #b69a65; /* muted gold accent */
+  --color-gold-light: #dcc8a0;
+  --color-gold-deep: #7a5f33; /* gold for text (5.5:1 on ivory) */
+
+  --color-scent-oud: #a8693a;
+  --color-scent-musk: #c9a39b;
+  --color-scent-floral: #a985b8;
+  --color-scent-fresh: #7fb1bf;
+  --color-scent-woody: #8f7b58;
+}
+
+/* The espresso palette for dark sections (footer, scent experience…). */
+.theme-dark {
+  --color-canvas: #231b17;
+  --color-surface: #2e241f;
+  --color-beige: #3a2e27;
+  --color-sand: #4b3c33;
+  --color-taupe: #8d7a66;
+  --color-ink: #f5efe6;
+  --color-ink-soft: #cdbfae;
+  --color-gold-deep: #d6bb85;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-body), serif;
+
+  /* Fluid type scale (minor third at 360px → perfect fourth at 1440px). */
+  --text-step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.875rem);
+  --text-step-0: clamp(0.95rem, 0.92rem + 0.15vw, 1.0625rem);
+  --text-step-1: clamp(1.125rem, 1.05rem + 0.35vw, 1.375rem);
+  --text-step-2: clamp(1.35rem, 1.2rem + 0.7vw, 1.875rem);
+  --text-step-3: clamp(1.65rem, 1.35rem + 1.3vw, 2.625rem);
+  --text-step-4: clamp(2.1rem, 1.55rem + 2.4vw, 3.75rem);
+  --text-step-5: clamp(2.6rem, 1.7rem + 4vw, 5.5rem);
+  --text-step-6: clamp(3.1rem, 1.6rem + 6.6vw, 8.5rem);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+
+  --animate-skeleton: skeleton 1.6s var(--ease-in-out-quint) infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes skeleton {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
   }
 }
 
+html {
+  background: var(--color-canvas);
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-step-0);
+  line-height: 1.6;
+  overflow-x: clip;
+}
+
+:lang(ar) body {
+  line-height: 1.8;
+}
+
+::selection {
+  background: var(--color-gold-light);
+  color: var(--color-espresso);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold-deep);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- Utilities ---------- */
+
+@utility container-page {
+  width: 100%;
+  max-width: 1680px;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 3.5rem);
+}
+
+/* Brushed-metal gold for the wordmark and accents. */
+@utility text-gold {
+  color: var(--color-gold-deep);
+  /* background-image (not the shorthand) so background-clip survives. */
+  background-image: linear-gradient(112deg, #6e552d 0%, #b59763 34%, #5f4826 56%, #a98d5b 78%, #6e552d 100%);
+  .theme-dark & {
+    background-image: linear-gradient(112deg, #b69a65 0%, #ecdcb8 34%, #a8895a 56%, #dcc8a0 78%, #b69a65 100%);
+  }
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility bg-gold {
+  background-color: var(--color-gold);
+  background-image: linear-gradient(112deg, #a8895a 0%, #dcc8a0 38%, #b69a65 60%, #e8dabb 82%, #b69a65 100%);
+}
+
+/* Subtle film grain for large flat fields. */
+@utility grain {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@utility skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--color-beige) 30%,
+    color-mix(in oklab, var(--color-sand) 70%, var(--color-canvas)) 50%,
+    var(--color-beige) 70%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-skeleton);
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Display type: Bodoni in English, Reem Kufi in Arabic. */
+@utility font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+  :lang(ar) & {
+    letter-spacing: 0;
+  }
+}
+
+/* ---------- Header ---------- */
+
+/* The header is its own view-transition layer, so route changes never
+   cross-fade (flicker) it with the page underneath. */
+.site-header {
+  view-transition-name: site-header;
+}
+
+::view-transition-old(site-header) {
+  display: none;
+}
+
+::view-transition-new(site-header),
+::view-transition-group(site-header) {
+  animation: none;
+}
+
+/* ---------- Hero slider ---------- */
+
+.hero-slide {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 900ms var(--ease-out-expo),
+    visibility 0s linear 900ms;
+}
+
+.hero-slide[data-active="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 900ms var(--ease-out-expo);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-slide[data-active="true"] .slide-rise {
+    animation: slide-rise 1s var(--ease-out-expo) both;
+    animation-delay: var(--delay, 0ms);
+  }
+  .hero-slide[data-active="true"] .slide-art {
+    animation: slide-art 7s var(--ease-out-expo) both;
+  }
+  .hero-progress {
+    animation: hero-progress var(--interval, 4000ms) linear both;
+  }
+  [data-paused="true"] .hero-progress {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes slide-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A slow settle: the composition drifts into place while the slide shows. */
+@keyframes slide-art {
+  from {
+    opacity: 0;
+    transform: scale(1.06) translateY(1.5%);
+  }
+  12% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---------- Scroll reveal (CSS scroll-driven, progressive) ---------- */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+  /* Below lg only, where GSAP does not drive the element. */
+  @media (prefers-reduced-motion: no-preference) and (max-width: 1023.98px) {
+    .reveal-compact {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Entrance for inner page titles. */
+@media (prefers-reduced-motion: no-preference) {
+  .fade-up {
+    animation: fade-up 0.9s var(--ease-out-expo) both;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- FAQ accordion (progressive: animates where supported) ---------- */
+
+:root {
+  interpolate-size: allow-keywords;
+}
+
+details.faq::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 500ms var(--ease-out-expo),
+    content-visibility 500ms allow-discrete;
+}
+
+details.faq[open]::details-content {
+  block-size: auto;
+}
+
+/* ---------- View transitions ---------- */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+::view-transition-group(.product-morph) {
+  animation-duration: 560ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Native <dialog> sheets and drawers ---------- */
+
+dialog.sheet {
+  opacity: 0;
+  transition:
+    opacity 380ms var(--ease-out-expo),
+    overlay 380ms allow-discrete,
+    display 380ms allow-discrete;
+}
+
+dialog.sheet[open] {
+  opacity: 1;
+}
+
+@starting-style {
+  dialog.sheet[open] {
+    opacity: 0;
+  }
+}
+
+dialog.sheet::backdrop {
+  background: transparent;
+}
+
+dialog.drawer {
+  --drawer-x: 100%;
+  margin: 0;
+  margin-inline-start: auto;
+  height: 100dvh;
+  max-height: 100dvh;
+  width: min(30rem, 100vw);
+  max-width: 100vw;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  translate: var(--drawer-x) 0;
+  transition:
+    translate 520ms var(--ease-out-expo),
+    overlay 520ms allow-discrete,
+    display 520ms allow-discrete;
+}
+
+:root[dir="rtl"] dialog.drawer {
+  --drawer-x: -100%;
+}
+
+dialog.drawer[open] {
+  translate: 0 0;
+}
+
+@starting-style {
+  dialog.drawer[open] {
+    translate: var(--drawer-x) 0;
+  }
+}
+
+dialog.drawer::backdrop {
+  background: color-mix(in oklab, var(--color-espresso) 38%, transparent);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition:
+    opacity 420ms var(--ease-out-expo),
+    overlay 420ms allow-discrete,
+    display 420ms allow-discrete;
+}
+
+dialog.drawer[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  dialog.drawer[open]::backdrop {
+    opacity: 0;
+  }
 }

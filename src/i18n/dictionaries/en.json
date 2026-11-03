@@ -1,15 +1,317 @@
 {
   "meta": {
     "title": "Rana Scent",
-    "description": "Scent diffusers and fragrance cartridges."
+    "description": "Scent diffusers and fragrance refills for Kuwaiti homes, majlis and cars."
   },
-  "home": {
-    "tagline": "Scent diffusers & fragrance cartridges",
-    "comingSoon": "Our store is coming soon."
+  "common": {
+    "skipToContent": "Skip to content",
+    "sampleNotice": "Preview store: products, prices and stock shown are samples.",
+    "sampleBadge": "Sample",
+    "from": "From",
+    "kwd": "KWD",
+    "close": "Close",
+    "viewAll": "View all",
+    "learnMore": "Learn more",
+    "comingSoon": "Coming soon",
+    "photoComingSoon": "Photo coming soon"
+  },
+  "nav": {
+    "primary": "Main navigation",
+    "shop": "Shop",
+    "diffusers": "Diffusers",
+    "refills": "Refills",
+    "sets": "Sets",
+    "accessories": "Accessories",
+    "about": "Our story",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "search": "Search",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "home": "Home"
   },
   "localeSwitcher": {
     "label": "Change language",
     "ar": "العربية",
     "en": "English"
+  },
+  "announcement": "Delivering across all of Kuwait",
+  "home": {
+    "libraryTitle": "The scent experience",
+    "libraryBody": "Five families, each with its own colour. Choose a mood, then a refill.",
+    "storyTitle": "From refill to atmosphere",
+    "storySteps": [
+      {
+        "title": "Choose a scent",
+        "body": "Pick a refill from the oud, musk, floral, fresh or woody family."
+      },
+      {
+        "title": "Set the mood",
+        "body": "Place it in a Rana Scent device and choose how present you want it to be."
+      },
+      {
+        "title": "Fill the space",
+        "body": "The fragrance spreads evenly through the room, without smoke or flame."
+      }
+    ],
+    "finderTitle": "Find your diffuser",
+    "finderBody": "Tell us where the scent will live.",
+    "finderDevice": "Recommended device",
+    "finderRefills": "Pairs well with",
+    "setsTitle": "Sets, ready to give",
+    "setsBody": "A device and chosen fragrances, wrapped as one.",
+    "setsCta": "Shop sets",
+    "pageTitle": "Rana Scent: electronic diffusers, fragrance refills and accessories",
+    "categoriesTitle": "Shop by category",
+    "featuredTitle": "Featured",
+    "featuredBody": "Pieces our customers return to.",
+    "collectionsTitle": "Fragrance collections",
+    "collectionsBody": "Five families, each with its own character. Start with the one that feels like home.",
+    "setsImageAlt": "Rana Tower with a 500 ml Aroma Oil refill"
+  },
+  "spaces": {
+    "majlis": "Majlis",
+    "living": "Living room",
+    "bedroom": "Bedroom",
+    "office": "Office",
+    "car": "Car"
+  },
+  "families": {
+    "oud": "Oud",
+    "musk": "Musk",
+    "floral": "Floral",
+    "fresh": "Fresh",
+    "woody": "Woody"
+  },
+  "types": {
+    "diffuser": "Diffusers",
+    "refill": "Refills",
+    "bundle": "Sets",
+    "accessory": "Accessories"
+  },
+  "shop": {
+    "title": "Shop",
+    "body": "Every Rana Scent device, refill and set.",
+    "searchLabel": "Search products",
+    "searchPlaceholder": "Search oud, musk, Majlis…",
+    "filters": "Filters",
+    "type": "Product type",
+    "family": "Scent family",
+    "inStock": "In stock only",
+    "sort": "Sort by",
+    "sortOptions": {
+      "featured": "Featured",
+      "newest": "Newest",
+      "price-asc": "Price: low to high",
+      "price-desc": "Price: high to low"
+    },
+    "results": "{count} products",
+    "resultsOne": "1 product",
+    "clear": "Clear filters",
+    "emptyTitle": "No products match these filters",
+    "emptyBody": "Try another scent family or clear the filters to see everything.",
+    "showResults": "Show results"
+  },
+  "product": {
+    "addToCart": "Add to cart",
+    "added": "Added",
+    "outOfStock": "Out of stock",
+    "inStock": "In stock",
+    "lowStock": "Only {count} left",
+    "quantity": "Quantity",
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity",
+    "option": "Option",
+    "notes": "Fragrance notes",
+    "top": "Top",
+    "heart": "Heart",
+    "base": "Base",
+    "compatibility": "Compatibility",
+    "fitsDevices": "Fits these devices",
+    "fitsRefills": "Refills for this device",
+    "fitsAccessory": "Works with",
+    "inTheSet": "In this set",
+    "specs": "Specifications",
+    "specsPending": "Technical specifications will be published once confirmed by Rana Scent.",
+    "related": "You may also like",
+    "addToWishlist": "Add to wishlist",
+    "removeFromWishlist": "Remove from wishlist",
+    "save": "Save",
+    "new": "New",
+    "gallery": "Product images",
+    "showImage": "Show image {index}",
+    "deliveryNote": "Delivery across Kuwait. Rates are shown at checkout.",
+    "breadcrumb": "Breadcrumb",
+    "specsProvisional": "Provisional specifications: to be confirmed by Rana Scent."
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty",
+    "emptyBody": "Start with a diffuser or a refill from the scent library.",
+    "startShopping": "Start shopping",
+    "subtotal": "Subtotal",
+    "remove": "Remove",
+    "checkout": "Checkout",
+    "checkoutSoon": "Checkout opens soon",
+    "summary": "Order summary",
+    "taxesNote": "Delivery and discount codes are applied at checkout. Final prices are confirmed by our server.",
+    "viewCart": "View cart",
+    "continue": "Continue shopping",
+    "itemCount": "{count} items",
+    "itemCountOne": "1 item"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "empty": "Nothing saved yet",
+    "emptyBody": "Tap the heart on any product to keep it here.",
+    "moveToCart": "Add to cart"
+  },
+  "footer": {
+    "tagline": "Fragrance technology for the spaces you live in.",
+    "shop": "Shop",
+    "help": "Help",
+    "company": "Company",
+    "shipping": "Shipping & returns",
+    "privacy": "Privacy policy",
+    "terms": "Terms & conditions",
+    "rights": "All rights reserved.",
+    "payments": "Payments: KNET, Visa, Mastercard and Apple Pay (coming with checkout)."
+  },
+  "pages": {
+    "draftNotice": "Draft: this page's content is a placeholder and must be reviewed by Rana Scent before launch.",
+    "about": {
+      "title": "Our story",
+      "lead": "Rana Scent was created to bring the warmth of Kuwaiti hospitality into every space through fragrance.",
+      "sections": [
+        {
+          "title": "Hospitality, made present",
+          "body": "In Kuwait, fragrance greets a guest before words do. We design devices and refills that carry that welcome quietly through the majlis, the home and the car."
+        },
+        {
+          "title": "Designed as objects",
+          "body": "Our diffusers are made to be seen as well as smelled: finished in gold, navy and charcoal, at home beside fine furniture."
+        },
+        {
+          "title": "A library of families",
+          "body": "Oud, musk, floral, fresh and woody. Each family has its own character, so finding your signature is simple."
+        }
+      ]
+    },
+    "contact": {
+      "title": "Contact",
+      "lead": "Questions about a device, a refill or an order? We're here to help.",
+      "channels": "Channels",
+      "email": "Email",
+      "phone": "Phone / WhatsApp",
+      "hours": "Hours",
+      "toBeProvided": "To be provided",
+      "formTitle": "Send a message",
+      "name": "Name",
+      "emailField": "Email",
+      "message": "Message",
+      "send": "Send message",
+      "formSoon": "The contact form will be connected before launch."
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "items": [
+        {
+          "q": "Which refills fit my diffuser?",
+          "a": "Every product page lists the devices and refills it works with under \"Compatibility\"."
+        },
+        {
+          "q": "Do you deliver across Kuwait?",
+          "a": "Yes. We deliver to all governorates. Delivery rates are shown at checkout."
+        },
+        {
+          "q": "How can I pay?",
+          "a": "Checkout will support KNET, Visa, Mastercard and Apple Pay."
+        },
+        {
+          "q": "Can I order without an account?",
+          "a": "Yes. Guest checkout will be available, and you can create an account later to track orders."
+        },
+        {
+          "q": "How do I choose a scent family?",
+          "a": "Oud and woody feel warm and deep, musk is soft, floral is bright, and fresh is light and airy. The Discovery Trio is a good place to start."
+        }
+      ]
+    },
+    "shipping": {
+      "title": "Shipping & returns",
+      "sections": [
+        {
+          "title": "Delivery",
+          "body": "We deliver throughout Kuwait. Rates and delivery times by governorate will be listed here and at checkout."
+        },
+        {
+          "title": "Returns",
+          "body": "Rana Scent's returns policy will be published here before launch."
+        },
+        {
+          "title": "Damaged or incorrect items",
+          "body": "Contact us and we'll make it right. Full details will be published before launch."
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "sections": [
+        {
+          "title": "What we collect",
+          "body": "This section will describe the personal information collected to process orders and accounts."
+        },
+        {
+          "title": "How we use it",
+          "body": "This section will describe how information is used, stored and protected."
+        },
+        {
+          "title": "Your choices",
+          "body": "This section will describe how to access, correct or delete your information."
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms & conditions",
+      "sections": [
+        {
+          "title": "Orders",
+          "body": "This section will set out how orders are accepted and confirmed."
+        },
+        {
+          "title": "Pricing and payment",
+          "body": "Prices are in Kuwaiti dinar (KWD). Payment terms will be set out here."
+        },
+        {
+          "title": "Liability",
+          "body": "This section will be drafted and reviewed before launch."
+        }
+      ]
+    }
+  },
+  "notFound": {
+    "title": "This page drifted away",
+    "body": "The page you're looking for doesn't exist or has moved.",
+    "cta": "Back to the store"
+  },
+  "heroSlider": {
+    "label": "Featured collections",
+    "roleDescription": "carousel",
+    "slide": "slide",
+    "slideOf": "{index} of {count}",
+    "goTo": "Go to slide {index}: {label}",
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "pause": "Pause slideshow",
+    "play": "Play slideshow"
+  },
+  "familyNotes": {
+    "oud": "Warm, smoky, regal",
+    "musk": "Soft, clean, intimate",
+    "floral": "Bright, romantic, luminous",
+    "fresh": "Light, airy, uplifting",
+    "woody": "Dry, grounded, calm"
   }
 }

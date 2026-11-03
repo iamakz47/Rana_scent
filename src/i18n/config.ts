@@ -2,6 +2,8 @@ export const locales = ["ar", "en"] as const;
 
 export type Locale = (typeof locales)[number];
 
+export type Localized = Record<Locale, string>;
+
 export const defaultLocale: Locale = "ar";
 
 // Cookie that remembers a visitor's explicit language choice.
@@ -15,4 +17,10 @@ export function isLocale(value: string | undefined): value is Locale {
 
 export function getDirection(locale: Locale): "rtl" | "ltr" {
   return rtlLocales.has(locale) ? "rtl" : "ltr";
+}
+
+// Prefixes an app path with the locale segment: ("ar", "/shop") -> "/ar/shop".
+export function localePath(locale: Locale, path = "/"): string {
+  const clean = path.startsWith("/") ? path : `/${path}`;
+  return clean === "/" ? `/${locale}` : `/${locale}${clean}`;
 }

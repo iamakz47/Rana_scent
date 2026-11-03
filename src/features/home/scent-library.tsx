@@ -1,0 +1,117 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { AnimatePresence, m } from "motion/react";
+import { ProductVisual } from "@/components/brand/product-visual";
+import { ScentField } from "@/components/brand/scent-field";
+import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
+import type { Product } from "@/features/catalog/types";
+import { useI18n } from "@/i18n/client";
+import { localePath } from "@/i18n/config";
+import { formatKWD } from "@/lib/money";
+
+type Refill = Pick<Product, "id" | "slug" | "name" | "tagline" | "scentFamily" | "notes"> & {
+  priceFils: number;
+  image?: string;
+};
+
+// The refill shelf. Hovering or focusing a refill tints the mist behind the
+// shelf with that family's colour and reveals its notes.
+export function ScentLibrary({ refills }: { refills: Refill[] }) {
+  const { locale, dict } = useI18n();
+  const [activeId, setActiveId] = useState(refills[0]?.id);
+  const active = refills.find((refill) => refill.id === activeId) ?? refills[0];
+  const tint = active?.scentFamily ? scentHex[active.scentFamily] : GOLD_HEX;
+
+  if (!active) return null;
+
+  return (
+    <section
+      id="scent-library"
+      aria-labelledby="scent-library-title"
+      className="theme-dark relative isolate scroll-mt-24 overflow-hidden py-24 lg:py-32"
+    >
+      <ScentField tint={tint} originX={0.5} originY={-0.2} intensity={0.55} className="opacity-70" />
+
+      <div className="container-page relative">
+        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+          <div className="reveal">
+            <h2 id="scent-library-title" className="font-display text-step-5 leading-[1] text-ink">
+              {dict.home.libraryTitle}
+            </h2>
+            <p className="mt-5 max-w-md text-step-1 text-ink-soft">{dict.home.libraryBody}</p>
+          </div>
+
+          <div aria-live="polite" className="min-h-40 lg:justify-self-end">
+            <AnimatePresence mode="wait">
+              <m.div
+                key={active.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="max-w-md"
+              >
+                {active.scentFamily && (
+                  <p className="flex items-center gap-2 text-step--1" style={{ color: tint }}>
+                    <span aria-hidden className="h-px w-8 bg-current" />
+                    {dict.families[active.scentFamily]}
+                  </p>
+                )}
+                <p className="mt-2 font-display text-step-3 text-ink">{active.name[locale]}</p>
+                <p className="mt-1 text-ink-soft">{active.tagline[locale]}</p>
+                {active.notes && (
+                  <dl className="mt-4 grid grid-cols-3 gap-4 text-step--1">
+                    {(["top", "heart", "base"] as const).map((key) => (
+                      <div key={key}>
+                        <dt className="text-ink-soft">{dict.product[key]}</dt>
+                        <dd className="text-ink">{active.notes![key][locale]}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </m.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        <ul className="scrollbar-none -mx-4 mt-14 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-visible">
+          {refills.map((refill) => {
+            const isActive = refill.id === active.id;
+            const color = refill.scentFamily ? scentHex[refill.scentFamily] : GOLD_HEX;
+            return (
+              <li key={refill.id} className="w-[42vw] max-w-52 shrink-0 snap-start sm:w-48 lg:w-auto lg:max-w-none">
+                <Link
+                  href={localePath(locale, `/products/${refill.slug}`)}
+                  onPointerEnter={() => setActiveId(refill.id)}
+                  onFocus={() => setActiveId(refill.id)}
+                  className="group/tube relative block rounded-[1.5rem] border border-ink/10 bg-surface p-3 backdrop-blur-sm transition-[transform,border-color,background-color] duration-700 ease-[var(--ease-out-expo)] hover:-translate-y-2 data-[active=true]:-translate-y-2 data-[active=true]:bg-beige/60 motion-reduce:transform-none"
+                  data-active={isActive}
+                  style={{ borderColor: isActive ? `${color}66` : undefined }}
+                >
+                  <div className="relative">
+                    {/* A light stage inside the dark section, so the photo's
+                        white background falls away. */}
+                    <ProductVisual
+                      src={refill.image}
+                      alt={refill.name[locale]}
+                      pendingLabel={dict.common.photoComingSoon}
+                      sizes="(min-width: 1024px) 16vw, 42vw"
+                      className="aspect-[3/4] rounded-[1.1rem] bg-[#efe7db]"
+                    />
+                    <span aria-hidden className="absolute inset-x-4 top-3 h-1 rounded-full" style={{ background: color }} />
+                  </div>
+                  <span className="mt-2 block px-1 text-step--1 leading-snug text-ink">{refill.name[locale]}</span>
+                  <span className="block px-1 pb-1 text-step--1 text-gold-deep tabular-nums">
+                    {formatKWD(refill.priceFils, locale)}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  );
+}
