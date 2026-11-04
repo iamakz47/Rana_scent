@@ -61,9 +61,8 @@ Tests: `npm run test:db` (31 RLS and escalation tests) and
    - **Disable "Allow new users to sign up"** (there is no public sign-up).
    - Minimum password length 10, require lower, upper case and digits.
    - URL configuration: Site URL `https://ranascent.vercel.app`; add redirect
-     URLs `https://ranascent.vercel.app/**` and your Vercel preview domain
-     pattern (Vercel → Project → Deployments shows it, e.g.
-     `https://ranascent-*-<team>.vercel.app/**`).
+     URLs `https://ranascent.vercel.app/**` and the Vercel preview pattern
+     `https://ranascent-*-ahmed-alzabadia-s-projects.vercel.app/**`.
 3. Apply the migrations, either:
    - `npx supabase link --project-ref fquqotnpvftmxgvmlqby` then
      `npx supabase db push` (needs the database password), or
