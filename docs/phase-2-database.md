@@ -8,7 +8,11 @@ have been applied and tested only on the local Supabase stack
 (`npx supabase start`). The storefront in production still uses the Phase 1
 preview catalog (`CATALOG_SOURCE` unset).
 
-## Migrations (`supabase/migrations/`)
+## Migrations (`supabase/migrations/`, six files)
+
+No products are seeded: Rana Scent creates the real catalogue in the admin.
+(`supabase/samples/draft_products_from_photos.sql` is an optional local sample,
+not a migration.) A Sets category can be added from Categories when needed.
 
 | File | What it creates |
 | --- | --- |
@@ -16,8 +20,7 @@ preview catalog (`CATALOG_SOURCE` unset).
 | `20261103090100_media_catalog_inventory.sql` | `media_assets`, `scent_families`, `categories`, `products` (+ publish guard), `product_variants`, `product_media`, `product_categories`, `product_scents`, `device_compatibility`, `bundle_items`, `inventory`, `inventory_movements`, `adjust_inventory()` |
 | `20261103090200_content_settings_storage.sql` | `store_settings` (slider interval 2–30 s, default 4), `homepage_slides`, `homepage_sections`, `media_usage()`, Storage bucket `media` and its policies |
 | `20261103090300_commerce_foundation.sql` | `customer_addresses`, `shipping_zones`, `shipping_rates`, `discount_codes`, `promotions`, `orders`, `order_items`, `order_status_history`, `payments`, `payment_events`, `expenses` (foundation only; no checkout) |
-| `20261103090400_initial_content.sql` | Editable rows: 5 scent families, 4 categories (Electronic Diffusers, Fragrance Refills, Diffuser Accessories, Sets), the 6 existing product photos registered as site media, the current 3 homepage slides |
-| `20261103090500_draft_products_from_photos.sql` | 5 **draft** products for the photographed items (Tower, Majlis, Aura, Mini, Aroma Oil) with the provisional Phase 1 prices, **zero stock**, unconfirmed specs. Nothing is published. Skipped if any product exists. Optional: delete this file before applying if you'd rather enter products by hand. |
+| `20261103090400_initial_content.sql` | Editable rows: 5 scent families, 3 categories (Electronic Diffusers, Fragrance Refills, Diffuser Accessories), the 6 existing product photos registered as site media, the current 3 homepage slides |
 | `20261103090600_admin_write_functions.sql` | `save_product()` (atomic product save) and `reorder()` |
 
 **Destructive operations: none.** No `drop`, `truncate` or `delete` of
@@ -58,7 +61,8 @@ Tests: `npm run test:db` (31 RLS and escalation tests) and
 
 1. Back up: Supabase dashboard → Database → Backups (confirm a recent backup).
 2. Auth settings (dashboard → Authentication):
-   - **Disable "Allow new users to sign up"** (there is no public sign-up).
+   - Customer sign-up can stay enabled. Admin access never comes from signing
+     up: it requires a staff role, which only an owner or admin can assign.
    - Minimum password length 10, require lower, upper case and digits.
    - URL configuration: Site URL `https://ranascent.vercel.app`; add redirect
      URLs `https://ranascent.vercel.app/**` and the Vercel preview pattern
@@ -67,8 +71,10 @@ Tests: `npm run test:db` (31 RLS and escalation tests) and
    - `npx supabase link --project-ref fquqotnpvftmxgvmlqby` then
      `npx supabase db push` (needs the database password), or
    - paste each file, in order, into the SQL editor.
-4. Bootstrap the owner (below).
-5. Vercel → Project → Settings → Environment Variables:
+4. Run `supabase/verify/phase2_verify.sql` (read-only) in the SQL editor:
+   every row must show `ok = true`.
+5. Bootstrap the owner (below), only when you decide to.
+6. Vercel → Project → Settings → Environment Variables:
    - `SUPABASE_SECRET_KEY` (Server only; Production + Preview) for invitations.
    - `NEXT_PUBLIC_SITE_URL=https://ranascent.vercel.app` (auth email links).
    - Leave `CATALOG_SOURCE` unset until products are published, then set

@@ -1,3 +1,4 @@
+-- NOT A MIGRATION (not applied). Kept only as an optional local sample.
 -- Rana Scent: DRAFT products for the items that have real photography.
 -- They are created with status 'draft' (invisible to shoppers), zero stock
 -- and unconfirmed specifications. Names and prices are the provisional

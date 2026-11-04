@@ -1,5 +1,5 @@
 -- Rana Scent: initial, editable content.
--- Categories, scent families, the existing site photography (registered, not
+-- Three categories, five scent families, the existing site photography (registered, not
 -- moved or deleted) and the current homepage slides. Every row here is a
 -- normal record the admin can edit, hide or reorder. Idempotent.
 
@@ -36,11 +36,7 @@ insert into public.categories (slug, product_type, name_ar, name_en, description
   ('accessories', 'accessory', 'إكسسوارات الفواحات', 'Diffuser Accessories',
    'قطع تكمل تجربة التعطير.',
    'Pieces that complete the ritual.',
-   null, 2, true, true),
-  ('bundles', 'bundle', 'المجموعات', 'Sets',
-   'فواح وعطور مختارة في مجموعة واحدة.',
-   'A diffuser and chosen fragrances, together.',
-   null, 3, true, false)
+   null, 2, true, true)
 on conflict (slug) do nothing;
 
 -- The homepage slides that are live today (brand copy, not merchandise).

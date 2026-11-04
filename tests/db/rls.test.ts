@@ -93,6 +93,14 @@ describe("anonymous visitors", () => {
 
   it("cannot see draft products or their stock", async () => {
     const service = serviceClient();
+    const draft = await newDraft(editor.client);
+    await editor.client.from("product_variants").insert({
+      product_id: draft.data!.id,
+      sku: `RS-D-${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
+      label_ar: "قياسي",
+      label_en: "Standard",
+      price_fils: 1000,
+    });
     const { data: drafts } = await service.from("products").select("id").eq("status", "draft");
     expect(drafts!.length).toBeGreaterThan(0);
     const { data } = await anon.from("products").select("id").in("id", drafts!.map((d) => d.id));
