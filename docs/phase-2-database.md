@@ -74,6 +74,22 @@ Tests: `npm run test:db` (31 RLS and escalation tests) and
    - Leave `CATALOG_SOURCE` unset until products are published, then set
      `CATALOG_SOURCE=supabase` and redeploy.
 
+## If a migration fails, or you need to undo Phase 2
+
+- `supabase db push` runs each migration file in its own transaction. If a
+  file fails, that file is rolled back completely and nothing after it runs;
+  files already applied stay applied and are recorded in
+  `supabase_migrations.schema_migrations`. Fix the cause and push again.
+- Before applying, take a backup: Dashboard → Database → Backups (if your plan
+  includes them), or `npx supabase db dump --linked -f backup.sql`.
+- Full undo: `supabase/rollback/phase2_down.sql` (tested locally) removes
+  exactly the Phase 2 objects and nothing else (no `CASCADE`); then delete the
+  `media` bucket in the Storage dashboard and clear the Phase 2 rows from the
+  migration history (command in the script). It deletes Phase 2 data, so use
+  it only before real data exists or after a backup.
+- The app keeps working throughout: with `CATALOG_SOURCE` unset the storefront
+  never reads these tables.
+
 ## Owner bootstrap (one time)
 
 No credentials are hard-coded and no email address grants anything.
