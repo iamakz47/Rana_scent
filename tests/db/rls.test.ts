@@ -415,6 +415,9 @@ describe("media library", () => {
     const support_ = await support.client.storage.from("media").upload(`library/${crypto.randomUUID()}.png`, PNG, { contentType: "image/png" });
     expect(support_.error).not.toBeNull();
 
+    const moved = await editor.client.storage.from("media").move(path, `secret/${crypto.randomUUID()}.png`);
+    expect(moved.error).not.toBeNull();
+
     await editor.client.storage.from("media").remove([path]);
   });
 

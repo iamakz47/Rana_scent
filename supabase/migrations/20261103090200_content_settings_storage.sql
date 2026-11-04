@@ -315,13 +315,16 @@ create policy "Media editors upload media objects" on storage.objects
   with check (
     bucket_id = 'media'
     and (select private.has_permission('media.write'))
-    and (storage.foldername(name))[1] in ('products', 'categories', 'hero', 'library')
-    and name ~ '^[a-z]+/[0-9a-f-]{36}\.(jpg|jpeg|png|webp|avif)$'
+    and name ~ '^(products|categories|hero|library)/[0-9a-f-]{36}\.(jpg|jpeg|png|webp|avif)$'
   );
 create policy "Media editors update media objects" on storage.objects
   for update to authenticated
   using (bucket_id = 'media' and (select private.has_permission('media.write')))
-  with check (bucket_id = 'media' and (select private.has_permission('media.write')));
+  with check (
+    bucket_id = 'media'
+    and (select private.has_permission('media.write'))
+    and name ~ '^(products|categories|hero|library)/[0-9a-f-]{36}\.(jpg|jpeg|png|webp|avif)$'
+  );
 create policy "Media editors delete media objects" on storage.objects
   for delete to authenticated
   using (bucket_id = 'media' and (select private.has_permission('media.write')));
