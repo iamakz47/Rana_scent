@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { ProductVisual } from "@/components/brand/product-visual";
 import { ButtonLink } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -11,11 +12,13 @@ import { SpaceFinder } from "@/features/home/space-finder";
 import { Story } from "@/features/home/story";
 import { CategoryShowcase } from "@/features/merchandising/category-showcase";
 import { HeroSlider } from "@/features/merchandising/hero-slider";
+import { getHomepageContent, type HomepageSectionKey } from "@/features/merchandising/homepage-content";
 import { localePath, locales } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { formatKWD } from "@/lib/money";
 
-// Curated pairings for the space finder (sample merchandising).
+// Curated pairings for the space finder (sample merchandising). With the
+// live catalog, picks come from published products tagged with each space.
 const finderPicks: Record<Space, { device: string; refills: [string, string] }> = {
   majlis: { device: "rana-tower", refills: ["oud-royale", "cedar-smoke"] },
   living: { device: "rana-aura", refills: ["midnight-musk", "damask-rose"] },
@@ -35,52 +38,62 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  const [locale, dict, categories, all, refills, sets] = await Promise.all([
+  const [locale, dict, categories, all, refills, sets, content] = await Promise.all([
     getLocale(),
     getDictionary(),
     listHomeCategories(),
     listProducts(),
     listProducts({ type: ["refill"] }),
     listProducts({ type: ["bundle"] }),
+    getHomepageContent(),
   ]);
+  const isSampleCatalog = all.some((product) => product.isSample);
 
   const featured = all.filter((product) => product.featured && product.type !== "bundle").slice(0, 6);
   const familyCounts = Object.fromEntries(
     scentFamilies.map((family) => [family, refills.filter((refill) => refill.scentFamily === family).length]),
   ) as Record<ScentFamily, number>;
 
+  const pickFor = async (space: Space) => {
+    if (isSampleCatalog) {
+      const pick = finderPicks[space];
+      const [device, ...pairs] = await getProductsBySlug([pick.device, ...pick.refills]);
+      return device ? { device, pairs } : null;
+    }
+    const device = all.find((product) => product.type === "diffuser" && product.spaces.includes(space));
+    if (!device) return null;
+    return { device, pairs: refills.filter((refill) => refill.spaces.includes(space)).slice(0, 2) };
+  };
+
+  const picks = (await Promise.all(spaces.map(async (space) => [space, await pickFor(space)] as const))).filter(
+    (entry): entry is readonly [Space, NonNullable<Awaited<ReturnType<typeof pickFor>>>] => entry[1] !== null,
+  );
+
   const panels = Object.fromEntries(
-    await Promise.all(
-      spaces.map(async (space) => {
-        const pick = finderPicks[space];
-        const [device, ...pairs] = await getProductsBySlug([pick.device, ...pick.refills]);
-        return [
-          space,
-          <div key={space} className="grid gap-8 md:grid-cols-[1fr_1.5fr] lg:gap-12">
-            <div>
-              <p className="mb-4 text-step--1 text-gold-deep">{dict.home.finderDevice}</p>
-              <ProductCard product={device} locale={locale} dict={dict} morph={false} />
+    picks.map(([space, { device, pairs }]) => [
+      space,
+      <div key={space} className="grid gap-8 md:grid-cols-[1fr_1.5fr] lg:gap-12">
+        <div>
+          <p className="mb-4 text-step--1 text-gold-deep">{dict.home.finderDevice}</p>
+          <ProductCard product={device} locale={locale} dict={dict} morph={false} />
+        </div>
+        {pairs.length > 0 && (
+          <div>
+            <p className="mb-4 text-step--1 text-gold-deep">{dict.home.finderRefills}</p>
+            <div className="grid grid-cols-2 gap-4">
+              {pairs.map((refill) => (
+                <ProductCard key={refill.id} product={refill} locale={locale} dict={dict} morph={false} />
+              ))}
             </div>
-            <div>
-              <p className="mb-4 text-step--1 text-gold-deep">{dict.home.finderRefills}</p>
-              <div className="grid grid-cols-2 gap-4">
-                {pairs.map((refill) => (
-                  <ProductCard key={refill.id} product={refill} locale={locale} dict={dict} morph={false} />
-                ))}
-              </div>
-            </div>
-          </div>,
-        ];
-      }),
-    ),
+          </div>
+        )}
+      </div>,
+    ]),
   ) as Record<Space, React.ReactNode>;
 
-  return (
-    <>
-      {/* Hero slider, then categories, with nothing in between. */}
-      <HeroSlider locale={locale} dict={dict} />
-      <CategoryShowcase categories={categories} locale={locale} dict={dict} />
-
+  const sections: Record<HomepageSectionKey, React.ReactNode> = {
+    categories: categories.length > 0 && <CategoryShowcase categories={categories} locale={locale} dict={dict} />,
+    featured: featured.length > 0 && (
       <section aria-labelledby="featured-title" className="bg-canvas pb-24 lg:pb-32">
         <div className="container-page">
           <SectionHeading
@@ -103,9 +116,11 @@ export default async function HomePage() {
           </ul>
         </div>
       </section>
-
+    ),
+    collections: refills.length > 0 && (
       <FragranceCollections locale={locale} dict={dict} counts={familyCounts} />
-
+    ),
+    scent_library: refills.length > 0 && (
       <ScentLibrary
         refills={refills.map((refill) => ({
           id: refill.id,
@@ -118,13 +133,13 @@ export default async function HomePage() {
           image: refill.images[0]?.src,
         }))}
       />
-
-      <SpaceFinder spaces={[...spaces]} panels={panels} />
-
-      <Story />
-
-      {sets.length > 0 && (
-        <section aria-labelledby="sets-title" className="relative overflow-hidden bg-beige">
+    ),
+    finder: picks.length > 0 && (
+      <SpaceFinder spaces={picks.map(([space]) => space)} panels={panels} />
+    ),
+    story: <Story />,
+    sets: sets.length > 0 && (
+<section aria-labelledby="sets-title" className="relative overflow-hidden bg-beige">
           <div className="container-page grid items-center gap-10 py-20 md:grid-cols-2 lg:py-28">
             <div className="reveal max-w-lg">
               <h2 id="sets-title" className="font-display text-step-5 leading-[1] text-ink">
@@ -157,7 +172,16 @@ export default async function HomePage() {
             />
           </div>
         </section>
-      )}
+    ),
+  };
+
+  return (
+    <>
+      {/* Hero slider first; then the sections in the admin-defined order. */}
+      <HeroSlider locale={locale} dict={dict} settings={content.settings} slides={content.slides} />
+      {content.sections.map((key) => (
+        <Fragment key={key}>{sections[key]}</Fragment>
+      ))}
     </>
   );
 }

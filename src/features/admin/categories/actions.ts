@@ -40,8 +40,9 @@ export async function saveCategory(_prev: ActionResult, formData: FormData): Pro
   if (!(await authorize("catalog.write"))) return { status: "error", message: t.common.noPermissionAction };
   const str = (key: string) => (typeof formData.get(key) === "string" ? (formData.get(key) as string) : "");
   const parsed = categorySchema.safeParse({
+    id: str("entity_id"),
     ...Object.fromEntries(
-      ["id", "slug", "product_type", "name_ar", "name_en", "description_ar", "description_en", "image_id", "position",
+      ["slug", "product_type", "name_ar", "name_en", "description_ar", "description_en", "image_id", "position",
         "seo_title_ar", "seo_title_en", "seo_description_ar", "seo_description_en"].map((key) => [key, str(key)]),
     ),
     is_visible: formData.get("is_visible") === "on",
@@ -64,7 +65,7 @@ export async function saveCategory(_prev: ActionResult, formData: FormData): Pro
 export async function setCategoryArchived(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const t = actionDictionary(formData);
   if (!(await authorize("catalog.write"))) return { status: "error", message: t.common.noPermissionAction };
-  const id = z.uuid().safeParse(formData.get("id"));
+  const id = z.uuid().safeParse(formData.get("entity_id"));
   if (!id.success) return { status: "error", message: t.common.error };
   const archive = formData.get("archive") === "1";
   const supabase = await createClient();

@@ -224,7 +224,7 @@ function StatusControls({ id, status, canPublish }: { id: string; status: Produc
         {transitions.map((transition) => (
           <form key={transition.to} action={action}>
             <input type="hidden" name="locale" value={locale} />
-            <input type="hidden" name="id" value={id} />
+            <input type="hidden" name="entity_id" value={id} />
             <input type="hidden" name="status" value={transition.to} />
             <SubmitButton tone={transition.tone} size="sm">
               {transition.label}
@@ -239,7 +239,7 @@ function StatusControls({ id, status, canPublish }: { id: string; status: Produc
             }}
           >
             <input type="hidden" name="locale" value={locale} />
-            <input type="hidden" name="id" value={id} />
+            <input type="hidden" name="entity_id" value={id} />
             <SubmitButton tone="danger" size="sm">
               {t.common.delete}
             </SubmitButton>
@@ -271,7 +271,7 @@ export function ProductEditor({
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
       <form action={action} className="min-w-0 space-y-6" id="product-form">
         <input type="hidden" name="locale" value={locale} />
-        <input type="hidden" name="id" value={values.id ?? ""} />
+        <input type="hidden" name="entity_id" value={values.id ?? ""} />
         {created ? <Notice tone="success">{t.products.created}</Notice> : null}
 
         <Panel title={t.products.sections.basics}>

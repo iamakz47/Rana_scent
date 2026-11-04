@@ -38,7 +38,7 @@ export function CategoryForm({ values, library }: { values: CategoryValues; libr
     <div className="space-y-6">
       <form action={action} className="space-y-6">
         <input type="hidden" name="locale" value={locale} />
-        <input type="hidden" name="id" value={values.id ?? ""} />
+        <input type="hidden" name="entity_id" value={values.id ?? ""} />
         <Panel title={t.products.sections.basics}>
           <div className="space-y-4">
             <BilingualFields name="name" label={t.categories.name} values={{ ar: values.name_ar, en: values.name_en }} required maxLength={80} labels={labels} />
@@ -104,7 +104,7 @@ export function CategoryForm({ values, library }: { values: CategoryValues; libr
       {values.id ? (
         <form action={archiveAction} className="flex flex-wrap items-center gap-3 border-t border-ink/10 pt-4">
           <input type="hidden" name="locale" value={locale} />
-          <input type="hidden" name="id" value={values.id} />
+          <input type="hidden" name="entity_id" value={values.id} />
           <input type="hidden" name="archive" value={values.archived ? "0" : "1"} />
           <SubmitButton tone="outline" size="sm">
             {values.archived ? t.common.restore : t.common.archive}

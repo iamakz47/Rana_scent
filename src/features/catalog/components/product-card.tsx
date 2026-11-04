@@ -65,9 +65,11 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
               {dict.product.new}
             </span>
           )}
-          <span className="rounded-full border border-ink/12 bg-canvas/85 px-2.5 py-1 text-[0.65rem] text-ink-soft backdrop-blur-sm">
-            {dict.common.sampleBadge}
-          </span>
+          {product.isSample && (
+            <span className="rounded-full border border-ink/12 bg-canvas/85 px-2.5 py-1 text-[0.65rem] text-ink-soft backdrop-blur-sm">
+              {dict.common.sampleBadge}
+            </span>
+          )}
         </span>
       </Link>
 

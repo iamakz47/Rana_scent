@@ -66,7 +66,7 @@ const slideSchema = z
   );
 
 const slideFields = [
-  "id", "status", "theme", "title_ar", "title_en", "description_ar", "description_en",
+  "status", "theme", "title_ar", "title_en", "description_ar", "description_en",
   "primary_cta_label_ar", "primary_cta_label_en", "primary_cta_href", "secondary_cta_label_ar",
   "secondary_cta_label_en", "secondary_cta_href", "desktop_media_id", "mobile_media_id",
   "composition", "accent", "alt_ar", "alt_en",
@@ -77,6 +77,7 @@ export async function saveSlide(_prev: ActionResult, formData: FormData): Promis
   if (!(await authorize("content.write"))) return { status: "error", message: t.common.noPermissionAction };
   const raw: Record<string, unknown> = {};
   for (const key of slideFields) raw[key] = typeof formData.get(key) === "string" ? formData.get(key) : "";
+  raw.id = typeof formData.get("entity_id") === "string" ? formData.get("entity_id") : "";
   raw.is_enabled = formData.get("is_enabled") === "on";
   const parsed = slideSchema.safeParse(raw);
   if (!parsed.success) {
@@ -111,7 +112,7 @@ export async function saveSlide(_prev: ActionResult, formData: FormData): Promis
 export async function deleteSlide(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const t = actionDictionary(formData);
   if (!(await authorize("content.write"))) return { status: "error", message: t.common.noPermissionAction };
-  const id = z.uuid().safeParse(formData.get("id"));
+  const id = z.uuid().safeParse(formData.get("entity_id"));
   if (!id.success) return { status: "error", message: t.common.error };
   const supabase = await createClient();
   const { error } = await supabase.from("homepage_slides").delete().eq("id", id.data);

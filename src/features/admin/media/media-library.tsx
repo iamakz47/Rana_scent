@@ -136,7 +136,7 @@ function AssetCard({ asset, usageLabels }: { asset: LibraryAsset; usageLabels: R
         ) : null}
         <form action={altAction} className="space-y-2">
           <input type="hidden" name="locale" value={locale} />
-          <input type="hidden" name="id" value={asset.id} />
+          <input type="hidden" name="entity_id" value={asset.id} />
           <Field label={t.media.altAr} htmlFor={`alt-ar-${asset.id}`}>
             <TextInput id={`alt-ar-${asset.id}`} name="alt_ar" dir="rtl" lang="ar" defaultValue={asset.altAr} maxLength={200} />
           </Field>
@@ -178,7 +178,7 @@ function AssetCard({ asset, usageLabels }: { asset: LibraryAsset; usageLabels: R
                 }}
               >
                 <input type="hidden" name="locale" value={locale} />
-                <input type="hidden" name="id" value={asset.id} />
+                <input type="hidden" name="entity_id" value={asset.id} />
                 <SubmitButton size="sm" tone="danger">
                   {t.common.delete}
                 </SubmitButton>

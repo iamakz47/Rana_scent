@@ -118,7 +118,7 @@ export async function updateAlt(_prev: ActionResult, formData: FormData): Promis
   if (!(await authorize("media.write"))) return { status: "error", message: t.common.noPermissionAction };
   const parsed = z
     .object({ id: z.uuid(), alt_ar: z.string().trim().max(200), alt_en: z.string().trim().max(200) })
-    .safeParse({ id: formData.get("id"), alt_ar: formData.get("alt_ar"), alt_en: formData.get("alt_en") });
+    .safeParse({ id: formData.get("entity_id"), alt_ar: formData.get("alt_ar"), alt_en: formData.get("alt_en") });
   if (!parsed.success) return { status: "error", message: t.common.error };
   const supabase = await createClient();
   const { error } = await supabase
@@ -134,7 +134,7 @@ export async function updateAlt(_prev: ActionResult, formData: FormData): Promis
 export async function deleteMedia(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const t = actionDictionary(formData);
   if (!(await authorize("media.write"))) return { status: "error", message: t.common.noPermissionAction };
-  const id = z.uuid().safeParse(formData.get("id"));
+  const id = z.uuid().safeParse(formData.get("entity_id"));
   if (!id.success) return { status: "error", message: t.common.error };
   const supabase = await createClient();
   const { data: usage } = await supabase.rpc("media_usage", { target: id.data });

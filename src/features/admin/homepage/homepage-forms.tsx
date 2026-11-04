@@ -122,7 +122,7 @@ export function SlideForm({ values, library }: { values: SlideValues; library: P
     <div className="space-y-6">
       <form action={action} className="space-y-6">
         <input type="hidden" name="locale" value={locale} />
-        <input type="hidden" name="id" value={values.id ?? ""} />
+        <input type="hidden" name="entity_id" value={values.id ?? ""} />
         <Panel title={t.homepage.slideTitle}>
           <div className="space-y-4">
             <BilingualFields name="title" label={t.homepage.slideTitle} values={{ ar: values.title_ar, en: values.title_en }} required maxLength={90} labels={labels} />
@@ -230,7 +230,7 @@ export function SlideForm({ values, library }: { values: SlideValues; library: P
           }}
         >
           <input type="hidden" name="locale" value={locale} />
-          <input type="hidden" name="id" value={values.id} />
+          <input type="hidden" name="entity_id" value={values.id} />
           <SubmitButton tone="danger" size="sm">
             {t.common.delete}
           </SubmitButton>

@@ -46,7 +46,7 @@ const statusSchema = z.object({
 export async function setProductStatus(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const t = actionDictionary(formData);
   if (!(await authorize("catalog.publish"))) return { status: "error", message: t.products.publishRole };
-  const parsed = statusSchema.safeParse({ id: formData.get("id"), status: formData.get("status") });
+  const parsed = statusSchema.safeParse({ id: formData.get("entity_id"), status: formData.get("status") });
   if (!parsed.success) return { status: "error", message: t.common.error };
 
   const supabase = await createClient();
@@ -63,7 +63,7 @@ export async function setProductStatus(_prev: ActionResult, formData: FormData):
 export async function deleteProduct(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const t = actionDictionary(formData);
   if (!(await authorize("catalog.publish"))) return { status: "error", message: t.common.noPermissionAction };
-  const id = z.uuid().safeParse(formData.get("id"));
+  const id = z.uuid().safeParse(formData.get("entity_id"));
   if (!id.success) return { status: "error", message: t.common.error };
 
   const supabase = await createClient();

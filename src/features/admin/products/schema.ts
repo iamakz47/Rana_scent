@@ -124,7 +124,7 @@ export const productFormSchema = z.object({
 export type ProductForm = z.infer<typeof productFormSchema>;
 
 const stringFields = [
-  "id", "slug", "type", "name_ar", "name_en", "short_description_ar", "short_description_en",
+  "slug", "type", "name_ar", "name_en", "short_description_ar", "short_description_en",
   "description_ar", "description_en", "notes_top_ar", "notes_top_en", "notes_heart_ar", "notes_heart_en",
   "notes_base_ar", "notes_base_en", "specs_ar", "specs_en", "position", "category_id",
   "seo_title_ar", "seo_title_en", "seo_description_ar", "seo_description_en",
@@ -133,6 +133,8 @@ const stringFields = [
 
 export function readProductForm(formData: FormData) {
   const raw: Record<string, unknown> = {};
+  // Posted as entity_id: an input named "id" would shadow form.id in the DOM.
+  raw.id = typeof formData.get("entity_id") === "string" ? formData.get("entity_id") : "";
   for (const key of stringFields) {
     const value = formData.get(key);
     raw[key] = typeof value === "string" ? value : "";
