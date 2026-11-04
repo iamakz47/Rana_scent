@@ -149,6 +149,11 @@ begin
     end if;
   end if;
   if new.status = 'published' and (tg_op = 'INSERT' or old.status <> 'published') then
+    if tg_op = 'INSERT' or not exists (
+      select 1 from public.product_variants v where v.product_id = new.id and v.is_active
+    ) then
+      raise exception 'A product needs at least one available variant before it is published' using errcode = '23514';
+    end if;
     new.published_at := now();
   end if;
   return new;

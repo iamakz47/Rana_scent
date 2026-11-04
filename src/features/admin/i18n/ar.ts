@@ -106,6 +106,7 @@ export const adminAr: AdminDictionary = {
     all: "الكل",
     readOnly: "عرض فقط",
   },
+  spaces: { majlis: "المجلس", living: "الصالة", bedroom: "غرفة النوم", office: "المكتب", car: "السيارة" } as Record<string, string>,
   status: {
     draft: "مسودة",
     published: "منشور",

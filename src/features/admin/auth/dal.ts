@@ -1,5 +1,6 @@
 import "server-only";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { cache } from "react";
 import { localePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/dictionaries";
@@ -29,6 +30,9 @@ export type SessionState =
 // signature) and loads the caller's own staff row. Memoised per request.
 export const getSession = cache(async (): Promise<SessionState> => {
   if (!isSupabaseConfigured()) return { status: "unconfigured" };
+  // Session checks compare token expiry with the clock, so they always run
+  // at request time (never in a prerender or runtime prefetch).
+  await connection();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
   const claims = data?.claims;

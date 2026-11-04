@@ -104,6 +104,7 @@ export const adminEn = {
     all: "All",
     readOnly: "View only",
   },
+  spaces: { majlis: "Majlis", living: "Living room", bedroom: "Bedroom", office: "Office", car: "Car" } as Record<string, string>,
   status: {
     draft: "Draft",
     published: "Published",

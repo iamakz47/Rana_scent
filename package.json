@@ -15,7 +15,8 @@
     "db:start": "supabase start -x realtime,studio,imgproxy,edge-runtime,logflare,vector,supavisor,postgres-meta",
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
-    "dev:local": "scripts/with-local-supabase.sh next dev"
+    "dev:local": "scripts/with-local-supabase.sh next dev",
+    "db:dev-owner": "scripts/with-local-supabase.sh node scripts/local-dev-owner.mjs"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",

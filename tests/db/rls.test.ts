@@ -36,6 +36,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
   const service = serviceClient();
+  const { data: tests } = await service.from("products").select("id, product_variants(id)").like("slug", "test-%");
+  const variantIds = (tests ?? []).flatMap((p) => p.product_variants.map((v) => v.id));
+  if (variantIds.length) await service.from("inventory_movements").delete().in("variant_id", variantIds);
   await service.from("products").delete().like("slug", "test-%");
   await service.from("store_settings").update({ slider_interval_seconds: 4 }).eq("id", 1);
 });
@@ -94,7 +97,14 @@ describe("anonymous visitors", () => {
     expect(drafts!.length).toBeGreaterThan(0);
     const { data } = await anon.from("products").select("id").in("id", drafts!.map((d) => d.id));
     expect(data).toEqual([]);
-    const { data: stock } = await anon.from("inventory").select("variant_id");
+    const { data: draftVariants } = await service
+      .from("product_variants")
+      .select("id")
+      .in("product_id", drafts!.map((d) => d.id));
+    const { data: stock } = await anon
+      .from("inventory")
+      .select("variant_id")
+      .in("variant_id", draftVariants!.map((v) => v.id));
     expect(stock).toEqual([]);
   });
 
@@ -164,8 +174,21 @@ describe("role permissions", () => {
     expect(direct.error).not.toBeNull();
   });
 
+  it("publishing needs an available variant", async () => {
+    const draft = await newDraft(manager.client);
+    const bare = await manager.client.from("products").update({ status: "published" }).eq("id", draft.data!.id);
+    expect(bare.error?.message).toMatch(/variant/);
+  });
+
   it("managers publish, and publishing stamps published_at", async () => {
     const draft = await newDraft(manager.client);
+    await manager.client.from("product_variants").insert({
+      product_id: draft.data!.id,
+      sku: `RS-P-${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
+      label_ar: "قياسي",
+      label_en: "Standard",
+      price_fils: 1000,
+    });
     const { data, error } = await manager.client
       .from("products")
       .update({ status: "published" })
@@ -405,5 +428,50 @@ describe("media library", () => {
       .from("media_assets")
       .insert({ bucket: "static", path: "images/products/forged.jpg", mime_type: "image/jpeg" });
     expect(forged.error).not.toBeNull();
+  });
+});
+
+describe("save_product", () => {
+  const payload = (extra: Record<string, unknown> = {}) => ({
+    slug: `test-${crypto.randomUUID().slice(0, 8)}`,
+    type: "refill",
+    name_ar: "عود",
+    name_en: "Oud",
+    spaces: ["majlis"],
+    variants: [
+      { sku: `RS-S-${crypto.randomUUID().slice(0, 6).toUpperCase()}`, label_ar: "200 مل", label_en: "200 ml", price_fils: 14500 },
+    ],
+    ...extra,
+  });
+
+  it("saves a product and its relations atomically", async () => {
+    const { data: media } = await editor.client.from("media_assets").select("id").eq("bucket", "static").limit(2);
+    const { data: category } = await editor.client.from("categories").select("id").eq("slug", "refills").single();
+    const { data: id, error } = await editor.client.rpc("save_product", {
+      payload: payload({ media: media!.map((m) => m.id), category_id: category!.id }),
+    });
+    expect(error).toBeNull();
+    const { data } = await editor.client
+      .from("products")
+      .select("status, product_variants(price_fils), product_media(position), product_categories(is_primary)")
+      .eq("id", id)
+      .single();
+    expect(data!.status).toBe("draft");
+    expect(data!.product_variants).toEqual([{ price_fils: 14500 }]);
+    expect(data!.product_media).toHaveLength(2);
+    expect(data!.product_categories).toEqual([{ is_primary: true }]);
+  });
+
+  it("rolls back everything when one part is invalid", async () => {
+    const bad = payload({ variants: [{ sku: "bad sku", label_ar: "x", label_en: "x", price_fils: 100 }] });
+    const { error } = await editor.client.rpc("save_product", { payload: bad });
+    expect(error).not.toBeNull();
+    const { data } = await serviceClient().from("products").select("id").eq("slug", bad.slug);
+    expect(data).toEqual([]);
+  });
+
+  it("is refused for roles without catalog.write", async () => {
+    const { error } = await support.client.rpc("save_product", { payload: payload() });
+    expect(error).not.toBeNull();
   });
 });

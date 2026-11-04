@@ -666,6 +666,12 @@ isOneToOne: false
 { Args: { "target": string }; Returns: {
               "kind": string,"label": string,"ref_id": string
             }[]
+                           },
+"reorder":
+{ Args: { "ids": (string)[],"target_table": string }; Returns: undefined
+                           },
+"save_product":
+{ Args: { "payload": Json }; Returns: string
                            }
           }
           Enums: {
