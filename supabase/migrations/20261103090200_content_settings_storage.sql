@@ -264,11 +264,17 @@ begin
     if tg_op = 'INSERT' then
       new.created_by := (select auth.uid());
     else
-      -- Location and file facts are immutable; replace means a new asset.
+      -- The bucket never changes and site photography is fixed. An upload
+      -- may be replaced (new file at a new path, same asset id), so every
+      -- product, category and slide using it updates at once.
       new.bucket := old.bucket;
-      new.path := old.path;
-      new.mime_type := old.mime_type;
-      new.size_bytes := old.size_bytes;
+      if old.bucket = 'static' then
+        new.path := old.path;
+        new.mime_type := old.mime_type;
+        new.size_bytes := old.size_bytes;
+        new.width := old.width;
+        new.height := old.height;
+      end if;
       new.created_by := old.created_by;
       new.created_at := old.created_at;
     end if;

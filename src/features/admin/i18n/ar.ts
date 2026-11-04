@@ -356,6 +356,7 @@ export const adminAr: AdminDictionary = {
     dimensions: "المقاس",
     altSaved: "تم حفظ الوصف.",
     select: "اختر صورًا",
+    replace: "استبدال الملف",
   },
   staff: {
     title: "الموظفون",

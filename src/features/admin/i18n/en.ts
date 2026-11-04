@@ -354,6 +354,7 @@ export const adminEn = {
     dimensions: "Size",
     altSaved: "Description saved.",
     select: "Select images",
+    replace: "Replace file",
   },
   staff: {
     title: "Staff",
