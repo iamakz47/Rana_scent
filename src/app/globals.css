@@ -442,3 +442,37 @@ dialog.drawer[open]::backdrop {
     opacity: 0;
   }
 }
+
+/* ---------- Admin ---------- */
+
+/* Admin navigation drawer: slides in from the inline-start edge. */
+dialog.admin-drawer {
+  margin-block: 0;
+  margin-inline: 0 auto;
+  border-inline-end: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+  translate: calc(-100% * var(--dir, 1)) 0;
+  transition:
+    translate 320ms var(--ease-out-expo),
+    overlay 320ms allow-discrete,
+    display 320ms allow-discrete;
+}
+:dir(rtl) dialog.admin-drawer,
+[dir="rtl"] dialog.admin-drawer {
+  --dir: -1;
+}
+dialog.admin-drawer[open] {
+  translate: 0 0;
+}
+@starting-style {
+  dialog.admin-drawer[open] {
+    translate: calc(-100% * var(--dir, 1)) 0;
+  }
+}
+dialog.admin-drawer::backdrop {
+  background: rgb(43 33 28 / 0.4);
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.admin-drawer {
+    transition: none;
+  }
+}

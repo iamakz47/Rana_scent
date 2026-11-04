@@ -32,7 +32,23 @@ export async function updateSession(request: NextRequest) {
 
   // Do not run code between createServerClient and getClaims(): it validates
   // the JWT and triggers the token refresh that writes cookies above.
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+
+  // Optimistic gate for the admin console: signed-out visitors go straight to
+  // the login page. The real authorisation (active staff + permission) runs
+  // on the server in requireStaff() and again in database RLS.
+  const match = request.nextUrl.pathname.match(/^\/(ar|en)\/admin(\/.*)?$/);
+  const rest = match?.[2] ?? "";
+  const isPublicAdminPath = /^\/(login|forgot-password|reset-password|auth\/confirm)(\/|$)/.test(rest);
+  if (match && !isPublicAdminPath && !data?.claims?.sub) {
+    const login = request.nextUrl.clone();
+    login.pathname = `/${match[1]}/admin/login`;
+    login.search = "";
+    login.searchParams.set("next", `/admin${rest}`);
+    const redirect = NextResponse.redirect(login);
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
+  }
 
   return response;
 }
