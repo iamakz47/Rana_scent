@@ -63,6 +63,19 @@ and accessories. Prices in Kuwaiti dinar (KWD), stored as integer fils.
 - **Images:** only real Rana Scent photos, in `public/images/products/`. Anything
   without a photo shows a "Photo coming soon" panel.
 
+### Phase 2: database and admin foundation (branch `claude/rana-scent-env-verify-6prcez`)
+- Supabase migrations with RLS on every table, staff roles and permissions,
+  escalation guard, owner bootstrap, audit log, atomic inventory, media bucket.
+  **Tested locally only; not yet applied to the hosted project.**
+- Secure admin at `/ar/admin` (`/en/admin`): sign-in, sign-out, password
+  recovery, no public sign-up; dashboard with real figures; products,
+  categories, inventory, homepage slider (interval stored in Supabase),
+  sections, media library, staff, settings; honest pending pages for orders,
+  customers, promotions and finance.
+- Storefront reads Supabase when `CATALOG_SOURCE=supabase`; until then it keeps
+  the preview catalog.
+- Details, go-live steps and owner bootstrap: `docs/phase-2-database.md`.
+
 ## Sample data (provisional, replace with real details)
 
 Data lives in `src/features/catalog/sample-data.ts`.
@@ -87,12 +100,10 @@ Device specifications are assumptions and are labelled "provisional" on the site
 - Contact details and policy text for the draft pages.
 
 ## Next phases (planned)
-2. Supabase schema with migrations, reviewed before applying: catalog, inventory,
-   customers, orders, payments, content (hero slides, categories), staff roles,
-   audit logs. Row-level security on every table; admin authentication with roles.
-3. Move the catalog and pages onto Supabase data.
+2. ~~Supabase schema and admin~~ (built in Phase 2; awaiting approval to apply).
+3. ~~Catalog on Supabase data~~ (built; switch with `CATALOG_SOURCE=supabase`).
 4. Cart and checkout (server-side price recalculation), customer accounts, guest checkout.
-5. Admin dashboard: products, inventory, orders, customers, slider, categories, media.
+5. Admin: order workflow, customers, promotions and finance screens.
 6. Payments: Tap Payments (KNET, Visa/Mastercard, Apple Pay), using a mock provider
    first, verified server-side with webhooks. Never trust the redirect.
 7. Marketing, content, finance, analytics.
@@ -102,5 +113,7 @@ Device specifications are assumptions and are labelled "provisional" on the site
 - Never trust client prices; money is integer fils (`src/lib/money.ts`).
 - Use logical CSS properties so RTL mirrors automatically; every string goes in
   both `ar.json` and `en.json`.
-- Before a PR: `npm run check`, `npm run build`, `npm run test:e2e`.
+- Before a PR: `npm run check`, `npm run build`, `npm run test:e2e`; for
+  database or admin changes also `npm run test:db` and `npm run test:e2e:admin`
+  against the local stack.
 - Don't touch the MicroLine Supabase project or other projects.
