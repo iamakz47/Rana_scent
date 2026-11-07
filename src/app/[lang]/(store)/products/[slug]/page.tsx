@@ -14,7 +14,8 @@ import { FILS_PER_KWD } from "@/lib/money";
 
 export async function generateStaticParams() {
   const products = await listProducts();
-  return products.map((product) => ({ slug: product.slug }));
+  // Cache Components needs at least one param; an unknown slug renders 404.
+  return products.length ? products.map((product) => ({ slug: product.slug })) : [{ slug: "none" }];
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/products/[slug]">): Promise<Metadata> {
@@ -109,9 +110,11 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
               <h1 className="mt-3 font-display text-step-5 leading-[1] text-ink">{product.name[locale]}</h1>
               <p className="mt-4 text-step-1 text-ink-soft">{product.tagline[locale]}</p>
               <p className="mt-4 max-w-prose text-ink-soft">{product.description[locale]}</p>
-              <p className="mt-4 inline-block rounded-full border border-ink/12 px-3 py-1 text-step--1 text-ink-soft">
-                {dict.common.sampleNotice}
-              </p>
+              {product.isSample ? (
+                <p className="mt-4 inline-block rounded-full border border-ink/12 px-3 py-1 text-step--1 text-ink-soft">
+                  {dict.common.sampleNotice}
+                </p>
+              ) : null}
 
               <div className="mt-8 border-t border-ink/10 pt-8">
                 <PurchasePanel product={product} />
@@ -148,7 +151,9 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                           </div>
                         ))}
                       </dl>
-                      <p className="mt-3 text-step--1 text-ink-soft">{dict.product.specsProvisional}</p>
+                      {!product.specsConfirmed ? (
+                        <p className="mt-3 text-step--1 text-ink-soft">{dict.product.specsProvisional}</p>
+                      ) : null}
                     </>
                   ) : (
                     <p className="mt-3 text-ink-soft">{dict.product.specsPending}</p>

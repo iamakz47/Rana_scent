@@ -516,3 +516,8 @@ for (const product of products) {
     product.compatibleWith = [...product.compatibleWith, ...fits];
   }
 }
+
+// Sample products belong to the category of their type.
+for (const product of products) {
+  product.categories = categories.filter((category) => category.type === product.type).map((category) => category.slug);
+}
