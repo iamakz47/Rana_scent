@@ -8,7 +8,7 @@ have been applied and tested only on the local Supabase stack
 (`npx supabase start`). The storefront in production still uses the Phase 1
 preview catalog (`CATALOG_SOURCE` unset).
 
-## Migrations (`supabase/migrations/`, six files)
+## Migrations (`supabase/migrations/`)
 
 No products are seeded: Rana Scent creates the real catalogue in the admin.
 (`supabase/samples/draft_products_from_photos.sql` is an optional local sample,
@@ -22,6 +22,7 @@ not a migration.) A Sets category can be added from Categories when needed.
 | `20261103090300_commerce_foundation.sql` | `customer_addresses`, `shipping_zones`, `shipping_rates`, `discount_codes`, `promotions`, `orders`, `order_items`, `order_status_history`, `payments`, `payment_events`, `expenses` (foundation only; no checkout) |
 | `20261103090400_initial_content.sql` | Editable rows: 5 scent families, 3 categories (Electronic Diffusers, Fragrance Refills, Diffuser Accessories), the 6 existing product photos registered as site media, the current 3 homepage slides |
 | `20261103090600_admin_write_functions.sql` | `save_product()` (atomic product save) and `reorder()` |
+| `20261107090000_explicit_api_grants.sql` | Explicit, least-privilege table grants for the API roles (production does not grant them automatically): anon may only `SELECT` the 17 public tables; authenticated gets exactly what its policies use; no API role gets `TRUNCATE`. Grants and revokes only. |
 
 **Destructive operations: none.** No `drop`, `truncate` or `delete` of
 existing data. Every statement creates new objects or inserts seed rows with

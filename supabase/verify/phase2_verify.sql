@@ -1,5 +1,5 @@
 -- Rana Scent: Phase 2 post-migration checks. READ-ONLY (selects only).
--- Run in the Supabase SQL editor after applying the six migrations.
+-- Run after applying the Phase 2 migrations (including the grants migration).
 -- Every row should show ok = true.
 
 with expected_tables(name) as (values
@@ -51,6 +51,26 @@ checks(check_name, ok, detail) as (
     string_agg(t, ', ') filter (where has_table_privilege('anon', 'public.' || t, 'select'))
   from unnest(array['staff_members','audit_logs','roles','role_permissions','profiles','orders','payments',
     'payment_events','expenses','discount_codes','customer_addresses','inventory_movements']) t
+  union all
+  select 'anon can read the public catalog',
+    has_table_privilege('anon', 'public.categories', 'select')
+      and has_table_privilege('anon', 'public.products', 'select')
+      and has_table_privilege('anon', 'public.homepage_slides', 'select')
+      and has_table_privilege('anon', 'public.store_settings', 'select'),
+    'select on categories, products, slides, settings'
+  union all
+  select 'anon has no write privileges',
+    not bool_or(has_table_privilege('anon', c.oid, 'insert') or has_table_privilege('anon', c.oid, 'update')
+      or has_table_privilege('anon', c.oid, 'delete') or has_table_privilege('anon', c.oid, 'truncate')),
+    string_agg(c.relname, ', ') filter (where has_table_privilege('anon', c.oid, 'insert'))
+  from expected_tables e join pg_class c on c.relname = e.name and c.relnamespace = 'public'::regnamespace
+  union all
+  select 'staff can use the admin tables',
+    has_table_privilege('authenticated', 'public.products', 'insert')
+      and has_table_privilege('authenticated', 'public.staff_members', 'select')
+      and not has_table_privilege('authenticated', 'public.audit_logs', 'insert')
+      and not has_table_privilege('authenticated', 'public.role_permissions', 'insert'),
+    'catalog writable; audit log and role map read-only'
   union all
   select 'role permissions seeded', count(*) = 18 + 18 + 13 + 6 + 6 + 5, count(*)::text || ' grants'
   from public.role_permissions

@@ -62,6 +62,17 @@ jobs:
       # supabase/migrations. No hosted project is involved.
       - run: npm run db:start
 
+      # Production does not grant table privileges to the API roles by
+      # default. Reproduce that, then rely only on the explicit grants
+      # migration, and run the read-only verification script.
+      - name: Reproduce production privileges
+        run: |
+          DB=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          psql -v ON_ERROR_STOP=1 "$DB" -c "revoke all on all tables in schema public from anon, authenticated, service_role;"
+          psql -v ON_ERROR_STOP=1 "$DB" -f supabase/migrations/20261107090000_explicit_api_grants.sql
+          psql -v ON_ERROR_STOP=1 -tA "$DB" -f supabase/verify/phase2_verify.sql | tee verify.txt
+          ! grep -q '|f|' verify.txt
+
       - run: npm run test:db
 
       - name: Install Playwright Chromium
