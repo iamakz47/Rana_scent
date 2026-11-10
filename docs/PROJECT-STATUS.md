@@ -76,6 +76,23 @@ and accessories. Prices in Kuwaiti dinar (KWD), stored as integer fils.
   the preview catalog.
 - Details, go-live steps and owner bootstrap: `docs/phase-2-database.md`.
 
+### Phase 2 handover: remaining steps (needs database access)
+State on 2026-11-10: the six Phase 2 migrations are live on `fquqotnpvftmxgvmlqby`;
+PR #4 is green and unmerged; `20261107090000_explicit_api_grants.sql` is pending.
+A session with the Supabase connector authorised for the Rana Scent
+organisation (never MicroLine, `dvbkboovmuhrwpgfdhez`) should:
+1. `list_projects` and confirm `fquqotnpvftmxgvmlqby` before every write.
+2. `list_migrations`: expect the six Phase 2 versions and not `20261103090500`.
+3. Apply only `20261107090000_explicit_api_grants.sql` (grants/revokes only).
+4. Run `supabase/verify/phase2_verify.sql`; all 23 rows must be `ok = true`.
+5. Repeat the public anonymous checks (catalog readable, private tables refused).
+6. Merge PR #4 (owner-approved once checks pass); confirm Vercel serves
+   `/ar/admin/login` and the storefront in both languages.
+7. Owner: the owner signs in or is invited under Authentication → Users and
+   confirms the email; look up that confirmed user by email, show the
+   owner the id and email, and only after their explicit approval run
+   `select private.bootstrap_owner('<id>', '<name>');`.
+
 ## Sample data (provisional, replace with real details)
 
 Data lives in `src/features/catalog/sample-data.ts`.
