@@ -1,6 +1,6 @@
 -- Rana Scent: Phase 2 post-migration checks. READ-ONLY (selects only).
 -- Run after applying the Phase 2 migrations (including the grants migration).
--- Every row should show ok = true.
+-- Every row should show ok = true. It only reads; it changes nothing.
 
 with expected_tables(name) as (values
   ('roles'),('permissions'),('role_permissions'),('staff_members'),('audit_logs'),('profiles'),
@@ -18,6 +18,18 @@ expected_functions(name) as (values
   ('public.media_usage')
 ),
 checks(check_name, ok, detail) as (
+  select 'Phase 2 migrations recorded (6)', count(*) = 6, string_agg(version, ', ' order by version)
+  from supabase_migrations.schema_migrations
+  where version in ('20261103090000', '20261103090100', '20261103090200', '20261103090300',
+                    '20261103090400', '20261103090600')
+  union all
+  select 'grants migration recorded', count(*) = 1,
+    case when count(*) = 1 then '20261107090000' else 'not applied yet: run supabase db push' end
+  from supabase_migrations.schema_migrations where version = '20261107090000'
+  union all
+  select 'draft-products migration NOT applied', count(*) = 0, count(*)::text
+  from supabase_migrations.schema_migrations where version = '20261103090500'
+  union all
   select 'tables exist (32)', count(c.relname) = 32, count(c.relname)::text || ' of 32'
   from expected_tables e left join pg_class c
     on c.relname = e.name and c.relnamespace = 'public'::regnamespace and c.relkind = 'r'

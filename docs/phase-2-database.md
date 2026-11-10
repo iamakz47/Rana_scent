@@ -97,6 +97,21 @@ Tests: `npm run test:db` (31 RLS and escalation tests) and
 - The app keeps working throughout: with `CATALOG_SOURCE` unset the storefront
   never reads these tables.
 
+## Production status (verified from public endpoints)
+
+- The six Phase 2 migrations are live on `fquqotnpvftmxgvmlqby`: all 32 tables
+  are visible to the API, private tables refuse anonymous reads, anonymous
+  writes and admin RPCs are refused, and anonymous uploads to `media` are
+  rejected by RLS.
+- **Pending: `20261107090000_explicit_api_grants.sql`.** Production does not
+  grant table privileges to the API roles, so public tables (categories,
+  slides, settings) and every admin table currently answer "permission
+  denied". The storefront is unaffected while `CATALOG_SOURCE` is unset, but
+  the admin cannot work until this migration is applied with
+  `npx supabase db push` (it applies only this pending file).
+- Then run `supabase/verify/phase2_verify.sql` in the SQL editor (read-only,
+  23 checks including migration history); every row must be `ok = true`.
+
 ## Owner bootstrap (one time)
 
 No credentials are hard-coded and no email address grants anything.
