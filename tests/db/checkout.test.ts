@@ -171,6 +171,15 @@ describe("checkout safety", () => {
     expect(await stockOf(lowStockVariant)).toBe(1);
   });
 
+  it("accepts every Kuwaiti phone format, including local numbers starting with 965", async () => {
+    for (const phone of ["96512345", "+965 9651 2345", "0096555123456".slice(0, 13), "96555123456", "2222 3333"]) {
+      const { data, error } = await place(payload([{ variant_id: variantId, quantity: 1 }], { phone, payment_method: "cod" }));
+      expect(error, phone).toBeNull();
+      const { data: order } = await service.from("orders").select("phone").eq("id", data.order_id).single();
+      expect(order!.phone, phone).toMatch(/^\+965[2569]\d{7}$/);
+    }
+  });
+
   it("rejects drafts, unknown items, bad quantities and bad customer details", async () => {
     const cases: Array<[ReturnType<typeof payload>, string]> = [
       [payload([{ variant_id: draftVariant, quantity: 1 }]), "item_unavailable"],

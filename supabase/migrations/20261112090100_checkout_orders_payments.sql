@@ -494,7 +494,15 @@ begin
   if char_length(v_name) < 2 or char_length(v_name) > 120 then
     raise exception 'name_invalid' using errcode = '22023';
   end if;
-  v_phone := regexp_replace(v_phone, '^(\+?965)', '');
+  -- Strip the country code only when it really is one: "+965…", "00965…"
+  -- or an 11-digit "965…". A local number may itself start with 965.
+  if v_phone ~ '^\+965' then
+    v_phone := substr(v_phone, 5);
+  elsif v_phone ~ '^00965' then
+    v_phone := substr(v_phone, 6);
+  elsif v_phone ~ '^965[0-9]{8}$' then
+    v_phone := substr(v_phone, 4);
+  end if;
   if v_phone !~ '^[2569][0-9]{7}$' then
     raise exception 'phone_invalid' using errcode = '22023';
   end if;
