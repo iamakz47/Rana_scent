@@ -63,15 +63,25 @@ own view-transition layer so navigation never cross-fades it.
 
 All motion respects `prefers-reduced-motion` (the slider does not autoplay).
 
-## Admin-managed content (Phase 2)
+## Admin dashboard (Phase 2)
 
-- **Hero slider**: `src/features/merchandising/hero-slides.ts`. Zod schemas for
-  slides (position, enabled, draft/published, ar/en title and description, CTA
-  labels and internal destinations, desktop + mobile images) and settings
-  (`autoplayIntervalSeconds`, default 4). The carousel receives the interval as
-  a prop; it is never hardcoded.
-- **Categories**: `Category` in `src/features/catalog/types.ts` (image, position,
-  enabled, `showOnHome`). The quick-access row reads `listHomeCategories()`.
+Same tokens as the store, denser and calmer: ivory canvas, beige surfaces,
+espresso type and actions, muted gold only for active states, eyebrows and
+focus. Primitives live in `src/features/admin/ui/primitives.tsx`
+(`AdminPageHeader`, `Panel`, `EmptyState`, `Badge`, `Field`, `BilingualFields`,
+`adminButton`). Rules:
+
+- Display type (Bodoni / Reem Kufi) for page titles and figures only.
+- Arabic and English inputs side by side, each with its own `dir` and `lang`.
+- Reordering uses explicit up/down buttons (keyboard and touch), never drag only.
+- Empty states say what will appear and how; never invent numbers.
+- Desktop: fixed sidebar grouped by Catalog, Sales, Content, Store; tablet and
+  phone: top bar plus an inline-start drawer (`dialog.admin-drawer`).
+
+Admin-managed content: hero slides and the autoplay interval
+(`homepage_slides`, `store_settings`), homepage section order and visibility
+(`homepage_sections`), categories, products and media. See
+`docs/phase-2-database.md`.
 
 ## Logo
 

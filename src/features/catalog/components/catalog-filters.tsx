@@ -6,7 +6,7 @@ import { scentHex } from "@/components/brand/scent-colors";
 import { SearchIcon } from "@/components/ui/icons";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
-import { sortOptions } from "../queries";
+import { sortOptions } from "../filters";
 import { productTypes, scentFamilies } from "../types";
 
 // URL-driven filters: the server renders results from search params, so

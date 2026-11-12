@@ -8,7 +8,8 @@ import { getDictionary, getLocale } from "@/i18n/dictionaries";
 
 export async function generateStaticParams() {
   const categories = await listCategories();
-  return categories.map((category) => ({ slug: category.slug }));
+  // Cache Components needs at least one param; an unknown slug renders 404.
+  return categories.length ? categories.map((category) => ({ slug: category.slug })) : [{ slug: "none" }];
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/collections/[slug]">): Promise<Metadata> {
@@ -29,7 +30,7 @@ export default async function CollectionPage({ params }: PageProps<"/[lang]/coll
   const [{ slug }, locale, dict] = await Promise.all([params, getLocale(), getDictionary()]);
   const category = await getCategory(slug);
   if (!category) notFound();
-  const products = await listProducts({ type: [category.type] });
+  const products = await listProducts({ category: category.slug });
 
   return (
     <>

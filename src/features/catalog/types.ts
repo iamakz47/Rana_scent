@@ -38,21 +38,26 @@ export type Product = {
   bundleContents?: Array<{ slug: string; quantity: number }>;
   // Device specifications. PROVISIONAL until Rana Scent confirms them.
   specs?: Array<{ label: Localized; value: Localized }>;
+  // True once Rana Scent has confirmed the specifications.
+  specsConfirmed?: boolean;
+  // Category slugs the product belongs to.
+  categories?: string[];
   compatibleWith: string[];
   spaces: Space[];
   images: ProductImage[];
   variants: ProductVariant[];
   featured?: boolean;
   isNew?: boolean;
-  // Every product here is sample content until the real catalog is loaded.
-  isSample: true;
+  // Phase 1 preview content (sample data), as opposed to a published product.
+  isSample: boolean;
 };
 
 // Admin-managed in Phase 2 (create, edit, reorder, enable/disable, upload
 // image).
 export type Category = {
   slug: string;
-  type: ProductType;
+  // Optional: a category may group products of any type.
+  type?: ProductType;
   name: Localized;
   description: Localized;
   image?: ProductImage;

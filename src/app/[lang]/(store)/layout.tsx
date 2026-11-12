@@ -2,6 +2,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { StoreProviders } from "@/components/providers";
 import { CartDrawer } from "@/features/cart/cart-drawer";
+import { isLiveCatalog } from "@/features/catalog/source";
 import { getDirection } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 
@@ -21,9 +22,12 @@ export default async function StoreLayout({ children }: LayoutProps<"/[lang]">) 
       <main id="main" tabIndex={-1} className="outline-none">
         {children}
       </main>
-      <p className="border-t border-ink/10 bg-surface px-4 py-2.5 text-center text-step--1 text-ink-soft">
-        {dict.common.sampleNotice}
-      </p>
+      {/* Only the Phase 1 preview catalog carries the sample notice. */}
+      {!isLiveCatalog() && (
+        <p className="border-t border-ink/10 bg-surface px-4 py-2.5 text-center text-step--1 text-ink-soft">
+          {dict.common.sampleNotice}
+        </p>
+      )}
       <SiteFooter locale={locale} dict={dict} />
       <CartDrawer />
     </StoreProviders>

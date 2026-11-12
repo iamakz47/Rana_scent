@@ -43,3 +43,47 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  database:
+    name: Database RLS and admin e2e (local Supabase)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Starts a throwaway Supabase stack in Docker on the runner and applies
+      # supabase/migrations. No hosted project is involved.
+      - run: npm run db:start
+
+      # Production does not grant table privileges to the API roles by
+      # default. Reproduce that, then rely only on the explicit grants
+      # migration, and run the read-only verification script.
+      - name: Reproduce production privileges
+        run: |
+          DB=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          psql -v ON_ERROR_STOP=1 "$DB" -c "revoke all on all tables in schema public from anon, authenticated, service_role;"
+          psql -v ON_ERROR_STOP=1 "$DB" -f supabase/migrations/20261107090000_explicit_api_grants.sql
+          psql -v ON_ERROR_STOP=1 -tA "$DB" -f supabase/verify/phase2_verify.sql | tee verify.txt
+          ! grep -q '|f|' verify.txt
+
+      - run: npm run test:db
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - run: npm run test:e2e:admin
+
+      - name: Upload admin Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-admin
+          path: playwright-report-admin/
+          retention-days: 7

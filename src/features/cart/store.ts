@@ -10,14 +10,25 @@ const localized = z.object({ ar: z.string(), en: z.string() });
 // A cart line keeps a display snapshot so the drawer renders instantly.
 // The snapshot price is for display only: checkout recomputes every price
 // on the server from the catalog and never trusts these values.
+const mediaPrefix = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL.replace(/\/$/, "")}/storage/v1/object/public/media/`
+  : null;
+
+function isAllowedImage(value: string): boolean {
+  if (/^\/images\/[A-Za-z0-9/_.-]+$/.test(value) && !value.includes("..")) return true;
+  if (!mediaPrefix || !value.startsWith(mediaPrefix)) return false;
+  return /^[a-z]+\/[0-9a-f-]{36}\.(jpg|png|webp|avif)$/.test(value.slice(mediaPrefix.length));
+}
+
 const cartLineSchema = z.object({
   variantId: z.string().min(1),
   productSlug: z.string().min(1),
   name: localized,
   variantLabel: localized,
   unitPriceFils: z.number().int().nonnegative(),
-  // Product photo path for thumbnails; must be a same-site path.
-  image: z.string().regex(/^\/images\//).optional(),
+  // Product photo for thumbnails: a site photo, or an upload in this
+  // project's public media bucket. Nothing else is accepted from storage.
+  image: z.string().refine(isAllowedImage).optional(),
   scentFamily: z.string().optional(),
   quantity: z.number().int().min(1).max(20),
 });
