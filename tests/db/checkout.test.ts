@@ -255,6 +255,18 @@ describe("discount codes", () => {
   });
 });
 
+describe("checkout settings", () => {
+  it("only settings managers can change checkout settings", async () => {
+    for (const change of [{ cod_enabled: false }, { online_payments_enabled: false }, { order_expiry_minutes: 60 }, { delivery_note_en: "x" }]) {
+      const res = await editor.client.from("store_settings").update(change).eq("id", 1);
+      expect(res.error?.message, JSON.stringify(change)).toMatch(/settings\.write/);
+    }
+    const slider = await editor.client.from("store_settings").update({ slider_interval_seconds: 5 }).eq("id", 1);
+    expect(slider.error).toBeNull();
+    await service.from("store_settings").update({ slider_interval_seconds: 4 }).eq("id", 1);
+  });
+});
+
 describe("customer order access", () => {
   it("shows an order only with its secret token", async () => {
     const { data } = await place(payload([{ variant_id: variantId, quantity: 1 }]));
