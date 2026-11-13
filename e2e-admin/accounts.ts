@@ -4,5 +4,6 @@ export const accounts = {
   owner: "e2e-owner@rana.test",
   editor: "e2e-editor@rana.test",
   manager: "e2e-manager@rana.test",
+  support: "e2e-support@rana.test",
   customer: "e2e-customer@rana.test",
 } as const;

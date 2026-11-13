@@ -93,6 +93,14 @@ organisation (never MicroLine, `dvbkboovmuhrwpgfdhez`) should:
    owner the id and email, and only after their explicit approval run
    `select private.bootstrap_owner('<id>', '<name>');`.
 
+### Phase 3: checkout, orders, payments, delivery (PR pending)
+Guest checkout (Arabic/English, mobile-first), server-side pricing, stock
+reservation without overselling, discount codes, Kuwait delivery zones and
+fees, cash on delivery, Tap hosted payments with verified webhooks, order
+confirmation and tracking pages, and admin orders, customers, discounts,
+delivery, payments settings and finance. Details and go-live steps:
+`docs/phase-3-commerce.md`. Not applied to production yet.
+
 ## Sample data (provisional, replace with real details)
 
 Data lives in `src/features/catalog/sample-data.ts`.

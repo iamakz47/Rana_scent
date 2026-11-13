@@ -70,6 +70,7 @@ jobs:
           DB=postgresql://postgres:postgres@127.0.0.1:54322/postgres
           psql -v ON_ERROR_STOP=1 "$DB" -c "revoke all on all tables in schema public from anon, authenticated, service_role;"
           psql -v ON_ERROR_STOP=1 "$DB" -f supabase/migrations/20261107090000_explicit_api_grants.sql
+          psql -v ON_ERROR_STOP=1 "$DB" -f supabase/migrations/20261112090300_phase3_api_grants.sql
           psql -v ON_ERROR_STOP=1 -tA "$DB" -f supabase/verify/phase2_verify.sql | tee verify.txt
           ! grep -q '|f|' verify.txt
 

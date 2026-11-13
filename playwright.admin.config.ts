@@ -23,7 +23,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `scripts/with-local-supabase.sh npx next dev -p ${PORT}`,
+    command: `PAYMENTS_PROVIDER=mock scripts/with-local-supabase.sh npx next dev -p ${PORT}`,
     url: `http://localhost:${PORT}/en/admin/login`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

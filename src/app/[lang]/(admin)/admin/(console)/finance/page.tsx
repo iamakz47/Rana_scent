@@ -5,6 +5,7 @@ import { formatKWD } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 import { can, requireStaff } from "@/features/admin/auth/dal";
 import { ExpenseForm } from "@/features/admin/finance/expense-form";
+import { financeWindow } from "@/features/admin/finance/window";
 import { formatDateTime, formatNumber } from "@/features/admin/format";
 import { getAdminDictionary } from "@/features/admin/i18n";
 import { AdminPageHeader, Badge, Panel } from "@/features/admin/ui/primitives";
@@ -33,9 +34,7 @@ export default async function FinancePage() {
     supabase.from("refund_requests").select("id, order_id, amount_fils, status, reason, created_at, orders(number)").order("created_at", { ascending: false }).limit(50),
     supabase.from("expenses").select("*").order("incurred_on", { ascending: false }).limit(100),
   ]);
-  // Request-time page (requireStaff reads the session), so "now" is fine here.
-  const now = Date.now();
-  const since = now - 30 * 24 * 3600_000;
+  const { since30Days: since, todayKuwait } = financeWindow();
   const captured = (payments ?? []).filter((p) => p.status === "captured" || p.status === "refunded");
   const revenue = captured.reduce((sum, p) => sum + p.amount_fils, 0);
   const revenue30 = captured.filter((p) => Date.parse(p.created_at) >= since).reduce((sum, p) => sum + p.amount_fils, 0);
@@ -97,7 +96,7 @@ export default async function FinancePage() {
 
       <Panel title={c.expenses}>
         <div className="space-y-5">
-          {can(staff, "finance.write") ? <ExpenseForm today={new Date(now + 3 * 3600_000).toISOString().slice(0, 10)} /> : null}
+          {can(staff, "finance.write") ? <ExpenseForm today={todayKuwait} /> : null}
           {(expenses ?? []).length === 0 ? (
             <p className="text-step--1 text-ink-soft">{c.none}</p>
           ) : (
