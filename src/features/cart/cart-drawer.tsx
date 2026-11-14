@@ -11,6 +11,7 @@ import { localePath } from "@/i18n/config";
 import { format } from "@/i18n/format";
 import { formatKWD } from "@/lib/money";
 import { QuantityStepper } from "./quantity-stepper";
+import { useStoreConfig } from "./store-config";
 import {
   cartTotals,
   removeLine,
@@ -22,6 +23,7 @@ import {
 
 export function CartDrawer() {
   const { locale, dict } = useI18n();
+  const { checkoutEnabled } = useStoreConfig();
   const open = useCartDrawerOpen();
   const lines = useCartLines();
   const { count, subtotalFils } = cartTotals(lines);
@@ -136,9 +138,15 @@ export function CartDrawer() {
                 <ButtonLink href={localePath(locale, "/cart")} variant="outline" onClick={close}>
                   {dict.cart.viewCart}
                 </ButtonLink>
-                <Button disabled title={dict.cart.checkoutSoon}>
-                  {dict.cart.checkoutSoon}
-                </Button>
+                {checkoutEnabled ? (
+                  <ButtonLink href={localePath(locale, "/checkout")} onClick={close}>
+                    {dict.cart.checkout}
+                  </ButtonLink>
+                ) : (
+                  <Button disabled title={dict.cart.checkoutSoon}>
+                    {dict.cart.checkoutSoon}
+                  </Button>
+                )}
               </div>
             </div>
           </>

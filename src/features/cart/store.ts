@@ -67,6 +67,10 @@ export function setLineQuantity(variantId: string, quantity: number) {
   );
 }
 
+export function clearCart() {
+  cart.set(() => []);
+}
+
 export function removeLine(variantId: string) {
   setLineQuantity(variantId, 0);
 }

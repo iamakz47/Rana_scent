@@ -9,11 +9,13 @@ import { localePath } from "@/i18n/config";
 import { formatKWD } from "@/lib/money";
 import { QuantityStepper } from "./quantity-stepper";
 import { cartTotals, removeLine, setLineQuantity, useCartLines } from "./store";
+import { useStoreConfig } from "./store-config";
 
 export function CartView() {
   const { locale, dict } = useI18n();
   const lines = useCartLines();
   const { subtotalFils } = cartTotals(lines);
+  const { checkoutEnabled } = useStoreConfig();
 
   if (lines.length === 0) {
     return (
@@ -89,9 +91,15 @@ export function CartView() {
           <span className="text-step-2 text-gold-deep tabular-nums">{formatKWD(subtotalFils, locale)}</span>
         </div>
         <p className="mt-6 text-step--1 text-ink-soft">{dict.cart.taxesNote}</p>
-        <Button className="mt-6 w-full" size="lg" disabled>
-          {dict.cart.checkoutSoon}
-        </Button>
+        {checkoutEnabled ? (
+          <ButtonLink href={localePath(locale, "/checkout")} className="mt-6 w-full" size="lg">
+            {dict.cart.checkout}
+          </ButtonLink>
+        ) : (
+          <Button className="mt-6 w-full" size="lg" disabled>
+            {dict.cart.checkoutSoon}
+          </Button>
+        )}
         <ButtonLink href={localePath(locale, "/shop")} variant="ghost" className="mt-2 w-full">
           {dict.cart.continue}
         </ButtonLink>

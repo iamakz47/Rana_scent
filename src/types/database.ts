@@ -207,17 +207,23 @@ isOneToOne: true
                   ]
                 },"inventory_movements": {
                   Row: {
-                    "actor_id": string | null,"created_at": string,"id": number,"note": string,"quantity_after": number,"quantity_change": number,"reason": Database["public"]['Enums']["inventory_reason"],"variant_id": string
+                    "actor_id": string | null,"created_at": string,"id": number,"note": string,"order_id": string | null,"quantity_after": number,"quantity_change": number,"reason": Database["public"]['Enums']["inventory_reason"],"variant_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "actor_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string,"quantity_after": number,"quantity_change": number,"reason": Database["public"]['Enums']["inventory_reason"],"variant_id": string
+                    "actor_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string,"order_id"?: string | null,"quantity_after": number,"quantity_change": number,"reason": Database["public"]['Enums']["inventory_reason"],"variant_id": string
                   }
                   Update: {
-                    "actor_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string,"quantity_after"?: number,"quantity_change"?: number,"reason"?: Database["public"]['Enums']["inventory_reason"],"variant_id"?: string
+                    "actor_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string,"order_id"?: string | null,"quantity_after"?: number,"quantity_change"?: number,"reason"?: Database["public"]['Enums']["inventory_reason"],"variant_id"?: string
                   }
                   Relationships: [
                     {
+      foreignKeyName: "inventory_movements_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "inventory_movements_variant_id_fkey"
       columns: ["variant_id"]
 isOneToOne: false
@@ -271,6 +277,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"order_notes": {
+                  Row: {
+                    "actor_id": string | null,"body": string,"created_at": string,"id": number,"order_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id"?: string | null,"body": string,"created_at"?: string,"id"?: never,"order_id": string
+                  }
+                  Update: {
+                    "actor_id"?: string | null,"body"?: string,"created_at"?: string,"id"?: never,"order_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_notes_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"order_status_history": {
                   Row: {
                     "actor_id": string | null,"created_at": string,"from_status": Database["public"]['Enums']["order_status"] | null,"id": number,"note": string,"order_id": string,"to_status": Database["public"]['Enums']["order_status"]
@@ -293,14 +319,14 @@ isOneToOne: false
                   ]
                 },"orders": {
                   Row: {
-                    "created_at": string,"currency": string,"customer_note": string,"discount_code_id": string | null,"discount_fils": number,"email": string,"id": string,"locale": string,"number": number,"phone": string,"placed_at": string | null,"shipping_address": NonNullable<Json>,"shipping_fils": number,"shipping_rate_id": string | null,"status": Database["public"]['Enums']["order_status"],"subtotal_fils": number,"total_fils": number,"updated_at": string,"user_id": string | null
+                    "access_token": string,"courier": string,"created_at": string,"currency": string,"customer_name": string,"customer_note": string,"delivery_instructions": string,"discount_code_id": string | null,"discount_fils": number,"email": string,"estimated_delivery": string | null,"expires_at": string | null,"id": string,"idempotency_key": string | null,"locale": string,"number": number,"payment_method": string,"phone": string,"placed_at": string | null,"shipping_address": NonNullable<Json>,"shipping_fils": number,"shipping_rate_id": string | null,"status": Database["public"]['Enums']["order_status"],"stock_released": boolean,"subtotal_fils": number,"total_fils": number,"tracking_number": string,"updated_at": string,"user_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"currency"?: string,"customer_note"?: string,"discount_code_id"?: string | null,"discount_fils"?: number,"email": string,"id"?: string,"locale"?: string,"number"?: never,"phone": string,"placed_at"?: string | null,"shipping_address": NonNullable<Json>,"shipping_fils"?: number,"shipping_rate_id"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fils": number,"total_fils": number,"updated_at"?: string,"user_id"?: string | null
+                    "access_token"?: string,"courier"?: string,"created_at"?: string,"currency"?: string,"customer_name"?: string,"customer_note"?: string,"delivery_instructions"?: string,"discount_code_id"?: string | null,"discount_fils"?: number,"email": string,"estimated_delivery"?: string | null,"expires_at"?: string | null,"id"?: string,"idempotency_key"?: string | null,"locale"?: string,"number"?: never,"payment_method"?: string,"phone": string,"placed_at"?: string | null,"shipping_address": NonNullable<Json>,"shipping_fils"?: number,"shipping_rate_id"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"stock_released"?: boolean,"subtotal_fils": number,"total_fils": number,"tracking_number"?: string,"updated_at"?: string,"user_id"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"currency"?: string,"customer_note"?: string,"discount_code_id"?: string | null,"discount_fils"?: number,"email"?: string,"id"?: string,"locale"?: string,"number"?: never,"phone"?: string,"placed_at"?: string | null,"shipping_address"?: NonNullable<Json>,"shipping_fils"?: number,"shipping_rate_id"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fils"?: number,"total_fils"?: number,"updated_at"?: string,"user_id"?: string | null
+                    "access_token"?: string,"courier"?: string,"created_at"?: string,"currency"?: string,"customer_name"?: string,"customer_note"?: string,"delivery_instructions"?: string,"discount_code_id"?: string | null,"discount_fils"?: number,"email"?: string,"estimated_delivery"?: string | null,"expires_at"?: string | null,"id"?: string,"idempotency_key"?: string | null,"locale"?: string,"number"?: never,"payment_method"?: string,"phone"?: string,"placed_at"?: string | null,"shipping_address"?: NonNullable<Json>,"shipping_fils"?: number,"shipping_rate_id"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"stock_released"?: boolean,"subtotal_fils"?: number,"total_fils"?: number,"tracking_number"?: string,"updated_at"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -345,14 +371,14 @@ isOneToOne: false
                   ]
                 },"payments": {
                   Row: {
-                    "amount_fils": number,"created_at": string,"currency": string,"id": string,"method": string | null,"order_id": string,"provider": string,"provider_charge_id": string | null,"status": Database["public"]['Enums']["payment_status"],"updated_at": string
+                    "amount_fils": number,"created_at": string,"currency": string,"id": string,"method": string | null,"order_id": string,"provider": string,"provider_charge_id": string | null,"provider_reference": string | null,"raw_status": string | null,"status": Database["public"]['Enums']["payment_status"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount_fils": number,"created_at"?: string,"currency"?: string,"id"?: string,"method"?: string | null,"order_id": string,"provider"?: string,"provider_charge_id"?: string | null,"status"?: Database["public"]['Enums']["payment_status"],"updated_at"?: string
+                    "amount_fils": number,"created_at"?: string,"currency"?: string,"id"?: string,"method"?: string | null,"order_id": string,"provider"?: string,"provider_charge_id"?: string | null,"provider_reference"?: string | null,"raw_status"?: string | null,"status"?: Database["public"]['Enums']["payment_status"],"updated_at"?: string
                   }
                   Update: {
-                    "amount_fils"?: number,"created_at"?: string,"currency"?: string,"id"?: string,"method"?: string | null,"order_id"?: string,"provider"?: string,"provider_charge_id"?: string | null,"status"?: Database["public"]['Enums']["payment_status"],"updated_at"?: string
+                    "amount_fils"?: number,"created_at"?: string,"currency"?: string,"id"?: string,"method"?: string | null,"order_id"?: string,"provider"?: string,"provider_charge_id"?: string | null,"provider_reference"?: string | null,"raw_status"?: string | null,"status"?: Database["public"]['Enums']["payment_status"],"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -523,6 +549,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"refund_requests": {
+                  Row: {
+                    "amount_fils": number,"created_at": string,"id": string,"order_id": string,"payment_id": string | null,"processed_at": string | null,"processed_by": string | null,"provider_refund_id": string | null,"reason": string,"requested_by": string | null,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_fils": number,"created_at"?: string,"id"?: string,"order_id": string,"payment_id"?: string | null,"processed_at"?: string | null,"processed_by"?: string | null,"provider_refund_id"?: string | null,"reason": string,"requested_by"?: string | null,"status"?: string
+                  }
+                  Update: {
+                    "amount_fils"?: number,"created_at"?: string,"id"?: string,"order_id"?: string,"payment_id"?: string | null,"processed_at"?: string | null,"processed_by"?: string | null,"provider_refund_id"?: string | null,"reason"?: string,"requested_by"?: string | null,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "refund_requests_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "refund_requests_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: false
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"role_permissions": {
                   Row: {
                     "permission": string,"role": string
@@ -599,14 +651,14 @@ isOneToOne: false
                   ]
                 },"shipping_zones": {
                   Row: {
-                    "created_at": string,"governorates": (string)[],"id": string,"is_active": boolean,"name_ar": string,"name_en": string,"position": number,"updated_at": string
+                    "areas": (string)[],"created_at": string,"governorates": (string)[],"id": string,"is_active": boolean,"name_ar": string,"name_en": string,"position": number,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"governorates"?: (string)[],"id"?: string,"is_active"?: boolean,"name_ar": string,"name_en": string,"position"?: number,"updated_at"?: string
+                    "areas"?: (string)[],"created_at"?: string,"governorates"?: (string)[],"id"?: string,"is_active"?: boolean,"name_ar": string,"name_en": string,"position"?: number,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"governorates"?: (string)[],"id"?: string,"is_active"?: boolean,"name_ar"?: string,"name_en"?: string,"position"?: number,"updated_at"?: string
+                    "areas"?: (string)[],"created_at"?: string,"governorates"?: (string)[],"id"?: string,"is_active"?: boolean,"name_ar"?: string,"name_en"?: string,"position"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -633,14 +685,14 @@ isOneToOne: false
                   ]
                 },"store_settings": {
                   Row: {
-                    "contact_email": string,"contact_phone": string,"currency": string,"default_low_stock_threshold": number,"id": number,"instagram_handle": string,"slider_autoplay": boolean,"slider_interval_seconds": number,"updated_at": string,"updated_by": string | null,"whatsapp_number": string
+                    "cod_enabled": boolean,"contact_email": string,"contact_phone": string,"currency": string,"default_low_stock_threshold": number,"delivery_note_ar": string,"delivery_note_en": string,"id": number,"instagram_handle": string,"online_payments_enabled": boolean,"order_expiry_minutes": number,"slider_autoplay": boolean,"slider_interval_seconds": number,"updated_at": string,"updated_by": string | null,"whatsapp_number": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "contact_email"?: string,"contact_phone"?: string,"currency"?: string,"default_low_stock_threshold"?: number,"id"?: number,"instagram_handle"?: string,"slider_autoplay"?: boolean,"slider_interval_seconds"?: number,"updated_at"?: string,"updated_by"?: string | null,"whatsapp_number"?: string
+                    "cod_enabled"?: boolean,"contact_email"?: string,"contact_phone"?: string,"currency"?: string,"default_low_stock_threshold"?: number,"delivery_note_ar"?: string,"delivery_note_en"?: string,"id"?: number,"instagram_handle"?: string,"online_payments_enabled"?: boolean,"order_expiry_minutes"?: number,"slider_autoplay"?: boolean,"slider_interval_seconds"?: number,"updated_at"?: string,"updated_by"?: string | null,"whatsapp_number"?: string
                   }
                   Update: {
-                    "contact_email"?: string,"contact_phone"?: string,"currency"?: string,"default_low_stock_threshold"?: number,"id"?: number,"instagram_handle"?: string,"slider_autoplay"?: boolean,"slider_interval_seconds"?: number,"updated_at"?: string,"updated_by"?: string | null,"whatsapp_number"?: string
+                    "cod_enabled"?: boolean,"contact_email"?: string,"contact_phone"?: string,"currency"?: string,"default_low_stock_threshold"?: number,"delivery_note_ar"?: string,"delivery_note_en"?: string,"id"?: number,"instagram_handle"?: string,"online_payments_enabled"?: boolean,"order_expiry_minutes"?: number,"slider_autoplay"?: boolean,"slider_interval_seconds"?: number,"updated_at"?: string,"updated_by"?: string | null,"whatsapp_number"?: string
                   }
                   Relationships: [
                     
@@ -657,6 +709,20 @@ isOneToOne: false
 "assign_staff_role":
 { Args: { "name"?: string,"target_email": string,"target_role": string }; Returns: string
                            },
+"attach_payment_charge":
+{ Args: { "p_charge_id": string,"p_order": string,"p_provider": string }; Returns: undefined
+                           },
+"expire_unpaid_orders":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"get_order_for_customer":
+{ Args: { "order_number": number,"token": string }; Returns: Json
+                           },
+"list_customers":
+{ Args: { "p_search"?: string }; Returns: {
+              "customer_name": string,"email": string,"has_account": boolean,"last_order_at": string,"orders_count": number,"paid_total_fils": number,"phone": string
+            }[]
+                           },
 "list_staff":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"display_name": string,"email": string,"is_active": boolean,"last_sign_in_at": string,"role": string,"user_id": string
@@ -667,15 +733,30 @@ isOneToOne: false
               "kind": string,"label": string,"ref_id": string
             }[]
                            },
+"place_order":
+{ Args: { "p_payload": Json }; Returns: Json
+                           },
+"quote_order":
+{ Args: { "p_area"?: string,"p_discount_code"?: string,"p_governorate"?: string,"p_items": Json }; Returns: Json
+                           },
+"record_payment_result":
+{ Args: { "p_amount_fils": number,"p_charge_id": string,"p_currency": string,"p_event_id": string,"p_method": string,"p_payload": Json,"p_provider": string,"p_reference": string,"p_signature_valid": boolean,"p_status": string }; Returns: string
+                           },
 "reorder":
 { Args: { "ids": (string)[],"target_table": string }; Returns: undefined
+                           },
+"request_refund":
+{ Args: { "p_amount": number,"p_order": string,"p_reason": string }; Returns: string
+                           },
+"resolve_refund":
+{ Args: { "p_approve": boolean,"p_provider_refund_id"?: string,"p_request": string }; Returns: undefined
                            },
 "save_product":
 { Args: { "payload": Json }; Returns: string
                            }
           }
           Enums: {
-            "inventory_reason": "initial"|"restock"|"adjustment"|"correction"|"damage"|"sale"|"return","order_status": "pending"|"awaiting_payment"|"paid"|"processing"|"shipped"|"delivered"|"cancelled"|"refunded","payment_status": "initiated"|"authorized"|"captured"|"failed"|"cancelled"|"refunded","product_type": "diffuser"|"refill"|"accessory"|"bundle","publish_status": "draft"|"published"|"archived"
+            "inventory_reason": "initial"|"restock"|"adjustment"|"correction"|"damage"|"sale"|"return","order_status": "pending"|"awaiting_payment"|"paid"|"processing"|"ready_for_delivery"|"out_for_delivery"|"shipped"|"delivered"|"cancelled"|"refunded","payment_status": "initiated"|"authorized"|"captured"|"failed"|"cancelled"|"refunded","product_type": "diffuser"|"refill"|"accessory"|"bundle","publish_status": "draft"|"published"|"archived"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -791,7 +872,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "inventory_reason": ["initial", "restock", "adjustment", "correction", "damage", "sale", "return"],"order_status": ["pending", "awaiting_payment", "paid", "processing", "shipped", "delivered", "cancelled", "refunded"],"payment_status": ["initiated", "authorized", "captured", "failed", "cancelled", "refunded"],"product_type": ["diffuser", "refill", "accessory", "bundle"],"publish_status": ["draft", "published", "archived"]
+            "inventory_reason": ["initial", "restock", "adjustment", "correction", "damage", "sale", "return"],"order_status": ["pending", "awaiting_payment", "paid", "processing", "ready_for_delivery", "out_for_delivery", "shipped", "delivered", "cancelled", "refunded"],"payment_status": ["initiated", "authorized", "captured", "failed", "cancelled", "refunded"],"product_type": ["diffuser", "refill", "accessory", "bundle"],"publish_status": ["draft", "published", "archived"]
           }
         }
 } as const
