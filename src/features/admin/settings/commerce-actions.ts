@@ -116,3 +116,33 @@ export async function saveRate(_prev: ActionResult, formData: FormData): Promise
   done(formData);
   return { status: "ok", message: t.commerce.delivery.rateSaved };
 }
+
+export async function saveNotificationSettings(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+  const t = actionDictionary(formData);
+  const staff = await authorize("settings.write");
+  if (!staff) return { status: "error", message: t.common.noPermissionAction };
+  const parsed = z
+    .object({
+      staff_email: z.union([z.literal(""), z.email().max(254)]),
+      staff_locale: z.enum(["ar", "en"]),
+      customer_emails_enabled: z.boolean(),
+      low_stock_alerts: z.boolean(),
+    })
+    .safeParse({
+      staff_email: String(formData.get("staff_email") ?? "").trim().toLowerCase(),
+      staff_locale: formData.get("staff_locale"),
+      customer_emails_enabled: formData.get("customer_emails_enabled") === "on",
+      low_stock_alerts: formData.get("low_stock_alerts") === "on",
+    });
+  if (!parsed.success) return { status: "error", message: t.common.error };
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("notification_settings")
+    .update({ ...parsed.data, updated_by: staff.userId })
+    .eq("id", 1)
+    .select("id");
+  if (error) return { status: "error", message: dbErrorMessage(error, t) };
+  if (!data?.length) return { status: "error", message: t.common.noPermissionAction };
+  done(formData);
+  return { status: "ok", message: t.p4.notificationsSaved };
+}
