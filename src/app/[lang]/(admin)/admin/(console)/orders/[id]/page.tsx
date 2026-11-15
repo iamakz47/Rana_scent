@@ -8,9 +8,12 @@ import { can, requireStaff } from "@/features/admin/auth/dal";
 import { filsToKwdInput, formatDateTime } from "@/features/admin/format";
 import { getAdminDictionary } from "@/features/admin/i18n";
 import {
+  EmailRetryForm,
   NoteForm,
+  RefundReopenForm,
   RefundRequestForm,
   RefundResolveForm,
+  RefundSendForm,
   StatusControls,
   TrackingForm,
 } from "@/features/admin/orders/order-controls";
@@ -29,7 +32,7 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
   const { locale, t } = await getAdminDictionary();
   const c = t.commerce;
   const supabase = await createClient();
-  const [{ data: order }, { data: history }, { data: notes }, { data: refunds }, team] = await Promise.all([
+  const [{ data: order }, { data: history }, { data: notes }, { data: refunds }, { data: emails }, team] = await Promise.all([
     supabase
       .from("orders")
       .select("*, order_items(*), payments(*)")
@@ -38,6 +41,11 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
     supabase.from("order_status_history").select("*").eq("order_id", id).order("created_at"),
     supabase.from("order_notes").select("*").eq("order_id", id).order("created_at"),
     supabase.from("refund_requests").select("*").eq("order_id", id).order("created_at"),
+    supabase
+      .from("email_messages")
+      .select("id, kind, audience, to_email, status, attempts, provider, last_error, created_at, sent_at")
+      .eq("order_id", id)
+      .order("created_at"),
     can(staff, "staff.read") ? supabase.rpc("list_staff") : Promise.resolve({ data: [] as Array<{ user_id: string; display_name: string; email: string }> }),
   ]);
   if (!order) notFound();
@@ -60,7 +68,12 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
       ? { block: "قطعة", street: "شارع", avenue: "جادة", building: "مبنى", floor: "دور", apartment: "شقة" }
       : { block: "Block", street: "Street", avenue: "Avenue", building: "Building", floor: "Floor", apartment: "Apt" };
   const captured = order.payments.filter((p) => p.status === "captured").reduce((sum, p) => sum + p.amount_fils, 0);
-  const requested = (refunds ?? []).filter((r) => r.status !== "rejected").reduce((sum, r) => sum + r.amount_fils, 0);
+  const requested = (refunds ?? [])
+    .filter((r) => ["requested", "processing", "processed"].includes(r.status))
+    .reduce((sum, r) => sum + r.amount_fils, 0);
+  const providerPayment = (paymentId: string | null) =>
+    order.payments.find((p) => p.id === paymentId && (p.provider === "tap" || p.provider === "mock") && p.provider_charge_id);
+  const finance = can(staff, "finance.write");
   const timeline = [
     ...(history ?? []).map((h) => ({
       at: h.created_at,
@@ -82,6 +95,9 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
           <div className="flex flex-wrap gap-2">
             <Badge tone={orderStatusTone(order.status)}>{c.statuses[order.status]}</Badge>
             <Badge>{c.methods[order.payment_method]}</Badge>
+            {order.refunded_fils > 0 && order.status !== "refunded" ? (
+              <Badge tone="warning">{format(t.p4.partiallyRefunded, { amount: money(order.refunded_fils) })}</Badge>
+            ) : null}
           </div>
         }
       />
@@ -143,6 +159,12 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
               <dt>{c.orders.grandTotal}</dt>
               <dd className="tabular-nums text-gold-deep">{money(order.total_fils)}</dd>
             </div>
+            {order.refunded_fils > 0 ? (
+              <div className="flex justify-between">
+                <dt className="text-ink-soft">{t.p4.refundedAmount}</dt>
+                <dd className="tabular-nums">−{money(order.refunded_fils)}</dd>
+              </div>
+            ) : null}
           </dl>
         </Panel>
 
@@ -244,14 +266,29 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
             <div key={r.id} className="rounded-xl border border-ink/10 p-3 text-step--1">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span>
-                  <Badge tone={r.status === "processed" ? "success" : r.status === "rejected" ? "neutral" : "warning"}>
+                  <Badge
+                    tone={r.status === "processed" ? "success" : r.status === "failed" ? "danger" : r.status === "rejected" ? "neutral" : "warning"}
+                  >
                     {c.orders.refundStatus[r.status]}
                   </Badge>{" "}
                   {r.reason}
+                  {r.provider_refund_id ? (
+                    <span className="block text-[0.72rem] text-ink-soft" dir="ltr">
+                      {t.p4.providerRef}: {r.provider_refund_id}
+                      {r.provider_status ? ` · ${r.provider_status}` : ""}
+                    </span>
+                  ) : null}
+                  {r.last_error ? <span className="block text-[0.72rem] text-[#86352b]">{r.last_error}</span> : null}
                 </span>
                 <span className="tabular-nums">{money(r.amount_fils)}</span>
               </div>
-              {r.status === "requested" && can(staff, "finance.write") ? <RefundResolveForm id={order.id} refundId={r.id} /> : null}
+              {finance && r.status === "requested" && providerPayment(r.payment_id) ? (
+                <RefundSendForm id={order.id} refundId={r.id} />
+              ) : null}
+              {finance && (r.status === "requested" || r.status === "processing") ? (
+                <RefundResolveForm id={order.id} refundId={r.id} canReject={r.status === "requested"} />
+              ) : null}
+              {finance && r.status === "failed" ? <RefundReopenForm id={order.id} refundId={r.id} /> : null}
             </div>
           ))}
           {captured > 0 && captured - requested > 0 && (writable || can(staff, "finance.write")) ? (
@@ -260,6 +297,39 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
             <p className="text-[0.78rem] text-ink-soft">{c.orders.paidOnlyRefund}</p>
           ) : null}
         </div>
+      </Panel>
+
+      <Panel title={t.p4.emailsTitle}>
+        {(emails ?? []).length === 0 ? (
+          <p className="text-step--1 text-ink-soft">{t.p4.emailsEmpty}</p>
+        ) : (
+          <ul className="divide-y divide-ink/8 text-step--1">
+            {(emails ?? []).map((e) => (
+              <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <span>
+                  <Badge tone={e.status === "sent" ? "success" : e.status === "failed" ? "danger" : "neutral"}>
+                    {t.p4.emailStatus[e.status] ?? e.status}
+                  </Badge>{" "}
+                  {t.p4.emailKinds[e.kind] ?? e.kind}
+                  <span className="block text-[0.72rem] text-ink-soft" dir="ltr">
+                    {e.to_email || "—"}
+                    {e.provider === "test" ? ` · ${t.p4.testMode}` : e.provider === "suppressed" ? ` · ${t.p4.suppressed}` : ""}
+                    {e.attempts > 1 ? ` · ${t.p4.attempts}: ${e.attempts}` : ""}
+                  </span>
+                  {e.status !== "sent" && e.last_error ? (
+                    <span className="block text-[0.72rem] text-ink-soft">{e.last_error}</span>
+                  ) : null}
+                </span>
+                <span className="flex items-center gap-2">
+                  <time dateTime={e.sent_at ?? e.created_at} className="text-[0.75rem] tabular-nums text-ink-soft">
+                    {formatDateTime(e.sent_at ?? e.created_at, locale)}
+                  </time>
+                  {writable && e.status === "failed" ? <EmailRetryForm id={order.id} emailId={e.id} /> : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </Panel>
 
       <Panel title={c.orders.timeline}>

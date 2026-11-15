@@ -4,7 +4,16 @@ import { useActionState } from "react";
 import { useAdminI18n } from "@/features/admin/i18n/client";
 import { ActionMessage, idle, SubmitButton, type ActionResult } from "@/features/admin/ui/form";
 import { Field, TextArea, TextInput } from "@/features/admin/ui/primitives";
-import { addOrderNote, requestRefund, resolveRefund, saveTracking, updateOrderStatus } from "./actions";
+import {
+  addOrderNote,
+  reopenRefund,
+  requestRefund,
+  resolveRefund,
+  retryEmail,
+  saveTracking,
+  sendRefund,
+  updateOrderStatus,
+} from "./actions";
 
 function Hidden({ id }: { id: string }) {
   const { locale } = useAdminI18n();
@@ -136,22 +145,80 @@ export function RefundRequestForm({ id, maxKwd }: { id: string; maxKwd: string }
   );
 }
 
-export function RefundResolveForm({ id, refundId }: { id: string; refundId: string }) {
+// Manual resolution: cash refunds, refunds made in the provider dashboard,
+// or confirming a refund whose provider outcome was checked by hand.
+export function RefundResolveForm({ id, refundId, canReject }: { id: string; refundId: string; canReject: boolean }) {
   const { t } = useAdminI18n();
   const c = t.commerce.orders;
   const [state, action] = useActionState<ActionResult, FormData>(resolveRefund, idle);
   return (
-    <form action={action} className="mt-2 flex flex-wrap items-end gap-2">
+    <form action={action} className="mt-2 space-y-2">
       <Hidden id={id} />
       <input type="hidden" name="refund_id" value={refundId} />
-      <Field label={c.providerRefundId} htmlFor={`prov-${refundId}`}>
-        <TextInput id={`prov-${refundId}`} name="provider_refund_id" maxLength={80} dir="ltr" className="min-h-8 py-1" />
-      </Field>
-      <SubmitButton size="sm" name="approve" value="1">
-        {c.approve}
+      <p className="text-[0.75rem] text-ink-soft">
+        {t.p4.manualResolve}: {t.p4.manualHint}
+      </p>
+      <div className="flex flex-wrap items-end gap-2">
+        <Field label={c.providerRefundId} htmlFor={`prov-${refundId}`}>
+          <TextInput id={`prov-${refundId}`} name="provider_refund_id" maxLength={80} dir="ltr" className="min-h-8 py-1" />
+        </Field>
+        <SubmitButton size="sm" tone="outline" name="approve" value="1">
+          {t.p4.markRefunded}
+        </SubmitButton>
+        {canReject ? (
+          <SubmitButton size="sm" tone="ghost" name="approve" value="0">
+            {c.reject}
+          </SubmitButton>
+        ) : null}
+      </div>
+      <ActionMessage state={state} />
+    </form>
+  );
+}
+
+export function RefundSendForm({ id, refundId }: { id: string; refundId: string }) {
+  const { t } = useAdminI18n();
+  const [state, action] = useActionState<ActionResult, FormData>(sendRefund, idle);
+  return (
+    <form
+      action={action}
+      className="mt-2 flex flex-wrap items-center gap-3"
+      onSubmit={(event) => {
+        if (!window.confirm(t.p4.sendRefundConfirm)) event.preventDefault();
+      }}
+    >
+      <Hidden id={id} />
+      <input type="hidden" name="refund_id" value={refundId} />
+      <SubmitButton size="sm">{t.p4.sendRefund}</SubmitButton>
+      <ActionMessage state={state} />
+    </form>
+  );
+}
+
+export function RefundReopenForm({ id, refundId }: { id: string; refundId: string }) {
+  const { t } = useAdminI18n();
+  const [state, action] = useActionState<ActionResult, FormData>(reopenRefund, idle);
+  return (
+    <form action={action} className="mt-2 flex flex-wrap items-center gap-3">
+      <Hidden id={id} />
+      <input type="hidden" name="refund_id" value={refundId} />
+      <SubmitButton size="sm" tone="outline">
+        {t.p4.reopen}
       </SubmitButton>
-      <SubmitButton size="sm" tone="ghost" name="approve" value="0">
-        {c.reject}
+      <ActionMessage state={state} />
+    </form>
+  );
+}
+
+export function EmailRetryForm({ id, emailId }: { id: string; emailId: string }) {
+  const { t } = useAdminI18n();
+  const [state, action] = useActionState<ActionResult, FormData>(retryEmail, idle);
+  return (
+    <form action={action} className="inline-flex items-center gap-2">
+      <Hidden id={id} />
+      <input type="hidden" name="email_id" value={emailId} />
+      <SubmitButton size="sm" tone="ghost">
+        {t.p4.emailRetry}
       </SubmitButton>
       <ActionMessage state={state} />
     </form>
