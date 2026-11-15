@@ -1,12 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getPaymentsConfig } from "@/features/payments/config";
-import { recordVerifiedCharge } from "@/features/payments/service";
+import { recordRefundById, recordVerifiedCharge } from "@/features/payments/service";
 import { TapProvider, verifyTapWebhook } from "@/features/payments/tap";
 
-// Tap charge webhook. The body is treated as a hint only: the hashstring
-// signature is checked, and the charge is then re-fetched from Tap with the
-// secret key. Only that authenticated result can change an order. Replays
-// are harmless (each charge status is recorded once).
+// Tap charge and refund webhook. The body is treated as a hint only: the
+// hashstring signature is checked (and kept for audit), and the charge or
+// refund is then re-fetched from Tap with the secret key. Only that
+// authenticated result can change an order. Replays, duplicates and
+// out-of-order events are harmless: each charge status is recorded once, a
+// settled payment never moves backwards, and a final refund stays final.
 export async function POST(request: NextRequest) {
   const config = getPaymentsConfig();
   if (config.kind !== "tap") return NextResponse.json({ ok: false }, { status: 404 });
@@ -19,7 +21,16 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
-  const chargeId = typeof body.id === "string" ? body.id : "";
+  const id = typeof body.id === "string" ? body.id : "";
+  if (/^re_[A-Za-z0-9]+$/.test(id)) {
+    try {
+      const outcome = await recordRefundById("tap", id);
+      return NextResponse.json({ ok: true, outcome });
+    } catch {
+      return NextResponse.json({ ok: false }, { status: 502 });
+    }
+  }
+  const chargeId = id;
   if (!/^chg_[A-Za-z0-9]+$/.test(chargeId)) return NextResponse.json({ ok: true, ignored: true });
 
   const hashValid = verifyTapWebhook(body, request.headers.get("hashstring"), config.secretKey);

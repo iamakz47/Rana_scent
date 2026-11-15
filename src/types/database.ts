@@ -757,7 +757,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "adjust_inventory":
+            "abandon_unstarted_payment":
+{ Args: { "p_order": string }; Returns: boolean
+                           },
+"adjust_inventory":
 { Args: { "note"?: string,"quantity_change": number,"reason": Database["public"]['Enums']["inventory_reason"],"target_variant": string }; Returns: number
                            },
 "approve_refund":

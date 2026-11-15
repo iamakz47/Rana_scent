@@ -384,3 +384,26 @@ as $$
 $$;
 revoke all on function public.get_order_for_customer(bigint, uuid) from public;
 grant execute on function public.get_order_for_customer(bigint, uuid) to anon, authenticated, service_role;
+
+-- The server couldn't create the provider charge (provider down, network
+-- error): no payment page was ever shown, so cancel the order now and
+-- release its stock instead of holding it until expiry. Only orders whose
+-- open payment has no provider charge attached qualify. Service role only.
+create or replace function public.abandon_unstarted_payment(p_order uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if exists (select 1 from public.payments p where p.order_id = p_order and p.provider_charge_id is not null) then
+    return false;
+  end if;
+  update public.payments set status = 'cancelled', raw_status = 'NOT_STARTED'
+  where order_id = p_order and status = 'initiated';
+  update public.orders set status = 'cancelled' where id = p_order and status = 'awaiting_payment';
+  return found;
+end;
+$$;
+revoke all on function public.abandon_unstarted_payment(uuid) from public, anon, authenticated;
+grant execute on function public.abandon_unstarted_payment(uuid) to service_role;

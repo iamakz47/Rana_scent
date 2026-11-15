@@ -3,13 +3,11 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { isLocale, localePath, type Locale } from "@/i18n/config";
-import { formatKWD } from "@/lib/money";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { isServiceConfigured } from "@/lib/supabase/service";
-import { appOrigin } from "@/features/admin/auth/origin";
-import { sendOrderEmail } from "@/features/notifications/email";
+import { scheduleEmailDispatch } from "@/features/notifications/dispatch";
 import { onlinePaymentsAvailable } from "@/features/payments/config";
 import { confirmMockOutcome, startPayment } from "@/features/payments/service";
 import { cartItemsSchema, checkoutSchema, governorates, issueToErrorKey, knownCheckoutErrors } from "./schema";
@@ -145,17 +143,8 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     redirect(payment.paymentUrl);
   }
 
-  if (!order.duplicate && input.email) {
-    const origin = await appOrigin();
-    await sendOrderEmail({
-      to: input.email,
-      locale: input.locale,
-      orderNumber: order.number,
-      totalLabel: formatKWD(order.total_fils, input.locale),
-      statusLabel: input.locale === "ar" ? "تم الاستلام" : "Received",
-      orderUrl: `${origin}${orderPath}`,
-    });
-  }
+  // The confirmation emails were queued by the database with the order.
+  if (!order.duplicate) scheduleEmailDispatch();
   redirect(orderPath);
 }
 
