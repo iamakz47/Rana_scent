@@ -3,10 +3,11 @@ import Link from "next/link";
 import { localePath } from "@/i18n/config";
 import { formatKWD } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
-import { requireStaff } from "@/features/admin/auth/dal";
+import { can, requireStaff } from "@/features/admin/auth/dal";
+import { DeletionResolveForm } from "@/features/admin/customers/deletion-form";
 import { formatDateTime, formatNumber } from "@/features/admin/format";
 import { getAdminDictionary } from "@/features/admin/i18n";
-import { AdminPageHeader, Badge, EmptyState } from "@/features/admin/ui/primitives";
+import { AdminPageHeader, Badge, EmptyState, Panel } from "@/features/admin/ui/primitives";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getAdminDictionary();
@@ -14,16 +15,43 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CustomersPage({ searchParams }: PageProps<"/[lang]/admin/customers">) {
-  await requireStaff("customers.read");
+  const staff = await requireStaff("customers.read");
   const [{ locale, t }, query] = await Promise.all([getAdminDictionary(), searchParams]);
   const c = t.commerce.customers;
   const q = typeof query.q === "string" ? query.q.trim().replace(/[%_]/g, "").slice(0, 60) : "";
   const supabase = await createClient();
-  const { data: customers } = await supabase.rpc("list_customers", { p_search: q });
+  const [{ data: customers }, { data: deletions }] = await Promise.all([
+    supabase.rpc("list_customers", { p_search: q }),
+    supabase
+      .from("account_deletion_requests")
+      .select("id, email, reason, created_at")
+      .eq("status", "requested")
+      .order("created_at"),
+  ]);
 
   return (
     <div className="space-y-6">
       <AdminPageHeader title={c.title} body={c.body} />
+      <Panel title={t.p4.deletionTitle}>
+        {!deletions?.length ? (
+          <p className="text-step--1 text-ink-soft">{t.p4.deletionEmpty}</p>
+        ) : (
+          <ul className="divide-y divide-ink/8">
+            {deletions.map((d) => (
+              <li key={d.id} className="py-3 text-step--1">
+                <p dir="ltr" className="text-start text-ink">
+                  {d.email}
+                </p>
+                <p className="text-[0.78rem] text-ink-soft">
+                  {t.p4.requestedAt}: {formatDateTime(d.created_at, locale)}
+                  {d.reason ? ` · ${t.p4.reason}: ${d.reason}` : ""}
+                </p>
+                {can(staff, "orders.write") ? <DeletionResolveForm requestId={d.id} /> : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
       <form className="flex gap-2" action={localePath(locale, "/admin/customers")}>
         <label htmlFor="customer-search" className="sr-only">
           {c.search}

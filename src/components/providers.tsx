@@ -14,16 +14,18 @@ export function StoreProviders({
   dir,
   dict,
   checkoutEnabled = false,
+  accountsEnabled = false,
   children,
 }: {
   locale: Locale;
   dir: "rtl" | "ltr";
   dict: Dictionary;
   checkoutEnabled?: boolean;
+  accountsEnabled?: boolean;
   children: ReactNode;
 }) {
   return (
-    <StoreConfigProvider value={{ checkoutEnabled }}>
+    <StoreConfigProvider value={{ checkoutEnabled, accountsEnabled }}>
     <I18nProvider value={{ locale, dir, dict }}>
       <MotionConfig reducedMotion="user">
         <LazyMotion features={domAnimation} strict>

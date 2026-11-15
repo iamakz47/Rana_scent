@@ -62,15 +62,25 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+export type CheckoutPrefill = {
+  customer_name: string;
+  phone: string;
+  email: string;
+  address: Record<string, string> | null;
+};
+
 export function CheckoutForm({
   online,
   cod,
   deliveryNote,
+  prefill,
 }: {
   online: boolean;
   cod: boolean;
   deliveryNote: string;
+  prefill?: CheckoutPrefill | null;
 }) {
+  const saved = prefill?.address ?? null;
   const { locale, dict } = useI18n();
   const t = dict.checkout;
   const lines = useCartLines();
@@ -78,9 +88,9 @@ export function CheckoutForm({
   const keyRef = useRef<string>("");
   const keyInput = useRef<HTMLInputElement>(null);
 
-  const [governorate, setGovernorate] = useState("");
-  const [area, setArea] = useState("");
-  const [phone, setPhone] = useState("");
+  const [governorate, setGovernorate] = useState(saved?.governorate ?? "");
+  const [area, setArea] = useState(saved?.area ?? "");
+  const [phone, setPhone] = useState(prefill?.phone.replace(/^\+965/, "") ?? "");
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [codeInput, setCodeInput] = useState("");
   const [code, setCode] = useState("");
@@ -167,7 +177,7 @@ export function CheckoutForm({
 
         <Section title={t.contact}>
           <Field id="customer_name" label={t.name} error={fieldError("customer_name")}>
-            <input id="customer_name" name="customer_name" autoComplete="name" required maxLength={120} className={field}
+            <input id="customer_name" name="customer_name" autoComplete="name" required maxLength={120} className={field} defaultValue={prefill?.customer_name}
               aria-invalid={Boolean(fieldError("customer_name"))} />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -177,7 +187,7 @@ export function CheckoutForm({
                 onBlur={() => setPhoneTouched(true)} className={field} aria-invalid={phoneInvalid} />
             </Field>
             <Field id="email" label={t.email} optional={t.optional} hint={t.emailHint} error={fieldError("email")}>
-              <input id="email" name="email" type="email" autoComplete="email" dir="ltr" maxLength={254} className={field} />
+              <input id="email" name="email" type="email" autoComplete="email" dir="ltr" maxLength={254} className={field} defaultValue={prefill?.email} />
             </Field>
           </div>
         </Section>
@@ -204,27 +214,27 @@ export function CheckoutForm({
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <Field id="block" label={t.block}>
-              <input id="block" name="block" required maxLength={20} inputMode="numeric" className={field} />
+              <input id="block" name="block" required maxLength={20} inputMode="numeric" className={field} defaultValue={saved?.block} />
             </Field>
             <Field id="street" label={t.street} className="col-span-2 sm:col-span-3">
-              <input id="street" name="street" required maxLength={80} className={field} />
+              <input id="street" name="street" required maxLength={80} className={field} defaultValue={saved?.street} />
             </Field>
             <Field id="avenue" label={t.avenue} optional={t.optional}>
-              <input id="avenue" name="avenue" maxLength={40} className={field} />
+              <input id="avenue" name="avenue" maxLength={40} className={field} defaultValue={saved?.avenue} />
             </Field>
             <Field id="building" label={t.building}>
-              <input id="building" name="building" required maxLength={40} className={field} />
+              <input id="building" name="building" required maxLength={40} className={field} defaultValue={saved?.building} />
             </Field>
             <Field id="floor" label={t.floor} optional={t.optional}>
-              <input id="floor" name="floor" maxLength={10} className={field} />
+              <input id="floor" name="floor" maxLength={10} className={field} defaultValue={saved?.floor} />
             </Field>
             <Field id="apartment" label={t.apartment} optional={t.optional}>
-              <input id="apartment" name="apartment" maxLength={20} className={field} />
+              <input id="apartment" name="apartment" maxLength={20} className={field} defaultValue={saved?.apartment} />
             </Field>
           </div>
           {state.error === "address_invalid" ? <p role="alert" className="text-step--1 text-[#86352b]">{t.errors.address_invalid}</p> : null}
           <Field id="delivery_instructions" label={t.instructions} optional={t.optional}>
-            <textarea id="delivery_instructions" name="delivery_instructions" rows={2} maxLength={300} className={field} />
+            <textarea id="delivery_instructions" name="delivery_instructions" rows={2} maxLength={300} className={field} defaultValue={saved?.notes} />
           </Field>
           {deliveryNote ? <p className="text-step--1 text-ink-soft">{deliveryNote}</p> : null}
         </Section>

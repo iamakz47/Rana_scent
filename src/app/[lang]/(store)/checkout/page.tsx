@@ -9,7 +9,10 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { createPublicClient } from "@/lib/supabase/public";
 import { isServiceConfigured } from "@/lib/supabase/service";
 import { isLiveCatalog } from "@/features/catalog/source";
-import { CheckoutForm } from "@/features/checkout/checkout-form";
+import { CheckoutForm, type CheckoutPrefill } from "@/features/checkout/checkout-form";
+import { createClient } from "@/lib/supabase/server";
+import { accountsEnabled } from "@/features/account/config";
+import { getCustomer } from "@/features/account/dal";
 import { onlinePaymentsAvailable } from "@/features/payments/config";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -45,7 +48,27 @@ async function Checkout() {
       </div>
     );
   }
-  return <CheckoutForm online={online} cod={cod} deliveryNote={deliveryNote} />;
+  // Signed-in customers start with their profile and default address.
+  let prefill: CheckoutPrefill | null = null;
+  const customer = accountsEnabled() ? await getCustomer() : null;
+  if (customer?.verified) {
+    const supabase = await createClient();
+    const [{ data: profile }, { data: address }] = await Promise.all([
+      supabase.from("profiles").select("full_name, phone").eq("id", customer.id).maybeSingle(),
+      supabase
+        .from("customer_addresses")
+        .select("recipient_name, phone, governorate, area, block, street, avenue, building, floor, apartment, notes")
+        .eq("is_default", true)
+        .maybeSingle(),
+    ]);
+    prefill = {
+      customer_name: address?.recipient_name || profile?.full_name || "",
+      phone: address?.phone || profile?.phone || "",
+      email: customer.email,
+      address: address ?? null,
+    };
+  }
+  return <CheckoutForm online={online} cod={cod} deliveryNote={deliveryNote} prefill={prefill} />;
 }
 
 export default async function CheckoutPage() {
