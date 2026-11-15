@@ -10,7 +10,7 @@ import { localePath } from "@/i18n/config";
 import { format } from "@/i18n/format";
 import { formatKWD } from "@/lib/money";
 import { cn } from "@/lib/cn";
-import { useCartLines } from "@/features/cart/store";
+import { syncCartPrices, useCartLines } from "@/features/cart/store";
 import { placeOrder, quoteCheckout, type CheckoutState, type Quote } from "./actions";
 import { governorates, normalizeKuwaitPhone } from "./schema";
 
@@ -114,6 +114,7 @@ export function CheckoutForm({
         if (result.ok) {
           setQuote(result.quote);
           setQuoteError(null);
+          syncCartPrices(result.quote.lines);
         } else {
           setQuote(null);
           setQuoteError(result.error);

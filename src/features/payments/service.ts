@@ -3,6 +3,7 @@ import { localePath, type Locale } from "@/i18n/config";
 import { createServiceClient } from "@/lib/supabase/service";
 import { appOrigin } from "@/features/admin/auth/origin";
 import { dispatchEmails, scheduleEmailDispatch } from "@/features/notifications/dispatch";
+import { catalogStockChanged } from "@/features/catalog/invalidate";
 import { getPaymentsConfig } from "./config";
 import { mockProvider, type MockOutcome } from "./mock";
 import { ProviderRequestError, TapProvider } from "./tap";
@@ -78,6 +79,7 @@ export async function startPayment(orderId: string, locale: Locale): Promise<Sta
   } catch {
     // No payment page was shown, so nothing can be paid: release the stock now.
     await db.rpc("abandon_unstarted_payment", { p_order: order.id });
+    catalogStockChanged();
     scheduleEmailDispatch();
     return { ok: false, reason: "provider_error" };
   }
@@ -113,7 +115,9 @@ export async function recordVerifiedCharge(
     .maybeSingle();
   const order = payment?.orders ?? null;
   const locale: Locale = order?.locale === "en" ? "en" : "ar";
-  // Emails were queued by the database in the same transaction.
+  // A failed or cancelled payment returns stock; emails were queued by the
+  // database in the same transaction.
+  if (!["captured", "authorized", "initiated", "duplicate"].includes(String(outcome))) catalogStockChanged();
   scheduleEmailDispatch();
   return { outcome: error ? "error" : String(outcome), orderNumber: order?.number ?? null, token: order?.access_token ?? null, locale };
 }
@@ -240,6 +244,7 @@ export async function reconcilePayments(minAgeSeconds = 120): Promise<Record<str
   // Only after re-checking: cancel what is still unpaid past its window.
   const { data: expired } = await db.rpc("expire_unpaid_orders");
   counts.expired = Number(expired ?? 0);
+  if (counts.expired > 0 || counts.charges > 0) catalogStockChanged();
   const emails = await dispatchEmails(50);
   counts.emailsSent = emails.sent;
   counts.emailsFailed = emails.failed;

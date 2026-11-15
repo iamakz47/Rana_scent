@@ -9,6 +9,7 @@ import { authorize } from "@/features/admin/auth/dal";
 import { parseKwdToFils } from "@/features/admin/format";
 import type { ActionResult } from "@/features/admin/ui/form";
 import { scheduleEmailDispatch } from "@/features/notifications/dispatch";
+import { catalogStockChanged } from "@/features/catalog/invalidate";
 import { sendApprovedRefund, type Approval } from "@/features/payments/service";
 
 const statuses = ["processing", "ready_for_delivery", "out_for_delivery", "delivered", "cancelled"] as const;
@@ -36,6 +37,7 @@ export async function updateOrderStatus(_prev: ActionResult, formData: FormData)
     return { status: "error", message: error.code === "23514" ? t.commerce.orders.errors.transition : dbErrorMessage(error, t) };
   }
   if (!data?.length) return { status: "error", message: t.common.noPermissionAction };
+  if (parsed.data.status === "cancelled") catalogStockChanged();
   scheduleEmailDispatch();
   refresh(formData, parsed.data.id);
   return { status: "ok", message: t.commerce.orders.statusSaved };

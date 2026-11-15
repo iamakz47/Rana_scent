@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { isServiceConfigured } from "@/lib/supabase/service";
 import { scheduleEmailDispatch } from "@/features/notifications/dispatch";
+import { catalogStockChanged } from "@/features/catalog/invalidate";
 import { allow, clientIp } from "@/lib/rate-limit";
 import { onlinePaymentsAvailable } from "@/features/payments/config";
 import { confirmMockOutcome, startPayment } from "@/features/payments/service";
@@ -140,6 +141,7 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     duplicate: boolean;
   };
   const orderPath = localePath(input.locale, `/order?n=${order.number}&t=${order.access_token}`);
+  if (!order.duplicate) catalogStockChanged();
 
   if (order.payment_method === "tap") {
     if (order.status !== "awaiting_payment") redirect(orderPath);

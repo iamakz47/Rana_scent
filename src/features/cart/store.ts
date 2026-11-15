@@ -67,6 +67,20 @@ export function setLineQuantity(variantId: string, quantity: number) {
   );
 }
 
+// Replaces display snapshots with the server's current prices (from a
+// quote), so the drawer and cart page never show an outdated price.
+export function syncCartPrices(prices: ReadonlyArray<{ variant_id: string; unit_price_fils: number }>) {
+  const byVariant = new Map(prices.map((p) => [p.variant_id, p.unit_price_fils]));
+  cart.set((lines) => {
+    const changed = lines.some((line) => byVariant.has(line.variantId) && byVariant.get(line.variantId) !== line.unitPriceFils);
+    if (!changed) return lines;
+    return lines.map((line) => {
+      const price = byVariant.get(line.variantId);
+      return price !== undefined && Number.isSafeInteger(price) && price >= 0 ? { ...line, unitPriceFils: price } : line;
+    });
+  });
+}
+
 export function clearCart() {
   cart.set(() => []);
 }
