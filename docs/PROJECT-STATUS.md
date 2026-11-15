@@ -1,6 +1,6 @@
 # Rana Scent — project status and handover
 
-_Last updated: 2026-11-03._
+_Last updated: 2026-11-15._
 
 ## Overview
 
@@ -10,13 +10,15 @@ and accessories. Prices in Kuwaiti dinar (KWD), stored as integer fils.
 
 - **Repository:** `iamakz47/Rana_scent` (public). Work happens on branch
   `claude/rana-scent-env-verify-6prcez`.
-- **Open PR:** #3, "Phase 0–1: foundations and premium storefront". Not merged.
+- **Merged:** PR #3 (Phase 0–1), PR #4 (Phase 2), PR #5 (Phase 3, `f83b9cc`). Phase 4 is on the
+  working branch, awaiting review; it is not merged or deployed.
 - **Hosting:** Vercel. Production `ranascent.vercel.app` builds from `main`;
   PR #3 has an automatic preview deployment.
 - **Database:** Supabase project "Rana scent" (`fquqotnpvftmxgvmlqby`).
   Environment variables `NEXT_PUBLIC_SUPABASE_URL` and
   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are set in Vercel and verified.
-  **No tables or migrations yet.**
+  Phase 2 and Phase 3 migrations are applied in production; the owner account
+  is active. Production still uses the preview catalogue, with checkout closed.
 
 ## Stack
 
@@ -100,6 +102,33 @@ fees, cash on delivery, Tap hosted payments with verified webhooks, order
 confirmation and tracking pages, and admin orders, customers, discounts,
 delivery, payments settings and finance. Details and go-live steps:
 `docs/phase-3-commerce.md`. Not applied to production yet.
+
+### Phase 4: accounts, email, refunds, launch readiness (awaiting review)
+- Customer accounts:
+  - sign-up with email verification, sign-in, password reset (bilingual
+    emails), and no account enumeration;
+  - rate-limited auth forms;
+  - profile, saved addresses, order history and tracking;
+  - explicit, secure linking of guest orders;
+  - account deletion requests reviewed by staff.
+- Email outbox, queued inside the order transaction: idempotent, with retries
+  and an audit history per order.
+  - 10 customer emails, 3 account emails and 5 staff alerts in Arabic and
+    English.
+  - The Resend adapter only emails real recipients on the production
+    deployment; otherwise a test adapter records emails without sending.
+- Refunds through the payment provider: full and partial, never sent twice,
+  with failed refunds retryable by finance.
+  - Cancelling a paid order opens a refund request automatically.
+- Payment reconciliation job for missed webhooks; unpaid-order expiry and
+  email dispatch run on the same schedule.
+- Live-catalogue fixes:
+  - stock cache refreshed after orders;
+  - a dead "Sets" link fixed;
+  - real 404 status for unknown or unpublished products;
+  - cart prices synced from the server.
+- Forms keep what customers typed when the server rejects a submission.
+- Full details and the go-live checklist: `docs/phase-4-launch-readiness.md`.
 
 ## Sample data (provisional, replace with real details)
 
