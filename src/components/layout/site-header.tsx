@@ -96,7 +96,7 @@ export function SiteHeader() {
 
           <Link
             href={localePath(locale)}
-            aria-label={dict.nav.home}
+            aria-label={`${dict.meta.title} – ${dict.nav.home}`}
             className="flex items-center px-1 text-[0.9rem] sm:text-[1.05rem]"
           >
             <Logo label={dict.meta.title} priority />

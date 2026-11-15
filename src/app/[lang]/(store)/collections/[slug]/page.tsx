@@ -55,6 +55,7 @@ export default async function CollectionPage({ params }: PageProps<"/[lang]/coll
     <>
       <PageHeader title={category.name[locale]} body={category.description[locale]} />
       <div className="container-page pb-24 pt-10">
+        <h2 className="sr-only">{category.name[locale]}</h2>
         <ProductGrid products={products} locale={locale} dict={dict} />
       </div>
     </>

@@ -19,9 +19,10 @@ type Props = {
   size?: "default" | "feature";
   // Only one card per product per page may carry the shared-element name.
   morph?: boolean;
+  priority?: boolean;
 };
 
-export function ProductCard({ product, locale, dict, size = "default", morph = true }: Props) {
+export function ProductCard({ product, locale, dict, size = "default", morph = true, priority = false }: Props) {
   const stock = productStock(product);
   const firstAvailable = product.variants.find((variant) => variant.stock > 0) ?? product.variants[0];
   const multiplePrices = new Set(product.variants.map((v) => v.priceFils)).size > 1;
@@ -52,6 +53,7 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
             src={product.images[0]?.src}
             alt={product.images[0]?.alt[locale] ?? product.name[locale]}
             pendingLabel={dict.common.photoComingSoon}
+            priority={priority}
             sizes="(min-width: 1536px) 25vw, (min-width: 1024px) 33vw, 50vw"
             className={cn(
               "transition-transform duration-[900ms] ease-[var(--ease-out-expo)] group-hover/card:-translate-y-2 group-hover/card:scale-[1.03] motion-reduce:transform-none",
