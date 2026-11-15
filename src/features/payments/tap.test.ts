@@ -87,3 +87,52 @@ describe("Tap provider", () => {
     await expect(failing.retrieveCharge("chg_X1")).rejects.toThrow("failed with 401");
   });
 });
+
+describe("Tap refunds", () => {
+  const ok = (body: unknown, status = 200) =>
+    vi.fn(async () => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }));
+
+  it("creates a refund from database amounts and maps the result", async () => {
+    const fetchImpl = ok({ id: "re_ABC123", status: "PENDING", amount: 5, currency: "KWD", charge_id: "chg_X1" });
+    const tap = new TapProvider("sk_test_x", "src_all", "https://api.tap.example/v2", fetchImpl as unknown as typeof fetch);
+    const refund = await tap.createRefund({
+      refundRequestId: "11111111-1111-4111-8111-111111111111",
+      chargeId: "chg_X1",
+      amountFils: 5000,
+      reason: "Damaged",
+      orderNumber: 1042,
+      webhookUrl: "https://shop.example/api/payments/tap/webhook",
+    });
+    expect(refund).toMatchObject({ refundId: "re_ABC123", status: "PENDING", amountFils: 5000, currency: "KWD" });
+    const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://api.tap.example/v2/refunds");
+    const body = JSON.parse(String(init.body));
+    expect(body).toMatchObject({ charge_id: "chg_X1", amount: 5, currency: "KWD", reference: { merchant: "11111111-1111-4111-8111-111111111111" } });
+    expect((init.headers as Record<string, string>).Authorization).toBe("Bearer sk_test_x");
+  });
+
+  it("distinguishes a rejection (4xx) from no answer", async () => {
+    const rejected = new TapProvider("sk_test_x", "src_all", "https://api.tap.example/v2", ok({ errors: [] }, 400) as unknown as typeof fetch);
+    await expect(rejected.retrieveRefund("re_ABC123")).rejects.toMatchObject({ status: 400 });
+    const offline = new TapProvider("sk_test_x", "src_all", "https://api.tap.example/v2", (async () => {
+      throw new TypeError("fetch failed");
+    }) as unknown as typeof fetch);
+    await expect(offline.retrieveRefund("re_ABC123")).rejects.toMatchObject({ status: null });
+  });
+
+  it("refuses malformed ids before calling Tap", async () => {
+    const fetchImpl = ok({});
+    const tap = new TapProvider("sk_test_x", "src_all", "https://api.tap.example/v2", fetchImpl as unknown as typeof fetch);
+    await expect(tap.retrieveRefund("../charges/chg_1")).rejects.toThrow();
+    await expect(tap.retrieveCharge("chg_1/../../x")).rejects.toThrow();
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("returns the hosted page URL so a repeated checkout reuses the charge", async () => {
+    const fetchImpl = ok({ id: "chg_R1", status: "INITIATED", amount: 31, currency: "KWD", transaction: { url: "https://tap.example/pay/1" } });
+    const tap = new TapProvider("sk_test_x", "src_all", "https://api.tap.example/v2", fetchImpl as unknown as typeof fetch);
+    const charge = await tap.retrieveCharge("chg_R1");
+    expect(charge.paymentUrl).toBe("https://tap.example/pay/1");
+    expect(charge.amountFils).toBe(31000);
+  });
+});

@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { isServiceConfigured } from "@/lib/supabase/service";
 import { scheduleEmailDispatch } from "@/features/notifications/dispatch";
+import { allow, clientIp } from "@/lib/rate-limit";
 import { onlinePaymentsAvailable } from "@/features/payments/config";
 import { confirmMockOutcome, startPayment } from "@/features/payments/service";
 import { cartItemsSchema, checkoutSchema, governorates, issueToErrorKey, knownCheckoutErrors } from "./schema";
@@ -95,6 +96,10 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
   if (input.payment_method === "tap" && !(onlinePaymentsAvailable() && isServiceConfigured())) {
     return { error: "payment_method_unavailable" };
   }
+
+  // Per-visitor cap on order attempts (the database also limits unpaid
+  // orders per phone number).
+  if (!(await allow("checkout-ip", await clientIp(), 20, 600))) return { error: "rate_limited" };
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("place_order", {

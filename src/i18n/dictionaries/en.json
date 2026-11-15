@@ -390,7 +390,8 @@
       "discount_minimum": "Your order doesn't reach this code's minimum.",
       "delivery_unavailable": "We don't deliver to this area yet.",
       "payment_unavailable": "Online payment isn't available right now. Your order is saved; please try again shortly.",
-      "required": "Required"
+      "required": "Required",
+      "rate_limited": "Too many attempts. Please wait a few minutes and try again."
     }
   },
   "order": {
