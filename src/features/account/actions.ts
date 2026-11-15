@@ -185,7 +185,8 @@ export async function saveProfile(_prev: FormState, formData: FormData): Promise
     })
     .eq("id", customer.id);
   if (error) return { error: "generic" };
-  refreshAccount(formData);
+  // No revalidation: the form already shows what was saved, and keeping it
+  // mounted keeps the confirmation visible.
   return { ok: true, message: "profileSaved" };
 }
 
@@ -263,7 +264,6 @@ export async function requestDeletion(_prev: FormState, formData: FormData): Pro
   const supabase = await createClient();
   const { error } = await supabase.rpc("request_account_deletion", { p_reason: reason });
   if (error) return { error: error.message === "staff_account" ? "staff_account" : "generic" };
-  refreshAccount(formData);
   return { ok: true, message: "deleteRequested" };
 }
 
@@ -289,7 +289,5 @@ export async function claimOrder(_prev: FormState, formData: FormData): Promise<
   const supabase = await createClient();
   const { data } = await supabase.rpc("claim_guest_order", { p_number: parsed.data.n, p_token: parsed.data.t });
   if (data !== true) return { error: "claim" };
-  revalidatePath(localePath(localeOf(formData), "/order"));
-  refreshAccount(formData);
   return { ok: true, message: "claimOk" };
 }

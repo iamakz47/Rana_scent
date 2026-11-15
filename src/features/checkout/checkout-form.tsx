@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
+import { useFormAction } from "@/lib/use-form-action";
 import { ProductVisual } from "@/components/brand/product-visual";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { useI18n } from "@/i18n/client";
@@ -84,7 +85,7 @@ export function CheckoutForm({
   const { locale, dict } = useI18n();
   const t = dict.checkout;
   const lines = useCartLines();
-  const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
+  const [state, action, pending, submit] = useFormAction<CheckoutState>(placeOrder, {});
   const keyRef = useRef<string>("");
   const keyInput = useRef<HTMLInputElement>(null);
 
@@ -155,9 +156,11 @@ export function CheckoutForm({
   return (
     <form
       action={action}
-      onSubmit={() => {
+      onSubmit={(event) => {
         if (!keyRef.current) keyRef.current = crypto.randomUUID();
         if (keyInput.current) keyInput.current.value = keyRef.current;
+        // Keeps what the customer typed if the server reports a problem.
+        submit(event);
       }}
       className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start xl:gap-12"
       noValidate

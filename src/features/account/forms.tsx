@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState, type ReactNode } from "react";
+import { useFormAction } from "@/lib/use-form-action";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/client";
 import { localePath } from "@/i18n/config";
@@ -74,9 +75,9 @@ function LocaleField() {
 export function LoginForm({ next }: { next: string }) {
   const { locale, dict } = useI18n();
   const a = dict.account;
-  const [state, action, pending] = useActionState<FormState, FormData>(signIn, {});
+  const [state, action, pending, onSubmit] = useFormAction<FormState>(signIn, {});
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} onSubmit={onSubmit} className="space-y-4">
       <LocaleField />
       <input type="hidden" name="next" value={next} />
       <FormMessage state={state} />
@@ -101,7 +102,7 @@ export function LoginForm({ next }: { next: string }) {
 export function RegisterForm() {
   const { dict } = useI18n();
   const a = dict.account;
-  const [state, action, pending] = useActionState<FormState, FormData>(register, {});
+  const [state, action, pending, onSubmit] = useFormAction<FormState>(register, {});
   if (state.ok) {
     return (
       <div role="status" className="rounded-[1.5rem] border border-gold/40 bg-gold/8 p-6">
@@ -111,7 +112,7 @@ export function RegisterForm() {
     );
   }
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} onSubmit={onSubmit} className="space-y-4">
       <LocaleField />
       <FormMessage state={state} />
       <Field id="full_name" label={a.fullName}>
@@ -142,7 +143,7 @@ export function RegisterForm() {
 export function ForgotForm() {
   const { dict } = useI18n();
   const a = dict.account;
-  const [state, action, pending] = useActionState<FormState, FormData>(requestReset, {});
+  const [state, action, pending, onSubmit] = useFormAction<FormState>(requestReset, {});
   if (state.ok) {
     return (
       <div role="status" className="rounded-[1.5rem] border border-gold/40 bg-gold/8 p-6">
@@ -152,7 +153,7 @@ export function ForgotForm() {
     );
   }
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} onSubmit={onSubmit} className="space-y-4">
       <LocaleField />
       <FormMessage state={state} />
       <Field id="email" label={a.email}>
@@ -168,9 +169,9 @@ export function ForgotForm() {
 export function ResetForm() {
   const { locale, dict } = useI18n();
   const a = dict.account;
-  const [state, action, pending] = useActionState<FormState, FormData>(updatePassword, {});
+  const [state, action, pending, onSubmit] = useFormAction<FormState>(updatePassword, {});
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} onSubmit={onSubmit} className="space-y-4">
       <LocaleField />
       <FormMessage state={state} />
       {state.ok ? (
@@ -203,9 +204,9 @@ export function ProfileForm({
 }) {
   const { dict } = useI18n();
   const a = dict.account;
-  const [state, action, pending] = useActionState<FormState, FormData>(saveProfile, {});
+  const [state, action, pending, onSubmit] = useFormAction<FormState>(saveProfile, {});
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} onSubmit={onSubmit} className="space-y-4">
       <LocaleField />
       <FormMessage state={state} />
       <Field id="account-email" label={a.email}>
@@ -258,14 +259,14 @@ export function AddressForm({ values, onDone }: { values?: AddressValues; onDone
   const a = dict.account;
   const c = dict.checkout;
   const names = c.governorates as Record<string, string>;
-  const [state, action, pending] = useActionState<FormState, FormData>(async (prev, formData) => {
+  const [state, action, pending, onSubmit] = useFormAction<FormState>(async (prev, formData) => {
     const result = await saveAddress(prev, formData);
     if (result.ok) onDone?.();
     return result;
   }, {});
   const p = values?.id ?? "new";
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} onSubmit={onSubmit} className="space-y-4">
       <LocaleField />
       <input type="hidden" name="address_id" value={values?.id ?? ""} />
       <FormMessage state={state} />
@@ -415,16 +416,16 @@ export function NewAddress() {
 export function DeletionForm({ pending: requested }: { pending: boolean }) {
   const { dict } = useI18n();
   const a = dict.account;
-  const [state, action, pending] = useActionState<FormState, FormData>(requestDeletion, {});
+  const [state, action, pending, onSubmit] = useFormAction<FormState>(requestDeletion, {});
   const [wState, withdraw, withdrawing] = useActionState<FormState, FormData>(withdrawDeletion, {});
-  if (requested) {
+  if ((requested || state.ok) && !wState.ok) {
     return (
       <form action={withdraw} className="space-y-3">
         <LocaleField />
+        {state.ok ? <FormMessage state={state} /> : null}
         <p role="status" className="text-step--1 text-ink">
           {a.deletePending}
         </p>
-        <FormMessage state={wState} />
         <Button type="submit" variant="outline" disabled={withdrawing}>
           {a.deleteWithdraw}
         </Button>
@@ -432,13 +433,7 @@ export function DeletionForm({ pending: requested }: { pending: boolean }) {
     );
   }
   return (
-    <form
-      action={action}
-      className="space-y-3"
-      onSubmit={(event) => {
-        if (!window.confirm(a.deleteConfirm)) event.preventDefault();
-      }}
-    >
+    <form action={action} className="space-y-3" onSubmit={(event) => onSubmit(event, () => window.confirm(a.deleteConfirm))}>
       <LocaleField />
       <FormMessage state={state} />
       <Field id="delete-reason" label={a.deleteReason}>
