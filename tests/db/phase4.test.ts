@@ -17,6 +17,8 @@ let editor: Actor;
 let variantId: string;
 
 const uid = () => crypto.randomUUID();
+// Provider refund ids are unique; fresh ones keep the tests repeatable.
+const refundId = () => `re_${uid().replaceAll("-", "")}`;
 const tag = () => crypto.randomUUID().slice(0, 6).toUpperCase();
 const address = { governorate: "hawalli", area: "Salmiya", block: "10", street: "Salem Al Mubarak", building: "12" };
 const phone = () => `9${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
@@ -342,6 +344,7 @@ describe("email outbox", () => {
 
 describe("refunds", () => {
   it("refunds in full through the provider exactly once", async () => {
+    const rid_full1 = refundId();
     const order = await paidOrder({ email: "refund@example.test" });
     const req = await support.client.rpc("request_refund", { p_order: order.order_id, p_amount: order.total_fils, p_reason: "Damaged" });
     expect(req.error).toBeNull();
@@ -355,11 +358,11 @@ describe("refunds", () => {
     // Only the service role records provider results.
     expect((await finance.client.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: "re_x", p_status: "REFUNDED", p_amount_fils: order.total_fils, p_currency: "KWD" })).error).not.toBeNull();
 
-    const pending = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: "re_full1", p_status: "PENDING", p_amount_fils: order.total_fils, p_currency: "KWD" });
+    const pending = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: rid_full1, p_status: "PENDING", p_amount_fils: order.total_fils, p_currency: "KWD" });
     expect(pending.data).toBe("pending");
-    const done = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: "re_full1", p_status: "REFUNDED", p_amount_fils: order.total_fils, p_currency: "KWD" });
+    const done = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: rid_full1, p_status: "REFUNDED", p_amount_fils: order.total_fils, p_currency: "KWD" });
     expect(done.data).toBe("processed");
-    const replay = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: "re_full1", p_status: "REFUNDED", p_amount_fils: order.total_fils, p_currency: "KWD" });
+    const replay = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: rid_full1, p_status: "REFUNDED", p_amount_fils: order.total_fils, p_currency: "KWD" });
     expect(replay.data).toBe("already_final");
 
     const { data: o } = await service.from("orders").select("status, refunded_fils").eq("id", order.order_id).single();
@@ -370,33 +373,36 @@ describe("refunds", () => {
   });
 
   it("supports partial refunds and never exceeds the captured amount", async () => {
+    const rid_part1 = refundId();
     const order = await paidOrder();
     const first = await support.client.rpc("request_refund", { p_order: order.order_id, p_amount: 3000, p_reason: "Partial" });
     await finance.client.rpc("approve_refund", { p_request: first.data });
     // Processing refunds count toward the limit.
     const over = await support.client.rpc("request_refund", { p_order: order.order_id, p_amount: order.total_fils - 2999, p_reason: "Too much" });
     expect(over.error?.message).toBe("refund_amount_invalid");
-    await service.rpc("record_refund_result", { p_request: first.data, p_provider_refund_id: "re_part1", p_status: "REFUNDED", p_amount_fils: 3000, p_currency: "KWD" });
+    await service.rpc("record_refund_result", { p_request: first.data, p_provider_refund_id: rid_part1, p_status: "REFUNDED", p_amount_fils: 3000, p_currency: "KWD" });
     const { data: o } = await service.from("orders").select("status, refunded_fils").eq("id", order.order_id).single();
     expect(o).toEqual({ status: "paid", refunded_fils: 3000 });
   });
 
   it("a provider amount mismatch is not applied", async () => {
+    const rid_mm1 = refundId();
     const order = await paidOrder();
     const req = await support.client.rpc("request_refund", { p_order: order.order_id, p_amount: 1000, p_reason: "x" });
     await finance.client.rpc("approve_refund", { p_request: req.data });
-    const r = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: "re_mm1", p_status: "REFUNDED", p_amount_fils: 9999, p_currency: "KWD" });
+    const r = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: rid_mm1, p_status: "REFUNDED", p_amount_fils: 9999, p_currency: "KWD" });
     expect(r.data).toBe("amount_mismatch");
     const { data: o } = await service.from("orders").select("refunded_fils").eq("id", order.order_id).single();
     expect(o!.refunded_fils).toBe(0);
   });
 
   it("a failed provider refund can be reopened, and a processing one can't be rejected blindly", async () => {
+    const rid_fail1 = refundId();
     const order = await paidOrder();
     const req = await support.client.rpc("request_refund", { p_order: order.order_id, p_amount: 1000, p_reason: "x" });
     await finance.client.rpc("approve_refund", { p_request: req.data });
     expect((await finance.client.rpc("resolve_refund", { p_request: req.data, p_approve: false })).error?.message).toBe("refund_in_progress");
-    const failed = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: "re_fail1", p_status: "FAILED", p_amount_fils: 1000, p_currency: "KWD", p_error: "Declined by issuer" });
+    const failed = await service.rpc("record_refund_result", { p_request: req.data, p_provider_refund_id: rid_fail1, p_status: "FAILED", p_amount_fils: 1000, p_currency: "KWD", p_error: "Declined by issuer" });
     expect(failed.data).toBe("failed");
     expect(await emails(order.order_id)).toContain("staff_payment_attention");
     expect((await support.client.rpc("reopen_refund", { p_request: req.data })).error).not.toBeNull();
@@ -443,6 +449,25 @@ describe("reconciliation", () => {
     const { data: rows, error } = await service.rpc("payments_to_reconcile", { p_min_age_seconds: 0, p_limit: 200 });
     expect(error).toBeNull();
     expect(rows.some((r: { provider_id: string; kind: string }) => r.kind === "charge" && r.provider_id === charge)).toBe(true);
+  });
+
+  it("an online order whose payment page never opened is cancelled at once and its stock returned", async () => {
+    const before = (await service.from("inventory").select("on_hand").eq("variant_id", variantId).single()).data!.on_hand;
+    const { data } = await anon.rpc("place_order", { p_payload: payload({ email: "abandon@example.test" }, 2) });
+    expect((await anon.rpc("abandon_unstarted_payment", { p_order: data.order_id })).error).not.toBeNull();
+    const r = await service.rpc("abandon_unstarted_payment", { p_order: data.order_id });
+    expect(r.data).toBe(true);
+    const { data: o } = await service.from("orders").select("status").eq("id", data.order_id).single();
+    expect(o!.status).toBe("cancelled");
+    expect((await service.from("inventory").select("on_hand").eq("variant_id", variantId).single()).data!.on_hand).toBe(before);
+  });
+
+  it("never abandons an order that already has a provider charge", async () => {
+    const { data } = await anon.rpc("place_order", { p_payload: payload() });
+    await service.rpc("attach_payment_charge", { p_order: data.order_id, p_provider: "mock", p_charge_id: `chg_${uid().replaceAll("-", "")}` });
+    expect((await service.rpc("abandon_unstarted_payment", { p_order: data.order_id })).data).toBe(false);
+    const { data: o } = await service.from("orders").select("status").eq("id", data.order_id).single();
+    expect(o!.status).toBe("awaiting_payment");
   });
 
   it("the customer order view includes the timeline and refunds", async () => {

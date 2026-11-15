@@ -419,7 +419,7 @@ describe("fulfilment and refunds", () => {
     expect(req.error).toBeNull();
     const bySupport = await support.client.rpc("resolve_refund", { p_request: req.data, p_approve: true });
     expect(bySupport.error).not.toBeNull();
-    const ok = await finance.client.rpc("resolve_refund", { p_request: req.data, p_approve: true, p_provider_refund_id: "re_123" });
+    const ok = await finance.client.rpc("resolve_refund", { p_request: req.data, p_approve: true, p_provider_refund_id: `re_${crypto.randomUUID().slice(0, 8)}` });
     expect(ok.error).toBeNull();
     const { data: order } = await service.from("orders").select("status").eq("id", data.order_id).single();
     expect(order!.status).toBe("refunded");
