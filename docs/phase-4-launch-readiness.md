@@ -186,6 +186,17 @@ and are **not verified**:
   whenever the server rejected the submission. React resets form fields after
   an action. Checkout and the account forms now keep their values.
 
+## Admin and security updates
+
+- **Pagination:** orders, products and customers page through results (50 per
+  page) and keep their filters. Products also have a name/slug search.
+- **Next.js patch:** Next.js is upgraded to 16.4.6 for advisory
+  GHSA-mfr8-8qww-v76h (moderate). `npm audit` reports 0 vulnerabilities.
+- **Admin functional audit:** `e2e-admin/admin-audit.spec.ts` covers every
+  module with the roles that may and may not use it.
+- **Testing a deployed preview:** run the storefront suite against it with
+  `E2E_BASE_URL=<preview url> npx playwright test`.
+
 ## Going live
 
 These steps are for the owner, in this order:
