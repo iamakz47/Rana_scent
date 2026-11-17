@@ -494,6 +494,12 @@ export const adminAr: AdminDictionary = {
     },
   },
   p4: {
+    previousPage: "السابق",
+    productSearch: "الاسم أو رابط المنتج",
+    noMatches: "لا توجد نتائج مطابقة.",
+    nextPage: "التالي",
+    pageLabel: "صفحة {page}",
+    pagination: "الصفحات",
     partiallyRefunded: "مسترد جزئيًا ({amount})",
     refundedAmount: "المسترد",
     sendRefund: "استرداد عبر بوابة الدفع",

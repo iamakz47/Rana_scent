@@ -9,6 +9,7 @@ import { getAdminDictionary } from "@/features/admin/i18n";
 import { mediaUrl } from "@/features/media/url";
 import { AdminPageHeader, adminButton, Badge, EmptyState, statusTone } from "@/features/admin/ui/primitives";
 import { cn } from "@/lib/cn";
+import { ADMIN_PAGE_SIZE, Pagination, pageFromQuery, pageRange } from "@/features/admin/ui/pagination";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getAdminDictionary();
@@ -21,7 +22,17 @@ export default async function ProductsPage({ searchParams }: PageProps<"/[lang]/
   const staff = await requireStaff("catalog.read");
   const [{ locale, t }, query] = await Promise.all([getAdminDictionary(), searchParams]);
   const status = filters.includes(query.status as never) && query.status !== "all" ? (query.status as ProductStatus) : undefined;
-  const products = await listAdminProducts(status);
+  const page = pageFromQuery(query.page);
+  const q = typeof query.q === "string" ? query.q.trim().slice(0, 60) : "";
+  const rows = await listAdminProducts(status, { search: q, range: pageRange(page) });
+  const hasNext = rows.length > ADMIN_PAGE_SIZE;
+  const products = rows.slice(0, ADMIN_PAGE_SIZE);
+  const listHref = (next: { page?: number }) => {
+    const params = new URLSearchParams({ ...(status ? { status } : {}), ...(q ? { q } : {}) });
+    if (next.page && next.page > 1) params.set("page", String(next.page));
+    const qs = params.toString();
+    return localePath(locale, `/admin/products${qs ? `?${qs}` : ""}`);
+  };
   const href = (path: string) => localePath(locale, path);
   const price = (min: number | null, max: number | null) =>
     min === null ? "—" : min === max ? formatKWD(min, locale) : `${formatKWD(min, locale)} – ${formatKWD(max!, locale)}`;
@@ -61,7 +72,26 @@ export default async function ProductsPage({ searchParams }: PageProps<"/[lang]/
         })}
       </nav>
 
-      {products.length === 0 ? (
+      <form className="flex flex-wrap gap-2" action={href("/admin/products")}>
+        {status ? <input type="hidden" name="status" value={status} /> : null}
+        <label htmlFor="product-search" className="sr-only">
+          {t.p4.productSearch}
+        </label>
+        <input
+          id="product-search"
+          name="q"
+          defaultValue={q}
+          placeholder={t.p4.productSearch}
+          className="min-h-10 min-w-0 flex-1 rounded-full border border-ink/15 bg-canvas px-4 text-step--1 focus:border-gold-deep focus:outline-none sm:max-w-sm"
+        />
+        <button type="submit" className="min-h-10 rounded-full bg-ink px-4 text-step--1 text-canvas">
+          {t.common.search}
+        </button>
+      </form>
+
+      {products.length === 0 && q ? (
+        <EmptyState title={t.p4.noMatches} />
+      ) : products.length === 0 ? (
         <EmptyState
           title={t.products.emptyTitle}
           body={t.products.emptyBody}
@@ -107,6 +137,7 @@ export default async function ProductsPage({ searchParams }: PageProps<"/[lang]/
           ))}
         </ul>
       )}
+      <Pagination t={t} page={page} hasNext={hasNext} href={(p) => listHref({ page: p })} />
     </div>
   );
 }

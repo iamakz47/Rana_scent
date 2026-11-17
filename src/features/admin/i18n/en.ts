@@ -492,6 +492,12 @@ export const adminEn = {
     },
   },
   p4: {
+    previousPage: "Previous",
+    productSearch: "Name or URL slug",
+    noMatches: "Nothing matches your search.",
+    nextPage: "Next",
+    pageLabel: "Page {page}",
+    pagination: "Pages",
     partiallyRefunded: "Partially refunded ({amount})",
     refundedAmount: "Refunded",
     sendRefund: "Refund through the payment provider",

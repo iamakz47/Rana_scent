@@ -309,3 +309,34 @@ end;
 $$;
 revoke all on function public.consume_rate_limit(text, integer, integer) from public, anon, authenticated;
 grant execute on function public.consume_rate_limit(text, integer, integer) to service_role;
+
+-- The admin customer list now pages through results (PostgREST range), so the
+-- earlier 500-row cap would hide older customers. Same function, no cap.
+create or replace function public.list_customers(p_search text default '')
+returns table (phone text, customer_name text, email text, orders_count bigint, paid_total_fils bigint,
+  last_order_at timestamptz, has_account boolean)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  if not private.has_permission('customers.read') then
+    raise exception 'Not allowed' using errcode = '42501';
+  end if;
+  return query
+    select o.phone,
+           (array_agg(o.customer_name order by o.created_at desc))[1],
+           (array_agg(o.email order by o.created_at desc) filter (where o.email <> ''))[1],
+           count(*),
+           coalesce(sum(o.total_fils) filter (where o.status in ('paid', 'processing', 'ready_for_delivery',
+             'out_for_delivery', 'delivered', 'shipped')), 0)::bigint,
+           max(o.created_at),
+           bool_or(o.user_id is not null)
+    from public.orders o
+    where coalesce(p_search, '') = '' or o.phone ilike '%' || p_search || '%'
+       or o.customer_name ilike '%' || p_search || '%' or o.email ilike '%' || p_search || '%'
+    group by o.phone
+    order by max(o.created_at) desc, o.phone;
+end;
+$$;

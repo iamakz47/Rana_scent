@@ -11,7 +11,7 @@ export type MediaAsset = Pick<
 
 const mediaColumns = "id, bucket, path, alt_ar, alt_en, width, height";
 
-export async function listAdminProducts(status?: ProductStatus) {
+export async function listAdminProducts(status?: ProductStatus, options: { search?: string; range?: [number, number] } = {}) {
   const supabase = await createClient();
   let query = supabase
     .from("products")
@@ -23,6 +23,10 @@ export async function listAdminProducts(status?: ProductStatus) {
     .order("position")
     .order("created_at");
   query = status ? query.eq("status", status) : query.neq("status", "archived");
+  // Letters, digits, spaces and - only: nothing that changes the filter syntax.
+  const search = (options.search ?? "").replace(/[^\p{L}\p{N} -]/gu, "").trim().slice(0, 60);
+  if (search) query = query.or(`name_en.ilike.%${search}%,name_ar.ilike.%${search}%,slug.ilike.%${search}%`);
+  if (options.range) query = query.range(...options.range);
   const { data, error } = await query;
   if (error) throw error;
   return data.map((product) => {

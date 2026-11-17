@@ -8,6 +8,7 @@ import { DeletionResolveForm } from "@/features/admin/customers/deletion-form";
 import { formatDateTime, formatNumber } from "@/features/admin/format";
 import { getAdminDictionary } from "@/features/admin/i18n";
 import { AdminPageHeader, Badge, EmptyState, Panel } from "@/features/admin/ui/primitives";
+import { ADMIN_PAGE_SIZE, Pagination, pageFromQuery, pageRange } from "@/features/admin/ui/pagination";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getAdminDictionary();
@@ -19,15 +20,23 @@ export default async function CustomersPage({ searchParams }: PageProps<"/[lang]
   const [{ locale, t }, query] = await Promise.all([getAdminDictionary(), searchParams]);
   const c = t.commerce.customers;
   const q = typeof query.q === "string" ? query.q.trim().replace(/[%_]/g, "").slice(0, 60) : "";
+  const page = pageFromQuery(query.page);
   const supabase = await createClient();
-  const [{ data: customers }, { data: deletions }] = await Promise.all([
-    supabase.rpc("list_customers", { p_search: q }),
+  const [{ data: rows }, { data: deletions }] = await Promise.all([
+    supabase.rpc("list_customers", { p_search: q }).range(...pageRange(page)),
     supabase
       .from("account_deletion_requests")
       .select("id, email, reason, created_at")
       .eq("status", "requested")
       .order("created_at"),
   ]);
+  const hasNext = (rows?.length ?? 0) > ADMIN_PAGE_SIZE;
+  const customers = rows?.slice(0, ADMIN_PAGE_SIZE);
+  const pageHref = (p: number) => {
+    const params = new URLSearchParams({ ...(q ? { q } : {}), ...(p > 1 ? { page: String(p) } : {}) });
+    const qs = params.toString();
+    return localePath(locale, `/admin/customers${qs ? `?${qs}` : ""}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -100,6 +109,7 @@ export default async function CustomersPage({ searchParams }: PageProps<"/[lang]
           ))}
         </ul>
       )}
+      <Pagination t={t} page={page} hasNext={hasNext} href={pageHref} />
     </div>
   );
 }
