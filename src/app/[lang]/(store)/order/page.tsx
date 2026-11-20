@@ -55,7 +55,12 @@ async function Order({ searchParams }: { searchParams: PageProps<"/[lang]/order"
       order_number: parsed.data.n,
       token: parsed.data.t,
     });
-    order = (data as unknown as CustomerOrder | null) ?? null;
+    // Fields added by later migrations get safe defaults, so the page keeps
+    // working against a database that hasn't been updated yet.
+    const raw = data as unknown as Partial<CustomerOrder> | null;
+    order = raw
+      ? ({ ...raw, refunded_fils: raw.refunded_fils ?? 0, has_account: raw.has_account ?? true, timeline: raw.timeline ?? [], items: raw.items ?? [] } as CustomerOrder)
+      : null;
   }
   if (!order) {
     return (
