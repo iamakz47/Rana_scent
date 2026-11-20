@@ -72,6 +72,12 @@ const paths: Record<AdminSectionKey, ReactNode> = {
       <path d="M12 3.5v2.2M12 18.3v2.2M20.5 12h-2.2M5.7 12H3.5M18 6l-1.6 1.6M7.6 16.4 6 18M18 18l-1.6-1.6M7.6 7.6 6 6" />
     </>
   ),
+  policies: (
+    <>
+      <path d="M7 3.5h7.5L19 8v12.5H7z" />
+      <path d="M14 3.5V8h5M10 12h6M10 15.5h6" />
+    </>
+  ),
   staff: (
     <>
       <circle cx="9" cy="9" r="3" />

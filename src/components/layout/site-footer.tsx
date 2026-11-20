@@ -28,6 +28,7 @@ export function SiteFooter({ locale, dict }: { locale: Locale; dict: Dictionary 
         { label: dict.nav.about, path: "/about" },
         { label: dict.footer.privacy, path: "/privacy" },
         { label: dict.footer.terms, path: "/terms" },
+        { label: dict.footer.policies, path: "/policies" },
       ],
     },
   ];

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { InfoPage } from "@/components/layout/info-page";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getDictionary, getLocale } from "@/i18n/dictionaries";
+import { PolicyView } from "@/features/policies/policy-view";
 
 export async function generateMetadata(): Promise<Metadata> {
   const dict = await getDictionary();
-  return { title: dict.pages.privacy.title };
+  return { title: dict.policies.names.privacy };
 }
 
+// The owner-published policy when available, otherwise the built-in page.
 export default async function Page() {
-  const dict = await getDictionary();
-  const page = dict.pages.privacy;
-  return <InfoPage title={page.title} sections={page.sections} draftNotice={dict.pages.draftNotice} />;
+  const [locale, dict] = await Promise.all([getLocale(), getDictionary()]);
+  return <PolicyView policyKey="privacy" locale={locale} dict={dict} />;
 }

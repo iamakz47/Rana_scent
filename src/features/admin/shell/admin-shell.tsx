@@ -18,7 +18,7 @@ const groups: Array<{ key: "overview" | "catalog" | "sales" | "content" | "store
   { key: "catalog", items: ["products", "categories", "inventory"] },
   { key: "sales", items: ["orders", "customers", "promotions"] },
   { key: "content", items: ["homepage", "media"] },
-  { key: "store", items: ["finance", "settings", "staff"] },
+  { key: "store", items: ["finance", "settings", "policies", "staff"] },
 ];
 
 export type ShellUser = { email: string; displayName: string; role: StaffRole };
