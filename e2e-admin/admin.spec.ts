@@ -75,6 +75,7 @@ test.describe("catalog management", () => {
     await page.getByLabel("Option label (Arabic)").fill("أسود");
     await page.getByLabel("Option label (English)").fill("Black");
     await page.getByLabel("Price (KWD)", { exact: true }).fill("24.750");
+    await page.getByLabel("Number of free fragrances").selectOption("1");
     await page.getByRole("button", { name: "Create" }).click();
     await expect(page.getByText("Product created as a draft.")).toBeVisible();
     await expect(page.getByText("Publishing needs a Manager, Admin or Owner.")).toBeVisible();
