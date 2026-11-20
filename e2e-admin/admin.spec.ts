@@ -174,9 +174,9 @@ test.describe("homepage and media", () => {
   test("images upload to the media library", async ({ page }) => {
     await signIn(page, accounts.editor);
     await page.goto("/en/admin/media");
-    const before = await page.locator("main ul > li img").count();
-    // Choosing a file before hydration is lost (no change handler yet).
+    // Count after the page settles; choosing a file before hydration is lost.
     await page.waitForLoadState("networkidle");
+    const before = await page.locator("main ul > li img").count();
     await page.locator("#media-upload").setInputFiles("public/images/products/rana-mini.jpg");
     await expect(page.getByText(/rana-mini\.jpg: Uploaded\./)).toBeVisible({ timeout: 20_000 });
     await expect(page.locator("main ul > li img")).toHaveCount(before + 1);

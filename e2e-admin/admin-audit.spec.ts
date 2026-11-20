@@ -123,6 +123,9 @@ test.describe("categories", () => {
     await expect(page.getByText("Category saved.")).toBeVisible();
     const shopper = await browser.newPage();
     expect((await shopper.goto(`/en/collections/${slug}`))?.status()).toBe(404);
+    // Reload so the first save's form reset can't untick the box again.
+    await page.reload();
+    await expect(page.getByLabel("Visible in the store")).not.toBeChecked();
     await page.getByLabel("Visible in the store").check();
     await page.getByRole("button", { name: "Save", exact: true }).click();
     // The earlier "saved" message is still on screen, so wait for the store itself.

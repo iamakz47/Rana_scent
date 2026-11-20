@@ -51,6 +51,7 @@ async function staffSignIn(page: Page, email: string) {
 
 async function openProduct(page: Page, slug: string, lang: "en" | "ar" = "en") {
   await page.goto(`/${lang}/products/${slug}`);
+  await page.waitForLoadState("networkidle");
   // Wait for hydration before interacting.
   await expect(async () => {
     await page.locator("main select").first().focus();
@@ -129,14 +130,14 @@ test.describe("free fragrance selection", () => {
     expect(options.some((o) => o.includes("Plug"))).toBe(false);
 
     // Both choices are required.
-    await page.getByRole("button", { name: "Add to cart" }).click();
+    await page.getByRole("button", { name: "Add to cart", exact: true }).click();
     await expect(page.getByText("Choose your free fragrances to continue.")).toBeVisible();
     await expect(page.locator("dialog[open]")).toHaveCount(0);
 
     await page.getByLabel("Your First Free Fragrance").selectOption({ label: options.find((o) => o.includes("White Musk"))! });
     await page.getByLabel("Your Second Free Fragrance").selectOption({ label: options.find((o) => o.includes("Royal Oud"))! });
     await page.getByRole("button", { name: "Increase quantity" }).first().click();
-    await page.getByRole("button", { name: "Add to cart" }).click();
+    await page.getByRole("button", { name: "Add to cart", exact: true }).click();
     const drawer = page.locator("dialog[open]");
     await expect(drawer).toContainText("Free fragrances");
     await expect(drawer).toContainText("White Musk");
@@ -145,7 +146,7 @@ test.describe("free fragrance selection", () => {
     // Same device with a different choice is a separate line (quantity stays 2).
     await page.keyboard.press("Escape");
     await page.getByLabel("Your Second Free Fragrance").selectOption({ label: options.find((o) => o.includes("White Musk"))! });
-    await page.getByRole("button", { name: "Add to cart" }).click();
+    await page.getByRole("button", { name: "Add to cart", exact: true }).click();
     await expect(page.locator("dialog[open]").getByTestId("line-fragrances")).toHaveCount(2);
 
     // Survives a refresh; editable in the cart.
@@ -206,7 +207,7 @@ test.describe("free fragrance selection", () => {
     await refresh(page);
     await openProduct(page, one.slug);
     await page.getByLabel("Your First Free Fragrance").selectOption({ label: `Temp Amber ${tag}` });
-    await page.getByRole("button", { name: "Add to cart" }).click();
+    await page.getByRole("button", { name: "Add to cart", exact: true }).click();
     await expect(page.locator("dialog[open]")).toContainText(`Temp Amber ${tag}`);
 
     await service.from("products").update({ status: "draft" }).eq("id", temp.id);
