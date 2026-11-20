@@ -15,8 +15,6 @@ const EN_CAUTION = "Fragrance selection will be confirmed with our delivery repr
 type Fixture = { slug: string; id: string; variant: string };
 let two: Fixture;
 let one: Fixture;
-let musk: Fixture;
-let oud: Fixture;
 
 async function makeProduct(type: "diffuser" | "refill", nameEn: string, nameAr: string, price: number, extra: Record<string, unknown> = {}) {
   const slug = `e2e-p5-${type}-${unique()}`;
@@ -59,19 +57,14 @@ async function openProduct(page: Page, slug: string, lang: "en" | "ar" = "en") {
   }).toPass();
 }
 
-async function choose(page: Page, labels: string[]) {
-  const selects = page.locator("main section[aria-label] select");
-  for (const [index, label] of labels.entries()) await selects.nth(index).selectOption({ label });
-}
-
 test.beforeAll(async ({ request }) => {
   const raw = execFileSync("npx", ["supabase", "status", "-o", "json"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
   const env = JSON.parse(raw.slice(raw.indexOf("{"))) as Record<string, string>;
   service = createClient(env.API_URL, env.SECRET_KEY, { auth: { persistSession: false } });
   await service.from("store_settings").update({ cod_enabled: true, free_fragrance_allow_duplicates: true }).eq("id", 1);
   const tag = unique();
-  musk = await makeProduct("refill", `White Musk ${tag}`, `مسك أبيض ${tag}`, 4000);
-  oud = await makeProduct("refill", `Royal Oud ${tag}`, `عود ملكي ${tag}`, 4000);
+  await makeProduct("refill", `White Musk ${tag}`, `مسك أبيض ${tag}`, 4000);
+  await makeProduct("refill", `Royal Oud ${tag}`, `عود ملكي ${tag}`, 4000);
   two = await makeProduct("diffuser", `Plug Two ${tag}`, `بلج تو ${tag}`, 25000, {
     free_fragrances: 2,
     specs_confirmed: true,
