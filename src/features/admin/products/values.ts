@@ -5,6 +5,7 @@ import { filsToKwdInput } from "@/features/admin/format";
 import type { getAdminProduct, getProductFormOptions } from "@/features/admin/data/catalog";
 import type { ProductOptions, ProductValues } from "./product-editor";
 import { formatSpecs } from "./schema";
+import { parseDeviceSpecs, parseInfoSections } from "@/features/catalog/product-details";
 
 type Notes = { top?: { ar?: string; en?: string }; heart?: { ar?: string; en?: string }; base?: { ar?: string; en?: string } };
 const pair = (value?: { ar?: string; en?: string }) => ({ ar: value?.ar ?? "", en: value?.en ?? "" });
@@ -23,6 +24,10 @@ export const emptyProduct: ProductValues = {
   specs_ar: "",
   specs_en: "",
   specs_confirmed: false,
+  device_specs: {},
+  info_sections: {},
+  free_fragrances: "",
+  free_fragrance_eligible: true,
   spaces: [],
   is_featured: false,
   is_new: false,
@@ -55,6 +60,10 @@ export function toProductValues(row: NonNullable<Awaited<ReturnType<typeof getAd
     specs_ar: formatSpecs(row.specs, "ar"),
     specs_en: formatSpecs(row.specs, "en"),
     specs_confirmed: row.specs_confirmed,
+    device_specs: parseDeviceSpecs(row.device_specs),
+    info_sections: parseInfoSections(row.info_sections),
+    free_fragrances: row.free_fragrances === 1 ? "1" : row.free_fragrances === 2 ? "2" : "",
+    free_fragrance_eligible: row.free_fragrance_eligible,
     spaces: row.spaces,
     is_featured: row.is_featured,
     is_new: row.is_new,

@@ -10,6 +10,7 @@ import { actionDictionary, actionLocale, dbErrorMessage } from "@/features/admin
 import { authorize } from "@/features/admin/auth/dal";
 import type { ActionResult } from "@/features/admin/ui/form";
 import { parseSpecs, readProductForm, toPayload } from "./schema";
+import { readProductDetails } from "./details-schema";
 
 function refreshStorefront() {
   updateTag(CATALOG_TAG);
@@ -28,9 +29,21 @@ export async function saveProduct(_prev: ActionResult, formData: FormData): Prom
   }
   const specs = parseSpecs(parsed.data.specs_ar, parsed.data.specs_en);
   if (specs === null) return { status: "error", message: t.products.specsHint, fieldErrors: { specs: "specs" } };
+  const details = readProductDetails(formData, parsed.data.type);
+  if (Object.keys(details.errors).length) {
+    return { status: "error", message: t.common.error, fieldErrors: details.errors };
+  }
 
   const supabase = await createClient();
-  const { data: id, error } = await supabase.rpc("save_product", { payload: toPayload(parsed.data, specs) });
+  const { data: id, error } = await supabase.rpc("save_product", {
+    payload: {
+      ...toPayload(parsed.data, specs),
+      device_specs: details.device_specs,
+      info_sections: details.info_sections,
+      free_fragrances: details.free_fragrances,
+      free_fragrance_eligible: details.free_fragrance_eligible,
+    },
+  });
   if (error || !id) return { status: "error", message: dbErrorMessage(error, t, t.products.slugTaken) };
 
   refreshStorefront();

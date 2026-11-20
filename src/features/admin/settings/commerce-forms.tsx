@@ -15,7 +15,14 @@ const governorateNames = {
 export function CheckoutSettingsForm({
   values,
 }: {
-  values: { cod_enabled: boolean; online_payments_enabled: boolean; order_expiry_minutes: number; delivery_note_ar: string; delivery_note_en: string };
+  values: {
+    cod_enabled: boolean;
+    online_payments_enabled: boolean;
+    free_fragrance_allow_duplicates: boolean;
+    order_expiry_minutes: number;
+    delivery_note_ar: string;
+    delivery_note_en: string;
+  };
 }) {
   const { locale, t } = useAdminI18n();
   const c = t.commerce.payments;
@@ -26,6 +33,12 @@ export function CheckoutSettingsForm({
       <div className="flex flex-wrap gap-x-8 gap-y-3">
         <Checkbox name="online_payments_enabled" label={c.online} hint={c.onlineHint} defaultChecked={values.online_payments_enabled} />
         <Checkbox name="cod_enabled" label={c.cod} defaultChecked={values.cod_enabled} />
+        <Checkbox
+          name="free_fragrance_allow_duplicates"
+          label={t.p5.allowDuplicates}
+          hint={t.p5.allowDuplicatesHint}
+          defaultChecked={values.free_fragrance_allow_duplicates}
+        />
       </div>
       <Field label={c.expiry} htmlFor="order_expiry_minutes" hint={c.expiryHint} className="max-w-xs">
         <TextInput id="order_expiry_minutes" name="order_expiry_minutes" type="number" min={10} max={240} defaultValue={values.order_expiry_minutes} dir="ltr" />

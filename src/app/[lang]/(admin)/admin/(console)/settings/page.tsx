@@ -50,6 +50,7 @@ export default async function SettingsPage() {
               values={{
                 cod_enabled: data.cod_enabled,
                 online_payments_enabled: data.online_payments_enabled,
+                free_fragrance_allow_duplicates: data.free_fragrance_allow_duplicates,
                 order_expiry_minutes: data.order_expiry_minutes,
                 delivery_note_ar: data.delivery_note_ar,
                 delivery_note_en: data.delivery_note_en,

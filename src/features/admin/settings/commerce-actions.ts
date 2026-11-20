@@ -22,6 +22,7 @@ export async function saveCheckoutSettings(_prev: ActionResult, formData: FormDa
     .object({
       cod_enabled: z.boolean(),
       online_payments_enabled: z.boolean(),
+      free_fragrance_allow_duplicates: z.boolean(),
       order_expiry_minutes: z.coerce.number().int().min(10).max(240),
       delivery_note_ar: z.string().trim().max(300),
       delivery_note_en: z.string().trim().max(300),
@@ -29,6 +30,7 @@ export async function saveCheckoutSettings(_prev: ActionResult, formData: FormDa
     .safeParse({
       cod_enabled: formData.get("cod_enabled") === "on",
       online_payments_enabled: formData.get("online_payments_enabled") === "on",
+      free_fragrance_allow_duplicates: formData.get("free_fragrance_allow_duplicates") === "on",
       order_expiry_minutes: formData.get("order_expiry_minutes"),
       delivery_note_ar: formData.get("delivery_note_ar") ?? "",
       delivery_note_en: formData.get("delivery_note_en") ?? "",
