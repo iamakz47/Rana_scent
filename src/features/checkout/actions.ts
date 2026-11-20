@@ -3,13 +3,13 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { isLocale, localePath, type Locale } from "@/i18n/config";
-import { formatKWD } from "@/lib/money";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { isServiceConfigured } from "@/lib/supabase/service";
-import { appOrigin } from "@/features/admin/auth/origin";
-import { sendOrderEmail } from "@/features/notifications/email";
+import { scheduleEmailDispatch } from "@/features/notifications/dispatch";
+import { catalogStockChanged } from "@/features/catalog/invalidate";
+import { allow, clientIp } from "@/lib/rate-limit";
 import { onlinePaymentsAvailable } from "@/features/payments/config";
 import { confirmMockOutcome, startPayment } from "@/features/payments/service";
 import { cartItemsSchema, checkoutSchema, governorates, issueToErrorKey, knownCheckoutErrors } from "./schema";
@@ -98,6 +98,10 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     return { error: "payment_method_unavailable" };
   }
 
+  // Per-visitor cap on order attempts (the database also limits unpaid
+  // orders per phone number).
+  if (!(await allow("checkout-ip", await clientIp(), 20, 600))) return { error: "rate_limited" };
+
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("place_order", {
     p_payload: {
@@ -137,6 +141,7 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     duplicate: boolean;
   };
   const orderPath = localePath(input.locale, `/order?n=${order.number}&t=${order.access_token}`);
+  if (!order.duplicate) catalogStockChanged();
 
   if (order.payment_method === "tap") {
     if (order.status !== "awaiting_payment") redirect(orderPath);
@@ -145,17 +150,8 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     redirect(payment.paymentUrl);
   }
 
-  if (!order.duplicate && input.email) {
-    const origin = await appOrigin();
-    await sendOrderEmail({
-      to: input.email,
-      locale: input.locale,
-      orderNumber: order.number,
-      totalLabel: formatKWD(order.total_fils, input.locale),
-      statusLabel: input.locale === "ar" ? "تم الاستلام" : "Received",
-      orderUrl: `${origin}${orderPath}`,
-    });
-  }
+  // The confirmation emails were queued by the database with the order.
+  if (!order.duplicate) scheduleEmailDispatch();
   redirect(orderPath);
 }
 

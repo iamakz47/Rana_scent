@@ -5,7 +5,8 @@ import { isServiceConfigured } from "@/lib/supabase/service";
 import { requireStaff } from "@/features/admin/auth/dal";
 import { filsToKwdInput } from "@/features/admin/format";
 import { getAdminDictionary } from "@/features/admin/i18n";
-import { CheckoutSettingsForm, RateForm, ZoneForm } from "@/features/admin/settings/commerce-forms";
+import { CheckoutSettingsForm, NotificationSettingsForm, RateForm, ZoneForm } from "@/features/admin/settings/commerce-forms";
+import { emailMode } from "@/features/notifications/transport";
 import { SettingsForm } from "@/features/admin/settings/settings-form";
 import { AdminPageHeader, Badge, Notice, Panel } from "@/features/admin/ui/primitives";
 import { getPaymentsConfig } from "@/features/payments/config";
@@ -20,9 +21,10 @@ export default async function SettingsPage() {
   const { locale, t } = await getAdminDictionary();
   const c = t.commerce;
   const supabase = await createClient();
-  const [{ data }, { data: zones }] = await Promise.all([
+  const [{ data }, { data: zones }, { data: notify }] = await Promise.all([
     supabase.from("store_settings").select("*").eq("id", 1).single(),
     supabase.from("shipping_zones").select("*, shipping_rates(*)").order("position").order("created_at"),
+    supabase.from("notification_settings").select("staff_email, staff_locale, customer_emails_enabled, low_stock_alerts").eq("id", 1).maybeSingle(),
   ]);
   const payments = getPaymentsConfig();
   const providerNote =
@@ -54,6 +56,16 @@ export default async function SettingsPage() {
               }}
             />
           ) : null}
+        </div>
+      </Panel>
+
+      <Panel title={t.p4.notifications} description={t.p4.notificationsBody}>
+        <div className="space-y-4">
+          <Notice tone={emailMode() === "resend" ? "success" : "warning"}>
+            <strong className="font-medium">{t.p4.emailProvider}: </strong>
+            {emailMode() === "resend" ? t.p4.emailProviderLive : t.p4.emailProviderTest}
+          </Notice>
+          {notify ? <NotificationSettingsForm values={notify} /> : null}
         </div>
       </Panel>
 

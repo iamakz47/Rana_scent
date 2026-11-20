@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { Logo } from "@/components/brand/logo";
-import { BagIcon, HeartIcon, MenuIcon, SearchIcon } from "@/components/ui/icons";
+import { BagIcon, HeartIcon, MenuIcon, SearchIcon, UserIcon } from "@/components/ui/icons";
+import { useStoreConfig } from "@/features/cart/store-config";
 import { IconButton } from "@/components/ui/button";
 import { cartTotals, setCartDrawerOpen, useCartLines } from "@/features/cart/store";
 import { useWishlist } from "@/features/wishlist/store";
@@ -27,6 +28,7 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const lines = useCartLines();
   const wishlist = useWishlist();
+  const { accountsEnabled } = useStoreConfig();
   const { count } = cartTotals(lines);
 
   useEffect(() => {
@@ -94,7 +96,7 @@ export function SiteHeader() {
 
           <Link
             href={localePath(locale)}
-            aria-label={dict.nav.home}
+            aria-label={`${dict.meta.title} – ${dict.nav.home}`}
             className="flex items-center px-1 text-[0.9rem] sm:text-[1.05rem]"
           >
             <Logo label={dict.meta.title} priority />
@@ -116,6 +118,15 @@ export function SiteHeader() {
             >
               <HeartIcon filled={wishlist.length > 0} />
             </Link>
+            {accountsEnabled ? (
+              <Link
+                href={localePath(locale, "/account")}
+                aria-label={dict.nav.account}
+                className={cn(iconLink, "hidden sm:inline-flex")}
+              >
+                <UserIcon />
+              </Link>
+            ) : null}
             <IconButton label={`${dict.nav.cart} (${count})`} onClick={() => setCartDrawerOpen(true)}>
               <BagIcon />
               <AnimatePresence initial={false}>

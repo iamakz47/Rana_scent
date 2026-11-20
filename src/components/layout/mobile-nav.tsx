@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { m } from "motion/react";
 import { Logo } from "@/components/brand/logo";
-import { CloseIcon, HeartIcon, SearchIcon } from "@/components/ui/icons";
+import { CloseIcon, HeartIcon, SearchIcon, UserIcon } from "@/components/ui/icons";
+import { useStoreConfig } from "@/features/cart/store-config";
 import { IconButton } from "@/components/ui/button";
 import { useI18n } from "@/i18n/client";
 import { localePath } from "@/i18n/config";
@@ -16,6 +17,7 @@ import { primaryNav } from "./nav-links";
 // handling. Links rise in sequence each time it opens.
 export function MobileNav({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { locale, dict } = useI18n();
+  const { accountsEnabled } = useStoreConfig();
   const ref = useRef<HTMLDialogElement>(null);
   const pathname = usePathname();
 
@@ -88,6 +90,14 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
             >
               <HeartIcon size={18} /> {dict.nav.wishlist}
             </Link>
+            {accountsEnabled ? (
+              <Link
+                href={localePath(locale, "/account")}
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/12 px-4 text-step--1 text-ink"
+              >
+                <UserIcon size={18} /> {dict.nav.account}
+              </Link>
+            ) : null}
           </div>
         </nav>
 

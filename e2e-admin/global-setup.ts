@@ -20,6 +20,8 @@ export default async function globalSetup() {
       if (created.error) throw created.error;
       user = created.data.user;
     }
+    // The test customer starts every run without saved addresses (local only).
+    if (key === "customer") await service.from("customer_addresses").delete().eq("user_id", user.id);
     const role = roles[key];
     if (role) {
       const { error } = await service
@@ -29,6 +31,10 @@ export default async function globalSetup() {
     }
   }
   await service.from("store_settings").update({ slider_interval_seconds: 4 }).eq("id", 1);
+  // Fresh rate-limit windows for every run (local only).
+  execFileSync("psql", ["-q", "-v", "ON_ERROR_STOP=1", env.DB_URL, "-c", "delete from private.rate_limits where true"], {
+    stdio: ["ignore", "ignore", "inherit"],
+  });
 
   // Published test catalogue, active delivery and cash on delivery (local only).
   execFileSync("psql", ["-q", "-v", "ON_ERROR_STOP=1", env.DB_URL, "-f", "supabase/samples/local_checkout_fixture.sql"], {

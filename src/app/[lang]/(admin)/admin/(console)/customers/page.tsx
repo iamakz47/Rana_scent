@@ -3,10 +3,12 @@ import Link from "next/link";
 import { localePath } from "@/i18n/config";
 import { formatKWD } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
-import { requireStaff } from "@/features/admin/auth/dal";
+import { can, requireStaff } from "@/features/admin/auth/dal";
+import { DeletionResolveForm } from "@/features/admin/customers/deletion-form";
 import { formatDateTime, formatNumber } from "@/features/admin/format";
 import { getAdminDictionary } from "@/features/admin/i18n";
-import { AdminPageHeader, Badge, EmptyState } from "@/features/admin/ui/primitives";
+import { AdminPageHeader, Badge, EmptyState, Panel } from "@/features/admin/ui/primitives";
+import { ADMIN_PAGE_SIZE, Pagination, pageFromQuery, pageRange } from "@/features/admin/ui/pagination";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getAdminDictionary();
@@ -14,16 +16,51 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CustomersPage({ searchParams }: PageProps<"/[lang]/admin/customers">) {
-  await requireStaff("customers.read");
+  const staff = await requireStaff("customers.read");
   const [{ locale, t }, query] = await Promise.all([getAdminDictionary(), searchParams]);
   const c = t.commerce.customers;
   const q = typeof query.q === "string" ? query.q.trim().replace(/[%_]/g, "").slice(0, 60) : "";
+  const page = pageFromQuery(query.page);
   const supabase = await createClient();
-  const { data: customers } = await supabase.rpc("list_customers", { p_search: q });
+  const [{ data: rows }, { data: deletions }] = await Promise.all([
+    supabase.rpc("list_customers", { p_search: q }).range(...pageRange(page)),
+    supabase
+      .from("account_deletion_requests")
+      .select("id, email, reason, created_at")
+      .eq("status", "requested")
+      .order("created_at"),
+  ]);
+  const hasNext = (rows?.length ?? 0) > ADMIN_PAGE_SIZE;
+  const customers = rows?.slice(0, ADMIN_PAGE_SIZE);
+  const pageHref = (p: number) => {
+    const params = new URLSearchParams({ ...(q ? { q } : {}), ...(p > 1 ? { page: String(p) } : {}) });
+    const qs = params.toString();
+    return localePath(locale, `/admin/customers${qs ? `?${qs}` : ""}`);
+  };
 
   return (
     <div className="space-y-6">
       <AdminPageHeader title={c.title} body={c.body} />
+      <Panel title={t.p4.deletionTitle}>
+        {!deletions?.length ? (
+          <p className="text-step--1 text-ink-soft">{t.p4.deletionEmpty}</p>
+        ) : (
+          <ul className="divide-y divide-ink/8">
+            {deletions.map((d) => (
+              <li key={d.id} className="py-3 text-step--1">
+                <p dir="ltr" className="text-start text-ink">
+                  {d.email}
+                </p>
+                <p className="text-[0.78rem] text-ink-soft">
+                  {t.p4.requestedAt}: {formatDateTime(d.created_at, locale)}
+                  {d.reason ? ` · ${t.p4.reason}: ${d.reason}` : ""}
+                </p>
+                {can(staff, "orders.write") ? <DeletionResolveForm requestId={d.id} /> : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
       <form className="flex gap-2" action={localePath(locale, "/admin/customers")}>
         <label htmlFor="customer-search" className="sr-only">
           {c.search}
@@ -72,6 +109,7 @@ export default async function CustomersPage({ searchParams }: PageProps<"/[lang]
           ))}
         </ul>
       )}
+      <Pagination t={t} page={page} hasNext={hasNext} href={pageHref} />
     </div>
   );
 }

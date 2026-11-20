@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = Number(process.env.E2E_ADMIN_PORT ?? 3200);
+// Local-only secret for the cache refresh and reconcile endpoints in tests.
+export const CRON_SECRET = "e2e-local-cron-secret-not-for-production";
 
 // Admin end-to-end tests. They need the LOCAL Supabase stack
 // (`npm run db:start`) and run the app against it through
@@ -23,7 +25,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `PAYMENTS_PROVIDER=mock scripts/with-local-supabase.sh npx next dev -p ${PORT}`,
+    command: `PAYMENTS_PROVIDER=mock CRON_SECRET=${CRON_SECRET} scripts/with-local-supabase.sh npx next dev -p ${PORT}`,
     url: `http://localhost:${PORT}/en/admin/login`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

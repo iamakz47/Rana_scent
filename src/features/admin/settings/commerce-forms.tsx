@@ -3,8 +3,8 @@
 import { useActionState } from "react";
 import { useAdminI18n } from "@/features/admin/i18n/client";
 import { ActionMessage, idle, SubmitButton, type ActionResult } from "@/features/admin/ui/form";
-import { BilingualFields, Checkbox, Field, TextArea, TextInput } from "@/features/admin/ui/primitives";
-import { saveCheckoutSettings, saveRate, saveZone } from "./commerce-actions";
+import { BilingualFields, Checkbox, Field, Select, TextArea, TextInput } from "@/features/admin/ui/primitives";
+import { saveCheckoutSettings, saveNotificationSettings, saveRate, saveZone } from "./commerce-actions";
 
 const governorates = ["capital", "hawalli", "farwaniya", "ahmadi", "jahra", "mubarak_al_kabeer"] as const;
 const governorateNames = {
@@ -140,6 +140,40 @@ export function RateForm({ values }: { values: RateValues }) {
         <SubmitButton size="sm" tone="outline">
           {c.saveRate}
         </SubmitButton>
+        <ActionMessage state={state} />
+      </div>
+    </form>
+  );
+}
+
+export function NotificationSettingsForm({
+  values,
+}: {
+  values: { staff_email: string; staff_locale: string; customer_emails_enabled: boolean; low_stock_alerts: boolean };
+}) {
+  const { locale, t } = useAdminI18n();
+  const c = t.p4;
+  const [state, action] = useActionState<ActionResult, FormData>(saveNotificationSettings, idle);
+  return (
+    <form action={action} className="space-y-4">
+      <input type="hidden" name="locale" value={locale} />
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem]">
+        <Field label={c.staffEmail} htmlFor="staff_email" hint={c.staffEmailHint}>
+          <TextInput id="staff_email" name="staff_email" type="email" defaultValue={values.staff_email} maxLength={254} dir="ltr" />
+        </Field>
+        <Field label={c.staffLocale} htmlFor="staff_locale">
+          <Select id="staff_locale" name="staff_locale" defaultValue={values.staff_locale}>
+            <option value="ar">{t.common.arabic}</option>
+            <option value="en">{t.common.english}</option>
+          </Select>
+        </Field>
+      </div>
+      <div className="flex flex-wrap gap-x-8 gap-y-3">
+        <Checkbox name="customer_emails_enabled" label={c.customerEmails} defaultChecked={values.customer_emails_enabled} />
+        <Checkbox name="low_stock_alerts" label={c.lowStockAlerts} defaultChecked={values.low_stock_alerts} />
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton size="sm">{t.common.save}</SubmitButton>
         <ActionMessage state={state} />
       </div>
     </form>

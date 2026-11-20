@@ -37,11 +37,12 @@ export function ProductGrid({
         </p>
       )}
       <ul className="grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 lg:grid-cols-3 2xl:grid-cols-4">
-        {products.map((product) => (
+        {products.map((product, index) => (
           // Keyed boundaries let filtered results animate into new positions.
           <ViewTransition key={product.id} default="none" update="auto">
             <li>
-              <ProductCard product={product} locale={locale} dict={dict} />
+              {/* The first row is above the fold on phones: load it eagerly. */}
+              <ProductCard product={product} locale={locale} dict={dict} priority={index < 2} />
             </li>
           </ViewTransition>
         ))}

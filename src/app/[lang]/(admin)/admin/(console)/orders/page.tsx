@@ -9,6 +9,7 @@ import { formatDateTime } from "@/features/admin/format";
 import { getAdminDictionary } from "@/features/admin/i18n";
 import { orderStatusFilters, orderStatusTone as statusTone } from "@/features/admin/orders/transitions";
 import { AdminPageHeader, Badge, EmptyState } from "@/features/admin/ui/primitives";
+import { ADMIN_PAGE_SIZE, Pagination, pageFromQuery, pageRange } from "@/features/admin/ui/pagination";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getAdminDictionary();
@@ -22,6 +23,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/[lang]/ad
   const status = orderStatusFilters.find((s) => s === query.status) ?? "all";
   const q = typeof query.q === "string" ? query.q.trim().slice(0, 60) : "";
   const phone = typeof query.phone === "string" ? query.phone.replace(/[^\d+]/g, "").slice(0, 16) : "";
+  const page = pageFromQuery(query.page);
 
   const supabase = await createClient();
   await supabase.rpc("expire_unpaid_orders");
@@ -29,7 +31,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/[lang]/ad
     .from("orders")
     .select("id, number, customer_name, phone, status, payment_method, total_fils, created_at")
     .order("created_at", { ascending: false })
-    .limit(200);
+    .range(...pageRange(page));
   if (status !== "all") request = request.eq("status", status);
   if (phone) request = request.eq("phone", phone);
   if (q) {
@@ -38,9 +40,17 @@ export default async function OrdersPage({ searchParams }: PageProps<"/[lang]/ad
       ? request.or(`number.eq.${safe},phone.ilike.%${safe}%`)
       : request.or(`customer_name.ilike.%${safe}%,phone.ilike.%${safe}%,email.ilike.%${safe}%`);
   }
-  const { data: orders } = await request;
+  const { data: rows } = await request;
+  const hasNext = (rows?.length ?? 0) > ADMIN_PAGE_SIZE;
+  const orders = rows?.slice(0, ADMIN_PAGE_SIZE);
   const href = (next: Record<string, string>) => {
-    const params = new URLSearchParams({ ...(status !== "all" ? { status } : {}), ...(q ? { q } : {}), ...next });
+    const params = new URLSearchParams({
+      ...(status !== "all" ? { status } : {}),
+      ...(q ? { q } : {}),
+      ...(phone ? { phone } : {}),
+      ...next,
+    });
+    if (params.get("page") === "1") params.delete("page");
     for (const [key, value] of [...params.entries()]) if (!value || value === "all") params.delete(key);
     const qs = params.toString();
     return localePath(locale, `/admin/orders${qs ? `?${qs}` : ""}`);
@@ -110,6 +120,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/[lang]/ad
           ))}
         </ul>
       )}
+      <Pagination t={t} page={page} hasNext={hasNext} href={(p) => href({ page: String(p) })} />
     </div>
   );
 }

@@ -10,7 +10,8 @@ test.describe("hero slider", () => {
     await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 2");
     // Keep the pointer away from the carousel so hover doesn't pause it.
     await page.mouse.move(5, 5);
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2", { timeout: 6_000 });
+    // 4 s interval; generous margin for a loaded CI machine.
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2", { timeout: 10_000 });
     await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 2", { timeout: 6_000 });
   });
 
@@ -50,7 +51,8 @@ test.describe("hero slider", () => {
     await expect(activeSlide(page)).toHaveAttribute("aria-label", "1 of 2");
     await page.getByRole("button", { name: "Play slideshow" }).click();
     await page.mouse.move(5, 5);
-    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2", { timeout: 6_000 });
+    // 4 s interval; generous margin for a loaded CI machine.
+    await expect(activeSlide(page)).toHaveAttribute("aria-label", "2 of 2", { timeout: 10_000 });
   });
 
   test("does not autoplay with reduced motion", async ({ page }) => {

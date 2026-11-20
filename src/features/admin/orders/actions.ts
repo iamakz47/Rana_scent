@@ -8,6 +8,9 @@ import { actionDictionary, actionLocale, dbErrorMessage } from "@/features/admin
 import { authorize } from "@/features/admin/auth/dal";
 import { parseKwdToFils } from "@/features/admin/format";
 import type { ActionResult } from "@/features/admin/ui/form";
+import { scheduleEmailDispatch } from "@/features/notifications/dispatch";
+import { catalogStockChanged } from "@/features/catalog/invalidate";
+import { sendApprovedRefund, type Approval } from "@/features/payments/service";
 
 const statuses = ["processing", "ready_for_delivery", "out_for_delivery", "delivered", "cancelled"] as const;
 
@@ -34,6 +37,8 @@ export async function updateOrderStatus(_prev: ActionResult, formData: FormData)
     return { status: "error", message: error.code === "23514" ? t.commerce.orders.errors.transition : dbErrorMessage(error, t) };
   }
   if (!data?.length) return { status: "error", message: t.common.noPermissionAction };
+  if (parsed.data.status === "cancelled") catalogStockChanged();
+  scheduleEmailDispatch();
   refresh(formData, parsed.data.id);
   return { status: "ok", message: t.commerce.orders.statusSaved };
 }
@@ -97,6 +102,7 @@ export async function requestRefund(_prev: ActionResult, formData: FormData): Pr
   if (error) {
     return { status: "error", message: t.commerce.orders.errors[error.message] ?? dbErrorMessage(error, t) };
   }
+  scheduleEmailDispatch();
   refresh(formData, id.data);
   return { status: "ok", message: t.commerce.orders.refundRequested };
 }
@@ -119,8 +125,55 @@ export async function resolveRefund(_prev: ActionResult, formData: FormData): Pr
     p_approve: parsed.data.approve === "1",
     p_provider_refund_id: parsed.data.provider,
   });
-  if (error) return { status: "error", message: dbErrorMessage(error, t) };
+  if (error) return { status: "error", message: t.p4.refundErrors[error.message] ?? dbErrorMessage(error, t) };
+  scheduleEmailDispatch();
   refresh(formData, parsed.data.order);
   revalidatePath(localePath(actionLocale(formData), "/admin/finance"));
   return { status: "ok", message: t.commerce.orders.refundResolved };
+}
+
+const refundIds = z.object({ id: z.uuid(), order: z.uuid() });
+
+// Finance sends an approved refund to the payment provider. approve_refund()
+// runs with the staff member's own session (the database checks
+// finance.write and moves the request to 'processing' exactly once), then
+// the server calls the provider.
+export async function sendRefund(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+  const t = actionDictionary(formData);
+  if (!(await authorize("finance.write"))) return { status: "error", message: t.common.noPermissionAction };
+  const parsed = refundIds.safeParse({ id: formData.get("refund_id"), order: formData.get("entity_id") });
+  if (!parsed.success) return { status: "error", message: t.common.error };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("approve_refund", { p_request: parsed.data.id });
+  if (error) return { status: "error", message: t.p4.refundErrors[error.message] ?? dbErrorMessage(error, t) };
+  if (!data) return { status: "error", message: t.common.error };
+  const outcome = await sendApprovedRefund(data as unknown as Approval);
+  refresh(formData, parsed.data.order);
+  revalidatePath(localePath(actionLocale(formData), "/admin/finance"));
+  return { status: outcome === "processed" || outcome === "pending" ? "ok" : "error", message: t.p4.refundOutcome[outcome] };
+}
+
+export async function reopenRefund(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+  const t = actionDictionary(formData);
+  if (!(await authorize("finance.write"))) return { status: "error", message: t.common.noPermissionAction };
+  const parsed = refundIds.safeParse({ id: formData.get("refund_id"), order: formData.get("entity_id") });
+  if (!parsed.success) return { status: "error", message: t.common.error };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reopen_refund", { p_request: parsed.data.id });
+  if (error) return { status: "error", message: t.p4.refundErrors[error.message] ?? dbErrorMessage(error, t) };
+  refresh(formData, parsed.data.order);
+  return { status: "ok", message: t.commerce.orders.refundResolved };
+}
+
+export async function retryEmail(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+  const t = actionDictionary(formData);
+  if (!(await authorize("orders.write"))) return { status: "error", message: t.common.noPermissionAction };
+  const parsed = z.object({ id: z.uuid(), order: z.uuid() }).safeParse({ id: formData.get("email_id"), order: formData.get("entity_id") });
+  if (!parsed.success) return { status: "error", message: t.common.error };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("retry_email", { p_id: parsed.data.id });
+  if (error) return { status: "error", message: dbErrorMessage(error, t) };
+  scheduleEmailDispatch();
+  refresh(formData, parsed.data.order);
+  return { status: "ok", message: t.p4.emailRetried };
 }

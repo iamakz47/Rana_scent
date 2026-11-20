@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { ProductVisual } from "@/components/brand/product-visual";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -8,7 +9,8 @@ import { useI18n } from "@/i18n/client";
 import { localePath } from "@/i18n/config";
 import { formatKWD } from "@/lib/money";
 import { QuantityStepper } from "./quantity-stepper";
-import { cartTotals, removeLine, setLineQuantity, useCartLines } from "./store";
+import { quoteCheckout } from "@/features/checkout/actions";
+import { cartTotals, removeLine, setLineQuantity, syncCartPrices, useCartLines } from "./store";
 import { useStoreConfig } from "./store-config";
 
 export function CartView() {
@@ -16,6 +18,26 @@ export function CartView() {
   const lines = useCartLines();
   const { subtotalFils } = cartTotals(lines);
   const { checkoutEnabled } = useStoreConfig();
+  const variantKey = lines.map((line) => `${line.variantId}:${line.quantity}`).join(",");
+
+  // With the live catalog, refresh the displayed prices from the server.
+  useEffect(() => {
+    if (!checkoutEnabled || lines.length === 0) return;
+    let cancelled = false;
+    quoteCheckout({
+      items: lines.map((line) => ({ variant_id: line.variantId, quantity: line.quantity })),
+      governorate: "",
+      area: "",
+      discountCode: "",
+    }).then((result) => {
+      if (!cancelled && result.ok) syncCartPrices(result.quote.lines);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // variantKey captures the cart contents without re-running on identity changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkoutEnabled, variantKey]);
 
   if (lines.length === 0) {
     return (

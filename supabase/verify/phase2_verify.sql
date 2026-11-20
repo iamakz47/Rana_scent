@@ -102,6 +102,11 @@ checks(check_name, ok, detail) as (
   union all
   select 'no products seeded', count(*) = 0, count(*)::text from public.products
   union all
-  select 'no staff yet (owner not assigned)', count(*) = 0, count(*)::text from public.staff_members
+  -- Before the owner is assigned there is no staff; afterwards exactly one
+  -- active owner. (Replaces the earlier "no staff yet" check.)
+  select 'staff: none yet, or exactly one active owner',
+    count(*) = 0 or count(*) filter (where role = 'owner' and is_active) = 1,
+    count(*) filter (where role = 'owner' and is_active)::text || ' active owner(s), ' || count(*)::text || ' staff'
+  from public.staff_members
 )
 select check_name, ok, detail from checks;

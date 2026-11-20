@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { StoreProviders } from "@/components/providers";
 import { CartDrawer } from "@/features/cart/cart-drawer";
 import { isLiveCatalog } from "@/features/catalog/source";
+import { accountsEnabled } from "@/features/account/config";
 import { getDirection } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 
@@ -10,7 +11,9 @@ export default async function StoreLayout({ children }: LayoutProps<"/[lang]">) 
   const [locale, dict] = await Promise.all([getLocale(), getDictionary()]);
 
   return (
-    <StoreProviders locale={locale} dir={getDirection(locale)} dict={dict} checkoutEnabled={isLiveCatalog()}>
+    <StoreProviders locale={locale} dir={getDirection(locale)} dict={dict} checkoutEnabled={isLiveCatalog()}
+      accountsEnabled={accountsEnabled()}
+    >
       <a
         href="#main"
         className="fixed start-4 top-4 z-50 -translate-y-24 rounded-full bg-gold px-5 py-3 text-ink transition-transform focus:translate-y-0"

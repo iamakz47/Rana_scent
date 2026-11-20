@@ -5,7 +5,21 @@ export type Database = {
   
   "public": {
           Tables: {
-            "audit_logs": {
+            "account_deletion_requests": {
+                  Row: {
+                    "created_at": string,"email": string,"id": string,"reason": string,"resolution_note": string,"resolved_at": string | null,"resolved_by": string | null,"status": string,"user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"email"?: string,"id"?: string,"reason"?: string,"resolution_note"?: string,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"email"?: string,"id"?: string,"reason"?: string,"resolution_note"?: string,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"user_id"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"audit_logs": {
                   Row: {
                     "action": string,"actor_id": string | null,"created_at": string,"id": number,"new_data": Json | null,"old_data": Json | null,"record_id": string | null,"table_name": string
                   }
@@ -124,6 +138,32 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"email_messages": {
+                  Row: {
+                    "attempts": number,"audience": string,"created_at": string,"dedupe_key": string,"id": string,"kind": string,"last_error": string,"locale": string,"max_attempts": number,"next_attempt_at": string,"order_id": string | null,"payload": NonNullable<Json>,"provider": string,"provider_message_id": string,"refund_id": string | null,"sent_at": string | null,"status": string,"subject": string,"to_email": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attempts"?: number,"audience": string,"created_at"?: string,"dedupe_key": string,"id"?: string,"kind": string,"last_error"?: string,"locale"?: string,"max_attempts"?: number,"next_attempt_at"?: string,"order_id"?: string | null,"payload"?: NonNullable<Json>,"provider"?: string,"provider_message_id"?: string,"refund_id"?: string | null,"sent_at"?: string | null,"status"?: string,"subject"?: string,"to_email"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "attempts"?: number,"audience"?: string,"created_at"?: string,"dedupe_key"?: string,"id"?: string,"kind"?: string,"last_error"?: string,"locale"?: string,"max_attempts"?: number,"next_attempt_at"?: string,"order_id"?: string | null,"payload"?: NonNullable<Json>,"provider"?: string,"provider_message_id"?: string,"refund_id"?: string | null,"sent_at"?: string | null,"status"?: string,"subject"?: string,"to_email"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "email_messages_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "email_messages_refund_id_fkey"
+      columns: ["refund_id"]
+isOneToOne: false
+      referencedRelation: "refund_requests"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"expenses": {
                   Row: {
@@ -245,6 +285,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"notification_settings": {
+                  Row: {
+                    "customer_emails_enabled": boolean,"id": number,"low_stock_alerts": boolean,"staff_email": string,"staff_locale": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "customer_emails_enabled"?: boolean,"id"?: number,"low_stock_alerts"?: boolean,"staff_email"?: string,"staff_locale"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "customer_emails_enabled"?: boolean,"id"?: number,"low_stock_alerts"?: boolean,"staff_email"?: string,"staff_locale"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"order_items": {
                   Row: {
                     "id": string,"line_total_fils": number,"name_ar": string,"name_en": string,"order_id": string,"product_id": string | null,"quantity": number,"sku": string,"unit_price_fils": number,"variant_id": string | null,"variant_label_ar": string,"variant_label_en": string
@@ -319,14 +373,14 @@ isOneToOne: false
                   ]
                 },"orders": {
                   Row: {
-                    "access_token": string,"courier": string,"created_at": string,"currency": string,"customer_name": string,"customer_note": string,"delivery_instructions": string,"discount_code_id": string | null,"discount_fils": number,"email": string,"estimated_delivery": string | null,"expires_at": string | null,"id": string,"idempotency_key": string | null,"locale": string,"number": number,"payment_method": string,"phone": string,"placed_at": string | null,"shipping_address": NonNullable<Json>,"shipping_fils": number,"shipping_rate_id": string | null,"status": Database["public"]['Enums']["order_status"],"stock_released": boolean,"subtotal_fils": number,"total_fils": number,"tracking_number": string,"updated_at": string,"user_id": string | null
+                    "access_token": string,"courier": string,"created_at": string,"currency": string,"customer_name": string,"customer_note": string,"delivery_instructions": string,"discount_code_id": string | null,"discount_fils": number,"email": string,"estimated_delivery": string | null,"expires_at": string | null,"id": string,"idempotency_key": string | null,"locale": string,"number": number,"payment_method": string,"phone": string,"placed_at": string | null,"refunded_fils": number,"shipping_address": NonNullable<Json>,"shipping_fils": number,"shipping_rate_id": string | null,"status": Database["public"]['Enums']["order_status"],"stock_released": boolean,"subtotal_fils": number,"total_fils": number,"tracking_number": string,"updated_at": string,"user_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "access_token"?: string,"courier"?: string,"created_at"?: string,"currency"?: string,"customer_name"?: string,"customer_note"?: string,"delivery_instructions"?: string,"discount_code_id"?: string | null,"discount_fils"?: number,"email": string,"estimated_delivery"?: string | null,"expires_at"?: string | null,"id"?: string,"idempotency_key"?: string | null,"locale"?: string,"number"?: never,"payment_method"?: string,"phone": string,"placed_at"?: string | null,"shipping_address": NonNullable<Json>,"shipping_fils"?: number,"shipping_rate_id"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"stock_released"?: boolean,"subtotal_fils": number,"total_fils": number,"tracking_number"?: string,"updated_at"?: string,"user_id"?: string | null
+                    "access_token"?: string,"courier"?: string,"created_at"?: string,"currency"?: string,"customer_name"?: string,"customer_note"?: string,"delivery_instructions"?: string,"discount_code_id"?: string | null,"discount_fils"?: number,"email": string,"estimated_delivery"?: string | null,"expires_at"?: string | null,"id"?: string,"idempotency_key"?: string | null,"locale"?: string,"number"?: never,"payment_method"?: string,"phone": string,"placed_at"?: string | null,"refunded_fils"?: number,"shipping_address": NonNullable<Json>,"shipping_fils"?: number,"shipping_rate_id"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"stock_released"?: boolean,"subtotal_fils": number,"total_fils": number,"tracking_number"?: string,"updated_at"?: string,"user_id"?: string | null
                   }
                   Update: {
-                    "access_token"?: string,"courier"?: string,"created_at"?: string,"currency"?: string,"customer_name"?: string,"customer_note"?: string,"delivery_instructions"?: string,"discount_code_id"?: string | null,"discount_fils"?: number,"email"?: string,"estimated_delivery"?: string | null,"expires_at"?: string | null,"id"?: string,"idempotency_key"?: string | null,"locale"?: string,"number"?: never,"payment_method"?: string,"phone"?: string,"placed_at"?: string | null,"shipping_address"?: NonNullable<Json>,"shipping_fils"?: number,"shipping_rate_id"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"stock_released"?: boolean,"subtotal_fils"?: number,"total_fils"?: number,"tracking_number"?: string,"updated_at"?: string,"user_id"?: string | null
+                    "access_token"?: string,"courier"?: string,"created_at"?: string,"currency"?: string,"customer_name"?: string,"customer_note"?: string,"delivery_instructions"?: string,"discount_code_id"?: string | null,"discount_fils"?: number,"email"?: string,"estimated_delivery"?: string | null,"expires_at"?: string | null,"id"?: string,"idempotency_key"?: string | null,"locale"?: string,"number"?: never,"payment_method"?: string,"phone"?: string,"placed_at"?: string | null,"refunded_fils"?: number,"shipping_address"?: NonNullable<Json>,"shipping_fils"?: number,"shipping_rate_id"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"stock_released"?: boolean,"subtotal_fils"?: number,"total_fils"?: number,"tracking_number"?: string,"updated_at"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -551,14 +605,14 @@ isOneToOne: false
                   ]
                 },"refund_requests": {
                   Row: {
-                    "amount_fils": number,"created_at": string,"id": string,"order_id": string,"payment_id": string | null,"processed_at": string | null,"processed_by": string | null,"provider_refund_id": string | null,"reason": string,"requested_by": string | null,"status": string
+                    "amount_fils": number,"approved_at": string | null,"approved_by": string | null,"created_at": string,"id": string,"last_error": string,"order_id": string,"payment_id": string | null,"processed_at": string | null,"processed_by": string | null,"provider_refund_id": string | null,"provider_status": string,"reason": string,"requested_by": string | null,"status": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount_fils": number,"created_at"?: string,"id"?: string,"order_id": string,"payment_id"?: string | null,"processed_at"?: string | null,"processed_by"?: string | null,"provider_refund_id"?: string | null,"reason": string,"requested_by"?: string | null,"status"?: string
+                    "amount_fils": number,"approved_at"?: string | null,"approved_by"?: string | null,"created_at"?: string,"id"?: string,"last_error"?: string,"order_id": string,"payment_id"?: string | null,"processed_at"?: string | null,"processed_by"?: string | null,"provider_refund_id"?: string | null,"provider_status"?: string,"reason": string,"requested_by"?: string | null,"status"?: string
                   }
                   Update: {
-                    "amount_fils"?: number,"created_at"?: string,"id"?: string,"order_id"?: string,"payment_id"?: string | null,"processed_at"?: string | null,"processed_by"?: string | null,"provider_refund_id"?: string | null,"reason"?: string,"requested_by"?: string | null,"status"?: string
+                    "amount_fils"?: number,"approved_at"?: string | null,"approved_by"?: string | null,"created_at"?: string,"id"?: string,"last_error"?: string,"order_id"?: string,"payment_id"?: string | null,"processed_at"?: string | null,"processed_by"?: string | null,"provider_refund_id"?: string | null,"provider_status"?: string,"reason"?: string,"requested_by"?: string | null,"status"?: string
                   }
                   Relationships: [
                     {
@@ -703,8 +757,14 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "adjust_inventory":
+            "abandon_unstarted_payment":
+{ Args: { "p_order": string }; Returns: boolean
+                           },
+"adjust_inventory":
 { Args: { "note"?: string,"quantity_change": number,"reason": Database["public"]['Enums']["inventory_reason"],"target_variant": string }; Returns: number
+                           },
+"approve_refund":
+{ Args: { "p_request": string }; Returns: Json
                            },
 "assign_staff_role":
 { Args: { "name"?: string,"target_email": string,"target_role": string }; Returns: string
@@ -712,8 +772,46 @@ isOneToOne: false
 "attach_payment_charge":
 { Args: { "p_charge_id": string,"p_order": string,"p_provider": string }; Returns: undefined
                            },
+"claim_email_batch":
+{ Args: { "p_limit"?: number }; Returns: {
+              "attempts": number,
+"audience": string,
+"created_at": string,
+"dedupe_key": string,
+"id": string,
+"kind": string,
+"last_error": string,
+"locale": string,
+"max_attempts": number,
+"next_attempt_at": string,
+"order_id": string | null,
+"payload": NonNullable<Json>,
+"provider": string,
+"provider_message_id": string,
+"refund_id": string | null,
+"sent_at": string | null,
+"status": string,
+"subject": string,
+"to_email": string,
+"updated_at": string
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "email_messages"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
+"claim_guest_order":
+{ Args: { "p_number": number,"p_token": string }; Returns: boolean
+                           },
+"consume_rate_limit":
+{ Args: { "p_bucket": string,"p_limit": number,"p_window_seconds": number }; Returns: boolean
+                           },
 "expire_unpaid_orders":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"finish_email":
+{ Args: { "p_error": string,"p_id": string,"p_ok": boolean,"p_provider": string,"p_provider_message_id": string,"p_subject": string }; Returns: undefined
                            },
 "get_order_for_customer":
 { Args: { "order_number": number,"token": string }; Returns: Json
@@ -728,9 +826,22 @@ isOneToOne: false
               "created_at": string,"display_name": string,"email": string,"is_active": boolean,"last_sign_in_at": string,"role": string,"user_id": string
             }[]
                            },
+"log_account_email":
+{ Args: { "p_error": string,"p_kind": string,"p_locale": string,"p_ok": boolean,"p_provider": string,"p_provider_message_id": string,"p_to": string }; Returns: undefined
+                           },
 "media_usage":
 { Args: { "target": string }; Returns: {
               "kind": string,"label": string,"ref_id": string
+            }[]
+                           },
+"my_orders":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "access_token": string,"created_at": string,"items_count": number,"number": number,"payment_method": string,"placed_at": string,"status": Database["public"]['Enums']["order_status"],"total_fils": number
+            }[]
+                           },
+"payments_to_reconcile":
+{ Args: { "p_limit"?: number,"p_min_age_seconds"?: number }; Returns: {
+              "kind": string,"order_id": string,"provider": string,"provider_id": string,"refund_id": string
             }[]
                            },
 "place_order":
@@ -742,17 +853,38 @@ isOneToOne: false
 "record_payment_result":
 { Args: { "p_amount_fils": number,"p_charge_id": string,"p_currency": string,"p_event_id": string,"p_method": string,"p_payload": Json,"p_provider": string,"p_reference": string,"p_signature_valid": boolean,"p_status": string }; Returns: string
                            },
+"record_refund_result":
+{ Args: { "p_amount_fils": number,"p_currency": string,"p_error"?: string,"p_provider_refund_id": string,"p_request": string,"p_status": string }; Returns: string
+                           },
+"reopen_refund":
+{ Args: { "p_request": string }; Returns: undefined
+                           },
 "reorder":
 { Args: { "ids": (string)[],"target_table": string }; Returns: undefined
+                           },
+"request_account_deletion":
+{ Args: { "p_reason"?: string }; Returns: string
                            },
 "request_refund":
 { Args: { "p_amount": number,"p_order": string,"p_reason": string }; Returns: string
                            },
+"resolve_account_deletion":
+{ Args: { "p_complete": boolean,"p_note"?: string,"p_request": string }; Returns: string
+                           },
 "resolve_refund":
 { Args: { "p_approve": boolean,"p_provider_refund_id"?: string,"p_request": string }; Returns: undefined
                            },
+"retry_email":
+{ Args: { "p_id": string }; Returns: undefined
+                           },
 "save_product":
 { Args: { "payload": Json }; Returns: string
+                           },
+"set_default_address":
+{ Args: { "p_address": string }; Returns: undefined
+                           },
+"withdraw_account_deletion":
+{ Args: Record<PropertyKey, never>; Returns: undefined
                            }
           }
           Enums: {

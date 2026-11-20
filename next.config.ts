@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
@@ -38,6 +39,8 @@ const nextConfig: NextConfig = {
       { source: "/:path*", headers: securityHeaders },
       { source: "/:lang/admin/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
       { source: "/:lang/admin", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      { source: "/:lang/account/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      { source: "/:lang/account", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
     ];
   },
   turbopack: {

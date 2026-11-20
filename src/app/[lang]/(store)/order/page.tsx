@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import Link from "next/link";
+import { Suspense, type ReactNode } from "react";
 import { z } from "zod";
 import { ButtonLink } from "@/components/ui/button";
 import { localePath } from "@/i18n/config";
@@ -9,6 +10,9 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { formatKWD } from "@/lib/money";
 import { createPublicClient } from "@/lib/supabase/public";
 import { OrderLive } from "@/features/checkout/order-live";
+import { accountsEnabled } from "@/features/account/config";
+import { getCustomer } from "@/features/account/dal";
+import { ClaimOrderForm } from "@/features/account/forms";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -27,6 +31,9 @@ type CustomerOrder = {
   courier: string;
   estimated_delivery: string | null;
   payment_status: string | null;
+  refunded_fils: number;
+  has_account: boolean;
+  timeline: Array<{ status: string; at: string }>;
   items: Array<{ name: { ar: string; en: string }; label: { ar: string; en: string }; quantity: number; line_total_fils: number }>;
 };
 
@@ -42,7 +49,12 @@ async function Order({ searchParams }: { searchParams: PageProps<"/[lang]/order"
       order_number: parsed.data.n,
       token: parsed.data.t,
     });
-    order = (data as unknown as CustomerOrder | null) ?? null;
+    // Fields added by later migrations get safe defaults, so the page keeps
+    // working against a database that hasn't been updated yet.
+    const raw = data as unknown as Partial<CustomerOrder> | null;
+    order = raw
+      ? ({ ...raw, refunded_fils: raw.refunded_fils ?? 0, has_account: raw.has_account ?? true, timeline: raw.timeline ?? [], items: raw.items ?? [] } as CustomerOrder)
+      : null;
   }
   if (!order) {
     return (
@@ -67,6 +79,35 @@ async function Order({ searchParams }: { searchParams: PageProps<"/[lang]/order"
           : order.payment_method === "cod"
             ? t.codNote
             : t.paidNote;
+  const dateTime = new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-KW", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Kuwait",
+  });
+  // Guest orders can be saved to an account: only with this link's token and
+  // the account's verified email matching the order (checked in the database).
+  let claim: ReactNode = null;
+  if (accountsEnabled() && !order.has_account && parsed.success) {
+    const customer = await getCustomer();
+    const here = `/order?n=${parsed.data.n}&t=${parsed.data.t}`;
+    claim = (
+      <section className="mt-6 rounded-[1.5rem] border border-dashed border-gold/50 p-5">
+        <h2 className="text-step-0 font-medium text-ink">{dict.account.claimTitle}</h2>
+        {customer?.verified ? (
+          <div className="mt-3">
+            <ClaimOrderForm number={parsed.data.n} token={parsed.data.t} />
+          </div>
+        ) : (
+          <p className="mt-2 text-step--1 text-ink-soft">
+            {dict.account.claimSignedOut}{" "}
+            <Link href={localePath(locale, `/account/login?next=${encodeURIComponent(here)}`)} className="text-ink underline underline-offset-4">
+              {dict.account.signIn}
+            </Link>
+          </p>
+        )}
+      </section>
+    );
+  }
   const address = order.shipping_address;
   const governorates = dict.checkout.governorates as Record<string, string>;
   const addressLine = [
@@ -162,6 +203,32 @@ async function Order({ searchParams }: { searchParams: PageProps<"/[lang]/order"
           ) : null}
         </section>
       </div>
+
+      {order.refunded_fils > 0 ? (
+        <p role="status" className="mt-6 rounded-2xl border border-gold/40 bg-gold/8 px-4 py-3 text-ink">
+          {format(t.refundedNote, { amount: formatKWD(order.refunded_fils, locale) })}
+        </p>
+      ) : null}
+
+      {order.timeline.length > 0 ? (
+        <section aria-labelledby="order-timeline" className="mt-6 rounded-[1.5rem] border border-ink/10 bg-canvas p-5">
+          <h2 id="order-timeline" className="text-step--1 font-medium text-ink-soft">
+            {t.timeline}
+          </h2>
+          <ol className="mt-3 space-y-2">
+            {order.timeline.map((step, index) => (
+              <li key={index} className="flex flex-wrap items-baseline justify-between gap-x-4 text-step--1">
+                <span className="text-ink">{(t.statuses as Record<string, string>)[step.status] ?? step.status}</span>
+                <time dateTime={step.at} className="tabular-nums text-ink-soft">
+                  {dateTime.format(new Date(step.at))}
+                </time>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
+
+      {claim}
 
       <ButtonLink href={localePath(locale, failed ? "/cart" : "/shop")} className="mt-10" variant="outline">
         {failed ? t.retry : t.continue}

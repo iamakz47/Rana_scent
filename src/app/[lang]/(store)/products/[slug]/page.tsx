@@ -12,6 +12,11 @@ import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { getSiteUrl } from "@/lib/env";
 import { FILS_PER_KWD } from "@/lib/money";
 
+// Live-catalog slugs that weren't prerendered render on request. Blocking
+// (rather than streaming behind a skeleton) keeps a real 404 status for
+// unknown or unpublished products.
+export const instant = false;
+
 export async function generateStaticParams() {
   const products = await listProducts();
   // Cache Components needs at least one param; an unknown slug renders 404.

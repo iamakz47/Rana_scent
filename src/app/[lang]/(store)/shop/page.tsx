@@ -33,11 +33,13 @@ export default async function ShopPage({ searchParams }: PageProps<"/[lang]/shop
       <PageHeader title={dict.shop.title} body={dict.shop.body} />
       <div className="container-page pb-24">
         <div className="pt-8">
-          <Suspense>
+          {/* Same height as the filters, so the grid doesn't jump when they render. */}
+          <Suspense fallback={<div aria-hidden className="h-80 sm:h-66" />}>
             <CatalogFilters />
           </Suspense>
         </div>
         <div className="mt-8">
+          <h2 className="sr-only">{dict.shop.title}</h2>
           <Suspense fallback={<ProductGridSkeleton />}>
             <Results searchParams={searchParams} />
           </Suspense>

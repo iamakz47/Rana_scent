@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = Number(process.env.E2E_PORT ?? 3100);
+// E2E_BASE_URL runs the suite against a deployed site (e.g. a Vercel
+// preview) instead of a local production build.
+const remote = process.env.E2E_BASE_URL;
 
 // End-to-end tests run against a production build (`npm run build` first).
 // Set PLAYWRIGHT_CHROMIUM_EXECUTABLE to use a preinstalled Chromium.
@@ -11,17 +14,19 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: remote ?? `http://localhost:${PORT}`,
     trace: "retain-on-failure",
     launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
       ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
       : undefined,
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: {
-    command: `npm run start -- -p ${PORT}`,
-    url: `http://localhost:${PORT}/en`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
-  },
+  webServer: remote
+    ? undefined
+    : {
+        command: `npm run start -- -p ${PORT}`,
+        url: `http://localhost:${PORT}/en`,
+        reuseExistingServer: !process.env.CI,
+        timeout: 60_000,
+      },
 });
