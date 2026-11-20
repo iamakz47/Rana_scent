@@ -9,7 +9,7 @@ import { accounts, PASSWORD } from "./accounts";
 
 let service: SupabaseClient;
 const unique = () => Math.random().toString(36).slice(2, 8);
-const AR_CAUTION = "يتم اختيار العطور مع نوعد المندوب";
+const AR_CAUTION = "يتم تأكيد اختيار العطور مع مندوب التوصيل";
 const EN_CAUTION = "Fragrance selection will be confirmed with our delivery representative.";
 
 type Fixture = { slug: string; id: string; variant: string };
@@ -222,6 +222,11 @@ test.describe("free fragrance selection", () => {
     await expect(caution).toBeVisible();
     await expect(page.getByLabel("عطرك المجاني الأول")).toBeVisible();
     await expect(page.getByLabel("عطرك المجاني الثاني")).toBeVisible();
+    // The corrected wording sits above the dropdowns; the earlier misspelt text is gone.
+    const cautionBox = await caution.boundingBox();
+    const firstBox = await page.getByLabel("عطرك المجاني الأول").boundingBox();
+    expect(cautionBox!.y).toBeLessThan(firstBox!.y);
+    await expect(page.getByText("نوعد")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
   });
 

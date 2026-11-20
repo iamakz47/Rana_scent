@@ -62,7 +62,7 @@ between paragraphs. HTML is never interpreted.
   in-stock refills from the live catalogue; nothing is hardcoded.
 - **On the product page:**
   - a soft yellow note above the dropdowns, using the owner's wording:
-    "يتم اختيار العطور مع نوعد المندوب" / "Fragrance selection will be
+    "يتم تأكيد اختيار العطور مع مندوب التوصيل" / "Fragrance selection will be
     confirmed with our delivery representative.";
   - one or two dropdowns ("Your First / Second Free Fragrance",
     "عطرك المجاني الأول / الثاني");

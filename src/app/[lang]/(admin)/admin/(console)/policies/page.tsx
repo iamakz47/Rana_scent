@@ -18,7 +18,7 @@ export default async function PoliciesPage() {
   const { locale, t } = await getAdminDictionary();
   const c = t.p5.policies;
   const supabase = await createClient();
-  const { data: policies } = await supabase
+  const { data: policies, error } = await supabase
     .from("site_policies")
     .select("key, draft_title_ar, draft_title_en, draft_body_ar, draft_body_en, published_title_ar, published_title_en, published_body_ar, published_body_en, draft_updated_at, published_at")
     .order("position");
@@ -27,6 +27,7 @@ export default async function PoliciesPage() {
     <div className="space-y-6">
       <AdminPageHeader title={c.title} body={c.body} />
       <Notice tone="warning">{c.draftsNotice}</Notice>
+      {error ? <Notice tone="danger">{c.unavailable}</Notice> : null}
       <ul className="divide-y divide-ink/8 overflow-hidden rounded-2xl border border-ink/10 bg-canvas">
         {(policies ?? []).map((p) => {
           const changed =

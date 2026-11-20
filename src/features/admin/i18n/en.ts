@@ -498,6 +498,7 @@ export const adminEn = {
     policies: {
       title: "Policies",
       body: "Returns, refunds, warranty, delivery, terms and privacy. Visitors only see a policy once you publish it.",
+      unavailable: "Policies are not available yet: the Phase 5 database update has not been applied.",
       draftsNotice: "These are drafts for review. Replace every [OWNER TO CONFIRM …] marker, and have a lawyer review them, before publishing.",
       published: "Published",
       notPublished: "Not published",

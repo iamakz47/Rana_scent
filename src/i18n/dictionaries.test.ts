@@ -43,3 +43,14 @@ describe("storefront dictionaries", () => {
     expect(suspicious).toEqual([]);
   });
 });
+
+describe("free fragrance caution", () => {
+  it("uses the owner-approved Arabic wording exactly", () => {
+    expect(ar.product.freeCaution).toBe("يتم تأكيد اختيار العطور مع مندوب التوصيل");
+    expect(en.product.freeCaution).toBe("Fragrance selection will be confirmed with our delivery representative.");
+  });
+
+  it("no longer contains the earlier misspelt wording anywhere", () => {
+    expect(Object.values(arFlat).filter((v) => v.includes("نوعد"))).toEqual([]);
+  });
+});

@@ -33,11 +33,7 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
   const c = t.commerce;
   const supabase = await createClient();
   const [{ data: order }, { data: history }, { data: notes }, { data: refunds }, { data: emails }, team] = await Promise.all([
-    supabase
-      .from("orders")
-      .select("*, order_items(*, order_item_fragrances(device_no, slot, name_ar, name_en)), payments(*)")
-      .eq("id", id)
-      .maybeSingle(),
+    loadOrder(supabase, id),
     supabase.from("order_status_history").select("*").eq("order_id", id).order("created_at"),
     supabase.from("order_notes").select("*").eq("order_id", id).order("created_at"),
     supabase.from("refund_requests").select("*").eq("order_id", id).order("created_at"),
@@ -371,4 +367,24 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
       </Panel>
     </div>
   );
+}
+
+type Db = Awaited<ReturnType<typeof createClient>>;
+
+// Free-fragrance choices live in a table added by the Phase 5 migration. Until
+// that migration is applied, load the order without them rather than failing.
+async function loadOrder(supabase: Db, id: string) {
+  const full = await supabase
+    .from("orders")
+    .select("*, order_items(*, order_item_fragrances(device_no, slot, name_ar, name_en)), payments(*)")
+    .eq("id", id)
+    .maybeSingle();
+  if (!full.error) return full;
+  const basic = await supabase.from("orders").select("*, order_items(*), payments(*)").eq("id", id).maybeSingle();
+  if (!basic.data) return { data: null, error: basic.error };
+  const data = {
+    ...basic.data,
+    order_items: basic.data.order_items.map((item) => ({ ...item, order_item_fragrances: [] as Array<{ device_no: number; slot: number; name_ar: string; name_en: string }> })),
+  };
+  return { data, error: null };
 }
