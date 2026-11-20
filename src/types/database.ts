@@ -299,6 +299,32 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"order_item_fragrances": {
+                  Row: {
+                    "device_no": number,"fragrance_product_id": string | null,"id": number,"name_ar": string,"name_en": string,"order_item_id": string,"slot": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "device_no": number,"fragrance_product_id"?: string | null,"id"?: never,"name_ar": string,"name_en": string,"order_item_id": string,"slot": number
+                  }
+                  Update: {
+                    "device_no"?: number,"fragrance_product_id"?: string | null,"id"?: never,"name_ar"?: string,"name_en"?: string,"order_item_id"?: string,"slot"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_item_fragrances_fragrance_product_id_fkey"
+      columns: ["fragrance_product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_fragrances_order_item_id_fkey"
+      columns: ["order_item_id"]
+isOneToOne: false
+      referencedRelation: "order_items"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"order_items": {
                   Row: {
                     "id": string,"line_total_fils": number,"name_ar": string,"name_en": string,"order_id": string,"product_id": string | null,"quantity": number,"sku": string,"unit_price_fils": number,"variant_id": string | null,"variant_label_ar": string,"variant_label_en": string
@@ -557,14 +583,14 @@ isOneToOne: false
                   ]
                 },"products": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"description_ar": string,"description_en": string,"id": string,"is_featured": boolean,"is_new": boolean,"name_ar": string,"name_en": string,"notes": Json | null,"position": number,"published_at": string | null,"seo_description_ar": string,"seo_description_en": string,"seo_title_ar": string,"seo_title_en": string,"short_description_ar": string,"short_description_en": string,"slug": string,"spaces": (string)[],"specs": NonNullable<Json>,"specs_confirmed": boolean,"status": Database["public"]['Enums']["publish_status"],"type": Database["public"]['Enums']["product_type"],"updated_at": string,"updated_by": string | null
+                    "created_at": string,"created_by": string | null,"description_ar": string,"description_en": string,"device_specs": NonNullable<Json>,"free_fragrance_eligible": boolean,"free_fragrances": number | null,"id": string,"info_sections": NonNullable<Json>,"is_featured": boolean,"is_new": boolean,"name_ar": string,"name_en": string,"notes": Json | null,"position": number,"published_at": string | null,"seo_description_ar": string,"seo_description_en": string,"seo_title_ar": string,"seo_title_en": string,"short_description_ar": string,"short_description_en": string,"slug": string,"spaces": (string)[],"specs": NonNullable<Json>,"specs_confirmed": boolean,"status": Database["public"]['Enums']["publish_status"],"type": Database["public"]['Enums']["product_type"],"updated_at": string,"updated_by": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"description_ar"?: string,"description_en"?: string,"id"?: string,"is_featured"?: boolean,"is_new"?: boolean,"name_ar": string,"name_en": string,"notes"?: Json | null,"position"?: number,"published_at"?: string | null,"seo_description_ar"?: string,"seo_description_en"?: string,"seo_title_ar"?: string,"seo_title_en"?: string,"short_description_ar"?: string,"short_description_en"?: string,"slug": string,"spaces"?: (string)[],"specs"?: NonNullable<Json>,"specs_confirmed"?: boolean,"status"?: Database["public"]['Enums']["publish_status"],"type": Database["public"]['Enums']["product_type"],"updated_at"?: string,"updated_by"?: string | null
+                    "created_at"?: string,"created_by"?: string | null,"description_ar"?: string,"description_en"?: string,"device_specs"?: NonNullable<Json>,"free_fragrance_eligible"?: boolean,"free_fragrances"?: number | null,"id"?: string,"info_sections"?: NonNullable<Json>,"is_featured"?: boolean,"is_new"?: boolean,"name_ar": string,"name_en": string,"notes"?: Json | null,"position"?: number,"published_at"?: string | null,"seo_description_ar"?: string,"seo_description_en"?: string,"seo_title_ar"?: string,"seo_title_en"?: string,"short_description_ar"?: string,"short_description_en"?: string,"slug": string,"spaces"?: (string)[],"specs"?: NonNullable<Json>,"specs_confirmed"?: boolean,"status"?: Database["public"]['Enums']["publish_status"],"type": Database["public"]['Enums']["product_type"],"updated_at"?: string,"updated_by"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"description_ar"?: string,"description_en"?: string,"id"?: string,"is_featured"?: boolean,"is_new"?: boolean,"name_ar"?: string,"name_en"?: string,"notes"?: Json | null,"position"?: number,"published_at"?: string | null,"seo_description_ar"?: string,"seo_description_en"?: string,"seo_title_ar"?: string,"seo_title_en"?: string,"short_description_ar"?: string,"short_description_en"?: string,"slug"?: string,"spaces"?: (string)[],"specs"?: NonNullable<Json>,"specs_confirmed"?: boolean,"status"?: Database["public"]['Enums']["publish_status"],"type"?: Database["public"]['Enums']["product_type"],"updated_at"?: string,"updated_by"?: string | null
+                    "created_at"?: string,"created_by"?: string | null,"description_ar"?: string,"description_en"?: string,"device_specs"?: NonNullable<Json>,"free_fragrance_eligible"?: boolean,"free_fragrances"?: number | null,"id"?: string,"info_sections"?: NonNullable<Json>,"is_featured"?: boolean,"is_new"?: boolean,"name_ar"?: string,"name_en"?: string,"notes"?: Json | null,"position"?: number,"published_at"?: string | null,"seo_description_ar"?: string,"seo_description_en"?: string,"seo_title_ar"?: string,"seo_title_en"?: string,"short_description_ar"?: string,"short_description_en"?: string,"slug"?: string,"spaces"?: (string)[],"specs"?: NonNullable<Json>,"specs_confirmed"?: boolean,"status"?: Database["public"]['Enums']["publish_status"],"type"?: Database["public"]['Enums']["product_type"],"updated_at"?: string,"updated_by"?: string | null
                   }
                   Relationships: [
                     
@@ -717,6 +743,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"site_policies": {
+                  Row: {
+                    "draft_body_ar": string,"draft_body_en": string,"draft_title_ar": string,"draft_title_en": string,"draft_updated_at": string,"draft_updated_by": string | null,"key": string,"position": number,"published_at": string | null,"published_body_ar": string,"published_body_en": string,"published_by": string | null,"published_title_ar": string,"published_title_en": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "draft_body_ar"?: string,"draft_body_en"?: string,"draft_title_ar"?: string,"draft_title_en"?: string,"draft_updated_at"?: string,"draft_updated_by"?: string | null,"key": string,"position"?: number,"published_at"?: string | null,"published_body_ar"?: string,"published_body_en"?: string,"published_by"?: string | null,"published_title_ar"?: string,"published_title_en"?: string
+                  }
+                  Update: {
+                    "draft_body_ar"?: string,"draft_body_en"?: string,"draft_title_ar"?: string,"draft_title_en"?: string,"draft_updated_at"?: string,"draft_updated_by"?: string | null,"key"?: string,"position"?: number,"published_at"?: string | null,"published_body_ar"?: string,"published_body_en"?: string,"published_by"?: string | null,"published_title_ar"?: string,"published_title_en"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"staff_members": {
                   Row: {
                     "created_at": string,"display_name": string,"invited_by": string | null,"is_active": boolean,"role": string,"updated_at": string,"user_id": string
@@ -739,14 +779,14 @@ isOneToOne: false
                   ]
                 },"store_settings": {
                   Row: {
-                    "cod_enabled": boolean,"contact_email": string,"contact_phone": string,"currency": string,"default_low_stock_threshold": number,"delivery_note_ar": string,"delivery_note_en": string,"id": number,"instagram_handle": string,"online_payments_enabled": boolean,"order_expiry_minutes": number,"slider_autoplay": boolean,"slider_interval_seconds": number,"updated_at": string,"updated_by": string | null,"whatsapp_number": string
+                    "cod_enabled": boolean,"contact_email": string,"contact_phone": string,"currency": string,"default_low_stock_threshold": number,"delivery_note_ar": string,"delivery_note_en": string,"free_fragrance_allow_duplicates": boolean,"id": number,"instagram_handle": string,"online_payments_enabled": boolean,"order_expiry_minutes": number,"slider_autoplay": boolean,"slider_interval_seconds": number,"updated_at": string,"updated_by": string | null,"whatsapp_number": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "cod_enabled"?: boolean,"contact_email"?: string,"contact_phone"?: string,"currency"?: string,"default_low_stock_threshold"?: number,"delivery_note_ar"?: string,"delivery_note_en"?: string,"id"?: number,"instagram_handle"?: string,"online_payments_enabled"?: boolean,"order_expiry_minutes"?: number,"slider_autoplay"?: boolean,"slider_interval_seconds"?: number,"updated_at"?: string,"updated_by"?: string | null,"whatsapp_number"?: string
+                    "cod_enabled"?: boolean,"contact_email"?: string,"contact_phone"?: string,"currency"?: string,"default_low_stock_threshold"?: number,"delivery_note_ar"?: string,"delivery_note_en"?: string,"free_fragrance_allow_duplicates"?: boolean,"id"?: number,"instagram_handle"?: string,"online_payments_enabled"?: boolean,"order_expiry_minutes"?: number,"slider_autoplay"?: boolean,"slider_interval_seconds"?: number,"updated_at"?: string,"updated_by"?: string | null,"whatsapp_number"?: string
                   }
                   Update: {
-                    "cod_enabled"?: boolean,"contact_email"?: string,"contact_phone"?: string,"currency"?: string,"default_low_stock_threshold"?: number,"delivery_note_ar"?: string,"delivery_note_en"?: string,"id"?: number,"instagram_handle"?: string,"online_payments_enabled"?: boolean,"order_expiry_minutes"?: number,"slider_autoplay"?: boolean,"slider_interval_seconds"?: number,"updated_at"?: string,"updated_by"?: string | null,"whatsapp_number"?: string
+                    "cod_enabled"?: boolean,"contact_email"?: string,"contact_phone"?: string,"currency"?: string,"default_low_stock_threshold"?: number,"delivery_note_ar"?: string,"delivery_note_en"?: string,"free_fragrance_allow_duplicates"?: boolean,"id"?: number,"instagram_handle"?: string,"online_payments_enabled"?: boolean,"order_expiry_minutes"?: number,"slider_autoplay"?: boolean,"slider_interval_seconds"?: number,"updated_at"?: string,"updated_by"?: string | null,"whatsapp_number"?: string
                   }
                   Relationships: [
                     
@@ -816,9 +856,22 @@ isOneToOne: false
 "get_order_for_customer":
 { Args: { "order_number": number,"token": string }; Returns: Json
                            },
+"get_policy":
+{ Args: { "p_key": string }; Returns: Json
+                           },
 "list_customers":
 { Args: { "p_search"?: string }; Returns: {
               "customer_name": string,"email": string,"has_account": boolean,"last_order_at": string,"orders_count": number,"paid_total_fils": number,"phone": string
+            }[]
+                           },
+"list_free_fragrances":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "id": string,"name_ar": string,"name_en": string,"slug": string
+            }[]
+                           },
+"list_published_policies":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "key": string,"published_at": string,"title_ar": string,"title_en": string
             }[]
                            },
 "list_staff":
@@ -846,6 +899,9 @@ isOneToOne: false
                            },
 "place_order":
 { Args: { "p_payload": Json }; Returns: Json
+                           },
+"publish_policy":
+{ Args: { "p_key": string }; Returns: undefined
                            },
 "quote_order":
 { Args: { "p_area"?: string,"p_discount_code"?: string,"p_governorate"?: string,"p_items": Json }; Returns: Json
@@ -877,11 +933,17 @@ isOneToOne: false
 "retry_email":
 { Args: { "p_id": string }; Returns: undefined
                            },
+"save_policy_draft":
+{ Args: { "p_body_ar": string,"p_body_en": string,"p_key": string,"p_title_ar": string,"p_title_en": string }; Returns: undefined
+                           },
 "save_product":
 { Args: { "payload": Json }; Returns: string
                            },
 "set_default_address":
 { Args: { "p_address": string }; Returns: undefined
+                           },
+"unpublish_policy":
+{ Args: { "p_key": string }; Returns: undefined
                            },
 "withdraw_account_deletion":
 { Args: Record<PropertyKey, never>; Returns: undefined
