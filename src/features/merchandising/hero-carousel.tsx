@@ -197,7 +197,12 @@ export function HeroCarousel({ slides, intervalMs, autoplay }: Props) {
               {autoplay && !reducedMotion && (
                 <ControlButton
                   label={userPaused ? t.play : t.pause}
-                  onClick={() => setUserPaused((value) => !value)}
+                  onClick={() => {
+                    // An explicit Play resumes now, even though the pointer or
+                    // keyboard focus is still on this button inside the carousel.
+                    if (userPaused) setInteracting(false);
+                    setUserPaused(!userPaused);
+                  }}
                   pressed={userPaused}
                 >
                   {userPaused ? <PlayIcon size={16} /> : <PauseIcon size={16} />}

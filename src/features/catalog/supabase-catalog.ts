@@ -1,4 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
+import { parseDeviceSpecs, parseInfoSections } from "./product-details";
 import { createPublicClient } from "@/lib/supabase/public";
 import { mediaUrl } from "@/features/media/url";
 import { CATALOG_TAG } from "./cache-tags";
@@ -32,6 +33,7 @@ export async function loadSupabaseCatalog(): Promise<CatalogData> {
       .select(
         `id, slug, type, name_ar, name_en, short_description_ar, short_description_en, description_ar, description_en,
          notes, specs, specs_confirmed, spaces, is_featured, is_new, position, published_at,
+         device_specs, info_sections, free_fragrances, free_fragrance_eligible,
          product_variants(id, sku, label_ar, label_en, price_fils, compare_at_fils, position, is_active, inventory(on_hand)),
          product_media(position, media_assets(bucket, path, alt_ar, alt_en)),
          product_scents(position, scent_families(slug)),
@@ -94,6 +96,10 @@ export async function loadSupabaseCatalog(): Promise<CatalogData> {
         .map(({ slug, quantity }) => ({ slug, quantity })),
       specs: specs.map((s) => ({ label: pair(s.label), value: pair(s.value) })),
       specsConfirmed: row.specs_confirmed,
+      deviceSpecs: parseDeviceSpecs(row.device_specs),
+      info: parseInfoSections(row.info_sections),
+      freeFragrances: row.type === "diffuser" && (row.free_fragrances === 1 || row.free_fragrances === 2) ? row.free_fragrances : undefined,
+      freeFragranceEligible: row.free_fragrance_eligible,
       compatibleWith: [...(links.get(row.slug) ?? [])],
       spaces: row.spaces.filter((s): s is Space => (allSpaces as readonly string[]).includes(s)),
       categories: row.product_categories.map((c) => c.categories?.slug).filter((s): s is string => Boolean(s)),

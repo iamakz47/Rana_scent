@@ -19,6 +19,9 @@ import {
   TextInput,
 } from "@/features/admin/ui/primitives";
 import { deleteProduct, saveProduct, setProductStatus } from "./actions";
+import { DeviceDetailsPanel, InfoSectionsPanel } from "./details-fields";
+import type { DeviceSpecs, InfoSections } from "@/features/catalog/product-details";
+import { useFormAction } from "@/lib/use-form-action";
 import { productTypes, spaces } from "./schema";
 
 export type VariantValue = {
@@ -48,6 +51,10 @@ export type ProductValues = {
   specs_ar: string;
   specs_en: string;
   specs_confirmed: boolean;
+  device_specs: DeviceSpecs;
+  info_sections: InfoSections;
+  free_fragrances: "" | "1" | "2";
+  free_fragrance_eligible: boolean;
   spaces: string[];
   is_featured: boolean;
   is_new: boolean;
@@ -263,13 +270,14 @@ export function ProductEditor({
   created?: boolean;
 }) {
   const { locale, t } = useAdminI18n();
-  const [state, action] = useActionState<ActionResult, FormData>(saveProduct, idle);
+  // Keeps everything typed if the server rejects the save.
+  const [state, action, , submit] = useFormAction<ActionResult>(saveProduct, idle);
   const labels = { ar: t.common.arabic, en: t.common.english };
   const familyField = values.type === "refill" || values.type === "bundle";
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
-      <form action={action} className="min-w-0 space-y-6" id="product-form">
+      <form action={action} onSubmit={submit} className="min-w-0 space-y-6" id="product-form">
         <input type="hidden" name="locale" value={locale} />
         <input type="hidden" name="entity_id" value={values.id ?? ""} />
         {created ? <Notice tone="success">{t.products.created}</Notice> : null}
@@ -396,6 +404,15 @@ export function ProductEditor({
             <Checkbox name="specs_confirmed" label={t.products.specsConfirmed} defaultChecked={values.specs_confirmed} />
           </div>
         </Panel>
+
+        <DeviceDetailsPanel
+          type={values.type}
+          specs={values.device_specs}
+          freeFragrances={values.free_fragrances}
+          freeEligible={values.free_fragrance_eligible}
+          errors={state.fieldErrors}
+        />
+        <InfoSectionsPanel info={values.info_sections} errors={state.fieldErrors} />
 
         <Panel title={t.products.sections.seo}>
           <div className="space-y-4">

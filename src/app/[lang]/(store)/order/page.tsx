@@ -34,7 +34,13 @@ type CustomerOrder = {
   refunded_fils: number;
   has_account: boolean;
   timeline: Array<{ status: string; at: string }>;
-  items: Array<{ name: { ar: string; en: string }; label: { ar: string; en: string }; quantity: number; line_total_fils: number }>;
+  items: Array<{
+    name: { ar: string; en: string };
+    label: { ar: string; en: string };
+    quantity: number;
+    line_total_fils: number;
+    free_fragrances?: Array<{ device: number; slot: number; name: { ar: string; en: string } }>;
+  }>;
 };
 
 const params = z.object({ n: z.coerce.number().int().positive(), t: z.uuid() });
@@ -153,6 +159,20 @@ async function Order({ searchParams }: { searchParams: PageProps<"/[lang]/order"
                 <span className="block text-step--1 text-ink-soft">
                   {item.label[locale]} × {item.quantity}
                 </span>
+                {item.free_fragrances?.length ? (
+                  <span className="mt-1 block text-step--1 text-ink-soft" data-testid="order-fragrances">
+                    {dict.product.freeFragrances} <span className="text-gold-deep">({dict.product.freeLabel})</span>:
+                    {[...new Set(item.free_fragrances.map((f) => f.device))].map((device) => (
+                      <span key={device} className="block text-ink">
+                        {format(dict.product.device, { number: device })}:{" "}
+                        {item.free_fragrances!
+                          .filter((f) => f.device === device)
+                          .map((f) => f.name[locale])
+                          .join(locale === "ar" ? "، " : ", ")}
+                      </span>
+                    ))}
+                  </span>
+                ) : null}
               </span>
               <span className="tabular-nums text-ink">{formatKWD(item.line_total_fils, locale)}</span>
             </li>

@@ -75,6 +75,7 @@ test.describe("catalog management", () => {
     await page.getByLabel("Option label (Arabic)").fill("أسود");
     await page.getByLabel("Option label (English)").fill("Black");
     await page.getByLabel("Price (KWD)", { exact: true }).fill("24.750");
+    await page.getByLabel("Number of free fragrances").selectOption("1");
     await page.getByRole("button", { name: "Create" }).click();
     await expect(page.getByText("Product created as a draft.")).toBeVisible();
     await expect(page.getByText("Publishing needs a Manager, Admin or Owner.")).toBeVisible();
@@ -173,6 +174,8 @@ test.describe("homepage and media", () => {
   test("images upload to the media library", async ({ page }) => {
     await signIn(page, accounts.editor);
     await page.goto("/en/admin/media");
+    // Count after the page settles; choosing a file before hydration is lost.
+    await page.waitForLoadState("networkidle");
     const before = await page.locator("main ul > li img").count();
     await page.locator("#media-upload").setInputFiles("public/images/products/rana-mini.jpg");
     await expect(page.getByText(/rana-mini\.jpg: Uploaded\./)).toBeVisible({ timeout: 20_000 });

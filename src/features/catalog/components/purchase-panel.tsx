@@ -12,9 +12,11 @@ import { toCartLine } from "@/features/cart/to-cart-line";
 import { WishlistButton } from "@/features/wishlist/wishlist-button";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
+import type { FreeFragrance } from "../queries";
 import type { Product } from "../types";
+import { FreeFragrancePicker } from "./free-fragrance-picker";
 
-export function PurchasePanel({ product }: { product: Product }) {
+export function PurchasePanel({ product, fragrances = [] }: { product: Product; fragrances?: FreeFragrance[] }) {
   const { locale, dict } = useI18n();
   const initial = product.variants.find((variant) => variant.stock > 0) ?? product.variants[0];
   const [variantId, setVariantId] = useState(initial.id);
@@ -22,6 +24,11 @@ export function PurchasePanel({ product }: { product: Product }) {
   const [added, setAdded] = useState(false);
   const variant = product.variants.find((item) => item.id === variantId) ?? initial;
   const soldOut = variant.stock <= 0;
+  const freeCount = product.freeFragrances;
+  const [choices, setChoices] = useState<string[]>([]);
+  const [showErrors, setShowErrors] = useState(false);
+  const chosen = freeCount ? choices.slice(0, freeCount).filter((id) => fragrances.some((f) => f.id === id)) : [];
+  const choicesComplete = !freeCount || chosen.length === freeCount;
 
   return (
     <div className="space-y-7">
@@ -73,14 +80,40 @@ export function PurchasePanel({ product }: { product: Product }) {
         </fieldset>
       )}
 
+      {freeCount ? (
+        <section aria-label={dict.product.freeFragrances} className="space-y-3">
+          <p className="text-step--1 font-medium text-gold-deep">
+            {freeCount === 1 ? dict.product.freeFragrancesOne : dict.product.freeFragrancesTwo}
+          </p>
+          <FreeFragrancePicker
+            count={freeCount}
+            fragrances={fragrances}
+            value={choices}
+            onChange={(ids) => {
+              setChoices(ids);
+              setShowErrors(false);
+            }}
+            showErrors={showErrors}
+          />
+        </section>
+      ) : null}
+
       <div className="flex flex-wrap items-center gap-3">
         <QuantityStepper value={quantity} onChange={setQuantity} max={Math.max(1, Math.min(variant.stock, 20))} />
         <Button
           size="lg"
           className="min-w-52 flex-1"
-          disabled={soldOut}
+          disabled={soldOut || (Boolean(freeCount) && fragrances.length === 0)}
           onClick={() => {
-            addToCart(toCartLine(product, variant), quantity);
+            if (!choicesComplete) {
+              setShowErrors(true);
+              return;
+            }
+            const selected = chosen.map((id) => {
+              const fragrance = fragrances.find((f) => f.id === id)!;
+              return { id: fragrance.id, name: fragrance.name };
+            });
+            addToCart({ ...toCartLine(product, variant), ...(freeCount ? { fragrances: selected } : {}) }, quantity);
             setAdded(true);
             setCartDrawerOpen(true);
             window.setTimeout(() => setAdded(false), 1800);

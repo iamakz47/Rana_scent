@@ -54,6 +54,7 @@ export const adminSections = [
   { key: "promotions", href: "/admin/promotions", permission: "marketing.write" },
   { key: "finance", href: "/admin/finance", permission: "finance.read" },
   { key: "settings", href: "/admin/settings", permission: "settings.write" },
+  { key: "policies", href: "/admin/policies", permission: "settings.write" },
   { key: "staff", href: "/admin/staff", permission: "staff.read" },
 ] as const satisfies ReadonlyArray<{ key: string; href: string; permission: Permission }>;
 

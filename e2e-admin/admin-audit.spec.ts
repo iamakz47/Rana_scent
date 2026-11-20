@@ -33,7 +33,7 @@ test.describe("products", () => {
     await page.getByLabel("Name (Arabic)", { exact: true }).fill("عطر دورة الحياة");
     await page.getByLabel("Name (English)", { exact: true }).fill(`Lifecycle ${slug}`);
     await page.getByLabel("URL slug").fill(slug);
-    await page.getByLabel("Type").selectOption("refill");
+    await page.getByLabel("Type", { exact: true }).selectOption("refill");
     await page.getByLabel("SKU").fill(`RS-${slug.toUpperCase()}-A`);
     await page.getByLabel("Option label (Arabic)").fill("صغير");
     await page.getByLabel("Option label (English)").fill("Small");
@@ -123,6 +123,9 @@ test.describe("categories", () => {
     await expect(page.getByText("Category saved.")).toBeVisible();
     const shopper = await browser.newPage();
     expect((await shopper.goto(`/en/collections/${slug}`))?.status()).toBe(404);
+    // Reload so the first save's form reset can't untick the box again.
+    await page.reload();
+    await expect(page.getByLabel("Visible in the store")).not.toBeChecked();
     await page.getByLabel("Visible in the store").check();
     await page.getByRole("button", { name: "Save", exact: true }).click();
     // The earlier "saved" message is still on screen, so wait for the store itself.

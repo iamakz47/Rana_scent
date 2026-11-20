@@ -33,11 +33,7 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
   const c = t.commerce;
   const supabase = await createClient();
   const [{ data: order }, { data: history }, { data: notes }, { data: refunds }, { data: emails }, team] = await Promise.all([
-    supabase
-      .from("orders")
-      .select("*, order_items(*), payments(*)")
-      .eq("id", id)
-      .maybeSingle(),
+    loadOrder(supabase, id),
     supabase.from("order_status_history").select("*").eq("order_id", id).order("created_at"),
     supabase.from("order_notes").select("*").eq("order_id", id).order("created_at"),
     supabase.from("refund_requests").select("*").eq("order_id", id).order("created_at"),
@@ -135,6 +131,23 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
                       <span className="block text-[0.75rem] text-ink-soft">
                         {locale === "ar" ? item.variant_label_ar : item.variant_label_en} · <span dir="ltr">{item.sku}</span>
                       </span>
+                      {item.order_item_fragrances.length ? (
+                        <span className="mt-1 block rounded-lg bg-[#fbf1cf] px-2 py-1 text-[0.75rem] text-[#4a3b12]" data-testid="admin-fragrances">
+                          {t.p5.freeFragrances}
+                          {[...new Set(item.order_item_fragrances.map((f) => f.device_no))]
+                            .sort((a, b) => a - b)
+                            .map((device) => (
+                              <span key={device} className="block">
+                                {format(t.p5.device, { number: device })}:{" "}
+                                {item.order_item_fragrances
+                                  .filter((f) => f.device_no === device)
+                                  .sort((a, b) => a.slot - b.slot)
+                                  .map((f) => (locale === "ar" ? f.name_ar : f.name_en))
+                                  .join(locale === "ar" ? "، " : ", ")}
+                              </span>
+                            ))}
+                        </span>
+                      ) : null}
                     </td>
                     <td className="py-2 text-end tabular-nums">{item.quantity}</td>
                     <td className="py-2 text-end tabular-nums">{money(item.unit_price_fils)}</td>
@@ -354,4 +367,24 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
       </Panel>
     </div>
   );
+}
+
+type Db = Awaited<ReturnType<typeof createClient>>;
+
+// Free-fragrance choices live in a table added by the Phase 5 migration. Until
+// that migration is applied, load the order without them rather than failing.
+async function loadOrder(supabase: Db, id: string) {
+  const full = await supabase
+    .from("orders")
+    .select("*, order_items(*, order_item_fragrances(device_no, slot, name_ar, name_en)), payments(*)")
+    .eq("id", id)
+    .maybeSingle();
+  if (!full.error) return full;
+  const basic = await supabase.from("orders").select("*, order_items(*), payments(*)").eq("id", id).maybeSingle();
+  if (!basic.data) return { data: null, error: basic.error };
+  const data = {
+    ...basic.data,
+    order_items: basic.data.order_items.map((item) => ({ ...item, order_item_fragrances: [] as Array<{ device_no: number; slot: number; name_ar: string; name_en: string }> })),
+  };
+  return { data, error: null };
 }

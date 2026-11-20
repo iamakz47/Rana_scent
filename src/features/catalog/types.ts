@@ -1,5 +1,6 @@
 import type { Localized } from "@/i18n/config";
 import type { Fils } from "@/lib/money";
+import type { DeviceSpecs, InfoSections } from "./product-details";
 
 export const productTypes = ["diffuser", "refill", "bundle", "accessory"] as const;
 export type ProductType = (typeof productTypes)[number];
@@ -40,6 +41,13 @@ export type Product = {
   specs?: Array<{ label: Localized; value: Localized }>;
   // True once Rana Scent has confirmed the specifications.
   specsConfirmed?: boolean;
+  // Structured device specifications (only entered values) and information sections.
+  deviceSpecs?: DeviceSpecs;
+  info?: InfoSections;
+  // Diffusers: free fragrance cartridges included per device (1 or 2).
+  freeFragrances?: 1 | 2;
+  // Refills: may be chosen as a free fragrance (default true).
+  freeFragranceEligible?: boolean;
   // Category slugs the product belongs to.
   categories?: string[];
   compatibleWith: string[];

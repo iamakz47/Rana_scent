@@ -1,5 +1,6 @@
 "use client";
 
+import { LineFragrances } from "./line-fragrances";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { AnimatePresence, m } from "motion/react";
@@ -14,6 +15,7 @@ import { QuantityStepper } from "./quantity-stepper";
 import { useStoreConfig } from "./store-config";
 import {
   cartTotals,
+  lineKey,
   removeLine,
   setCartDrawerOpen,
   setLineQuantity,
@@ -76,7 +78,7 @@ export function CartDrawer() {
               <AnimatePresence initial={false}>
                 {lines.map((line) => (
                   <m.li
-                    key={line.variantId}
+                    key={lineKey(line)}
                     layout
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -102,6 +104,7 @@ export function CartDrawer() {
                         <div className="min-w-0">
                           <p className="truncate font-medium">{line.name[locale]}</p>
                           <p className="text-step--1 text-ink-soft">{line.variantLabel[locale]}</p>
+                          <LineFragrances line={line} lineId={lineKey(line)} />
                         </div>
                         <p className="shrink-0 text-step--1 text-gold-deep tabular-nums">
                           {formatKWD(line.unitPriceFils * line.quantity, locale)}
@@ -110,13 +113,13 @@ export function CartDrawer() {
                       <div className="mt-auto flex items-center justify-between pt-2">
                         <QuantityStepper
                           value={line.quantity}
-                          onChange={(quantity) => setLineQuantity(line.variantId, quantity)}
+                          onChange={(quantity) => setLineQuantity(lineKey(line), quantity)}
                           min={1}
                           compact
                         />
                         <button
                           type="button"
-                          onClick={() => removeLine(line.variantId)}
+                          onClick={() => removeLine(lineKey(line))}
                           className="min-h-11 px-2 text-step--1 text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
                         >
                           {dict.cart.remove}
