@@ -30,6 +30,9 @@ const cartLineSchema = z.object({
   // project's public media bucket. Nothing else is accepted from storage.
   image: z.string().refine(isAllowedImage).optional(),
   scentFamily: z.string().optional(),
+  // Free fragrance choices for EACH device on this line (a preference the
+  // courier confirms). Names are a display snapshot; the server re-checks ids.
+  fragrances: z.array(z.object({ id: z.string().min(1).max(64), name: localized })).max(2).optional(),
   quantity: z.number().int().min(1).max(20),
 });
 
@@ -37,34 +40,56 @@ export type CartLine = z.infer<typeof cartLineSchema>;
 
 export const MAX_LINE_QUANTITY = 20;
 
+// A line is one variant with one set of free-fragrance choices: the same
+// device with different choices stays a separate line.
+export function lineKey(line: Pick<CartLine, "variantId" | "fragrances">): string {
+  return `${line.variantId}|${(line.fragrances ?? []).map((f) => f.id).join(",")}`;
+}
+
 const cart = createPersistentStore("rana-cart-v1", z.array(cartLineSchema).max(50), []);
 
 export const useCartLines = cart.useStore;
 
 export function addToCart(line: Omit<CartLine, "quantity">, quantity = 1) {
+  const key = lineKey(line);
   cart.set((lines) => {
-    const existing = lines.find((item) => item.variantId === line.variantId);
+    const existing = lines.find((item) => lineKey(item) === key);
     if (existing) {
       return lines.map((item) =>
-        item.variantId === line.variantId
-          ? { ...item, quantity: Math.min(MAX_LINE_QUANTITY, item.quantity + quantity) }
-          : item,
+        lineKey(item) === key ? { ...item, quantity: Math.min(MAX_LINE_QUANTITY, item.quantity + quantity) } : item,
       );
     }
     return [...lines, { ...line, quantity: Math.min(MAX_LINE_QUANTITY, quantity) }];
   });
 }
 
-export function setLineQuantity(variantId: string, quantity: number) {
+export function setLineQuantity(key: string, quantity: number) {
   cart.set((lines) =>
     quantity <= 0
-      ? lines.filter((item) => item.variantId !== variantId)
-      : lines.map((item) =>
-          item.variantId === variantId
-            ? { ...item, quantity: Math.min(MAX_LINE_QUANTITY, quantity) }
-            : item,
-        ),
+      ? lines.filter((item) => lineKey(item) !== key)
+      : lines.map((item) => (lineKey(item) === key ? { ...item, quantity: Math.min(MAX_LINE_QUANTITY, quantity) } : item)),
   );
+}
+
+// Changes the free-fragrance choices of a line, merging it into an identical
+// line if one exists.
+export function setLineFragrances(key: string, fragrances: NonNullable<CartLine["fragrances"]>) {
+  cart.set((lines) => {
+    const line = lines.find((item) => lineKey(item) === key);
+    if (!line) return lines;
+    const updated = { ...line, fragrances };
+    const newKey = lineKey(updated);
+    if (newKey === key) return lines.map((item) => (lineKey(item) === key ? updated : item));
+    const twin = lines.find((item) => lineKey(item) === newKey);
+    if (twin) {
+      return lines
+        .filter((item) => lineKey(item) !== key)
+        .map((item) =>
+          lineKey(item) === newKey ? { ...item, quantity: Math.min(MAX_LINE_QUANTITY, item.quantity + line.quantity) } : item,
+        );
+    }
+    return lines.map((item) => (lineKey(item) === key ? updated : item));
+  });
 }
 
 // Replaces display snapshots with the server's current prices (from a
@@ -85,8 +110,8 @@ export function clearCart() {
   cart.set(() => []);
 }
 
-export function removeLine(variantId: string) {
-  setLineQuantity(variantId, 0);
+export function removeLine(key: string) {
+  setLineQuantity(key, 0);
 }
 
 export function cartTotals(lines: readonly CartLine[]): { count: number; subtotalFils: Fils } {

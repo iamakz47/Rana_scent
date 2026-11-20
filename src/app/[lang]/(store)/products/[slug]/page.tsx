@@ -5,7 +5,9 @@ import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
 import { PurchasePanel } from "@/features/catalog/components/purchase-panel";
-import { getProduct, getProductsBySlug, getRelatedProducts, listProducts } from "@/features/catalog/queries";
+import { getProduct, getProductsBySlug, getRelatedProducts, listFreeFragrances, listProducts } from "@/features/catalog/queries";
+import { infoKeys, specRows } from "@/features/catalog/product-details";
+import { RichText } from "@/components/ui/rich-text";
 import { lowestPrice, productStock } from "@/features/catalog/types";
 import { localePath, locales } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
@@ -42,11 +44,21 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
   const product = await getProduct(slug);
   if (!product) notFound();
 
-  const [related, compatible, contents] = await Promise.all([
+  const [related, compatible, contents, fragrances] = await Promise.all([
     getRelatedProducts(product),
     getProductsBySlug(product.compatibleWith),
     getProductsBySlug(product.bundleContents?.map((item) => item.slug) ?? []),
+    product.freeFragrances ? listFreeFragrances() : Promise.resolve([]),
   ]);
+  const structured = specRows(product.deviceSpecs ?? {}, locale, {
+    ...dict.product.specLabels,
+    units: dict.product.specUnits,
+    upTo: dict.product.specUpTo,
+  });
+  const extraSpecs = product.specs ?? [];
+  const infoSections = infoKeys
+    .map((key) => ({ key, text: product.info?.[key]?.[locale]?.trim() ?? "" }))
+    .filter((section) => section.text);
   const tint = product.scentFamily ? scentHex[product.scentFamily] : GOLD_HEX;
   const compatibilityTitle =
     product.type === "diffuser"
@@ -122,7 +134,7 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
               ) : null}
 
               <div className="mt-8 border-t border-ink/10 pt-8">
-                <PurchasePanel product={product} />
+                <PurchasePanel product={product} fragrances={fragrances} />
               </div>
 
               {product.notes && (
@@ -141,15 +153,23 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                 </section>
               )}
 
-              {product.type === "diffuser" && (
+              {(product.type === "diffuser" || structured.length > 0 || extraSpecs.length > 0) && (
                 <section aria-labelledby="specs-title" className="mt-10 border-t border-ink/10 pt-8">
                   <h2 id="specs-title" className="font-display text-step-2 text-ink">
                     {dict.product.specs}
                   </h2>
-                  {product.specs?.length ? (
+                  {structured.length || extraSpecs.length ? (
                     <>
                       <dl className="mt-5 divide-y divide-ink/10 border-y border-ink/10">
-                        {product.specs.map((item) => (
+                        {structured.map((row) => (
+                          <div key={row.key} data-spec={row.key} className="grid grid-cols-[minmax(7rem,40%)_1fr] gap-4 py-3">
+                            <dt className="text-ink-soft">{row.label}</dt>
+                            <dd className="text-ink" dir="auto">
+                              {row.value}
+                            </dd>
+                          </div>
+                        ))}
+                        {extraSpecs.map((item) => (
                           <div key={item.label.en} className="grid grid-cols-[minmax(7rem,40%)_1fr] gap-4 py-3">
                             <dt className="text-ink-soft">{item.label[locale]}</dt>
                             <dd className="text-ink">{item.value[locale]}</dd>
@@ -163,6 +183,29 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                   ) : (
                     <p className="mt-3 text-ink-soft">{dict.product.specsPending}</p>
                   )}
+                </section>
+              )}
+
+              {infoSections.length > 0 && (
+                <section aria-labelledby="info-title" className="mt-10 border-t border-ink/10 pt-8">
+                  <h2 id="info-title" className="font-display text-step-2 text-ink">
+                    {dict.product.information}
+                  </h2>
+                  <div className="mt-4 divide-y divide-ink/10 border-y border-ink/10">
+                    {infoSections.map((section, index) => (
+                      <details key={section.key} className="group py-1" open={index === 0}>
+                        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 text-ink [&::-webkit-details-marker]:hidden">
+                          <span className="font-medium">
+                            {(dict.product.infoSections as Record<string, string>)[section.key]}
+                          </span>
+                          <span aria-hidden className="text-gold-deep transition-transform duration-300 group-open:rotate-45">
+                            +
+                          </span>
+                        </summary>
+                        <RichText text={section.text} className="pb-5 pt-1 text-step-0" />
+                      </details>
+                    ))}
+                  </div>
                 </section>
               )}
 

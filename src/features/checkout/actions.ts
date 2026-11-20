@@ -23,6 +23,7 @@ export type Quote = {
   shipping_fils: number;
   delivery_days: { min: number; max: number } | null;
   total_fils: number;
+  fragrance_problem: string | null;
   unavailable_count: number;
   short_stock: string[];
 };

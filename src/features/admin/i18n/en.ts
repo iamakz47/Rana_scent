@@ -491,6 +491,10 @@ export const adminEn = {
       net: "Revenue minus refunds and expenses",
     },
   },
+  p5: {
+    freeFragrances: "Free fragrances (customer preference, confirm on delivery)",
+    device: "Device {number}",
+  },
   p4: {
     previousPage: "Previous",
     productSearch: "Name or URL slug",

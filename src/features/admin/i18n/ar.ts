@@ -493,6 +493,10 @@ export const adminAr: AdminDictionary = {
       net: "الإيرادات بعد خصم الاسترداد والمصروفات",
     },
   },
+  p5: {
+    freeFragrances: "العطور المجانية (تفضيل العميل، تُؤكد عند التوصيل)",
+    device: "الجهاز {number}",
+  },
   p4: {
     previousPage: "السابق",
     productSearch: "الاسم أو رابط المنتج",

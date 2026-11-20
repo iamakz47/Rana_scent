@@ -21,7 +21,14 @@ export function normalizeKuwaitPhone(input: string): string | null {
 const text = (min: number, max: number) => z.string().trim().min(min).max(max);
 
 export const cartItemsSchema = z
-  .array(z.object({ variant_id: z.uuid(), quantity: z.number().int().min(1).max(20) }))
+  .array(
+    z.object({
+      variant_id: z.uuid(),
+      quantity: z.number().int().min(1).max(20),
+      // Free fragrance choices per device; the server checks the count.
+      fragrances: z.array(z.uuid()).max(2).optional(),
+    }),
+  )
   .min(1)
   .max(30);
 
@@ -81,5 +88,6 @@ export const knownCheckoutErrors = new Set([
   "name_invalid", "phone_invalid", "email_invalid", "address_invalid", "note_too_long",
   "payment_method_unavailable", "too_many_orders", "cart_empty", "cart_invalid", "item_unavailable",
   "out_of_stock", "quantity_invalid", "discount_invalid", "discount_used_up", "discount_minimum",
-  "delivery_unavailable",
+  "delivery_unavailable", "fragrance_selection_required", "fragrance_unavailable", "fragrance_invalid",
+  "fragrance_duplicate",
 ]);

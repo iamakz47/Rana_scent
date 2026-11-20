@@ -11,6 +11,7 @@ import { localePath, type Locale } from "@/i18n/config";
 import { cn } from "@/lib/cn";
 import { lowestPrice, productStock, type Product } from "../types";
 import { QuickAdd } from "./quick-add";
+import { BagIcon } from "@/components/ui/icons";
 
 type Props = {
   product: Product;
@@ -105,11 +106,22 @@ export function ProductCard({ product, locale, dict, size = "default", morph = t
             />
           </div>
         </div>
-        <QuickAdd
-          line={toCartLine(product, firstAvailable)}
-          disabled={firstAvailable.stock <= 0}
-          className="relative z-10 shrink-0"
-        />
+        {product.freeFragrances ? (
+          // Free fragrances are chosen on the product page before adding.
+          <Link
+            href={href}
+            aria-label={`${dict.product.chooseFragrances}: ${product.name[locale]}`}
+            className="relative z-10 inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-gold text-ink shadow-lg transition-transform duration-300 hover:scale-105"
+          >
+            <BagIcon size={20} />
+          </Link>
+        ) : (
+          <QuickAdd
+            line={toCartLine(product, firstAvailable)}
+            disabled={firstAvailable.stock <= 0}
+            className="relative z-10 shrink-0"
+          />
+        )}
       </div>
     </article>
   );

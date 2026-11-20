@@ -10,7 +10,7 @@ import { localePath } from "@/i18n/config";
 import { format } from "@/i18n/format";
 import { formatKWD } from "@/lib/money";
 import { cn } from "@/lib/cn";
-import { syncCartPrices, useCartLines } from "@/features/cart/store";
+import { lineKey, syncCartPrices, useCartLines } from "@/features/cart/store";
 import { placeOrder, quoteCheckout, type CheckoutState, type Quote } from "./actions";
 import { governorates, normalizeKuwaitPhone } from "./schema";
 
@@ -101,7 +101,12 @@ export function CheckoutForm({
   const [quoting, startQuote] = useTransition();
 
   const items = useMemo(
-    () => lines.map((line) => ({ variant_id: line.variantId, quantity: line.quantity })),
+    () =>
+      lines.map((line) => ({
+        variant_id: line.variantId,
+        quantity: line.quantity,
+        ...(line.fragrances?.length ? { fragrances: line.fragrances.map((f) => f.id) } : {}),
+      })),
     [lines],
   );
   const itemsJson = JSON.stringify(items);
@@ -148,7 +153,8 @@ export function CheckoutForm({
     quote.unavailable_count > 0 ||
     shortStock.size > 0 ||
     (governorate !== "" && !quote.delivery_available) ||
-    Boolean(quote.discount_problem);
+    Boolean(quote.discount_problem) ||
+    Boolean(quote.fragrance_problem);
   // Prices shown come from the server quote; the cart snapshot is a fallback
   // while the first quote loads.
   const unitPrice = (variantId: string, fallback: number) =>
@@ -264,7 +270,7 @@ export function CheckoutForm({
         </h2>
         <ul className="mt-5 space-y-4">
           {lines.map((line) => (
-            <li key={line.variantId} className="flex items-center gap-3">
+            <li key={lineKey(line)} className="flex items-center gap-3">
               <ProductVisual src={line.image} alt={line.name[locale]} pendingLabel={dict.common.photoComingSoon}
                 sizes="64px" className="size-16 shrink-0 rounded-xl bg-beige" />
               <div className="min-w-0 flex-1">
@@ -272,6 +278,12 @@ export function CheckoutForm({
                 <p className="text-step--1 text-ink-soft">
                   {line.variantLabel[locale]} × {line.quantity}
                 </p>
+                {line.fragrances?.length ? (
+                  <p className="text-step--1 text-ink-soft" data-testid="summary-fragrances">
+                    {dict.product.freeFragrances}: {line.fragrances.map((f) => f.name[locale]).join(locale === "ar" ? "، " : ", ")}{" "}
+                    <span className="text-gold-deep">({dict.product.freeLabel})</span>
+                  </p>
+                ) : null}
                 {shortStock.has(line.variantId) ? <p className="text-step--1 text-[#86352b]">{t.errors.out_of_stock}</p> : null}
               </div>
               <p className="text-step--1 tabular-nums text-ink">
@@ -280,6 +292,14 @@ export function CheckoutForm({
             </li>
           ))}
         </ul>
+        {quote?.fragrance_problem ? (
+          <p role="alert" className="mt-4 text-step--1 text-[#86352b]">
+            {errorText(quote.fragrance_problem)}{" "}
+            <Link href={localePath(locale, "/cart")} className="underline">
+              {t.backToCart}
+            </Link>
+          </p>
+        ) : null}
         {quote && quote.unavailable_count > 0 ? (
           <p role="alert" className="mt-4 text-step--1 text-[#86352b]">
             {t.errors.item_unavailable}{" "}

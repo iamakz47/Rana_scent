@@ -10,10 +10,12 @@ import { localePath } from "@/i18n/config";
 import { formatKWD } from "@/lib/money";
 import { QuantityStepper } from "./quantity-stepper";
 import { quoteCheckout } from "@/features/checkout/actions";
-import { cartTotals, removeLine, setLineQuantity, syncCartPrices, useCartLines } from "./store";
+import type { FreeFragrance } from "@/features/catalog/queries";
+import { LineFragrances } from "./line-fragrances";
+import { cartTotals, lineKey, removeLine, setLineQuantity, syncCartPrices, useCartLines } from "./store";
 import { useStoreConfig } from "./store-config";
 
-export function CartView() {
+export function CartView({ fragrances }: { fragrances?: FreeFragrance[] }) {
   const { locale, dict } = useI18n();
   const lines = useCartLines();
   const { subtotalFils } = cartTotals(lines);
@@ -25,7 +27,7 @@ export function CartView() {
     if (!checkoutEnabled || lines.length === 0) return;
     let cancelled = false;
     quoteCheckout({
-      items: lines.map((line) => ({ variant_id: line.variantId, quantity: line.quantity })),
+      items: lines.map((line) => ({ variant_id: line.variantId, quantity: line.quantity, fragrances: line.fragrances?.map((f) => f.id) })),
       governorate: "",
       area: "",
       discountCode: "",
@@ -57,7 +59,7 @@ export function CartView() {
         <AnimatePresence initial={false}>
           {lines.map((line) => (
             <m.li
-              key={line.variantId}
+              key={lineKey(line)}
               layout
               exit={{ opacity: 0, height: 0, transition: { duration: 0.3 } }}
               className="flex gap-4 py-6 sm:gap-6"
@@ -81,15 +83,16 @@ export function CartView() {
                   </Link>
                   <p className="text-step--1 text-ink-soft">{line.variantLabel[locale]}</p>
                   <p className="mt-1 text-step--1 text-ink-soft tabular-nums">{formatKWD(line.unitPriceFils, locale)}</p>
+                  <LineFragrances line={line} lineId={lineKey(line)} fragrances={fragrances} />
                 </div>
                 <div className="flex items-center gap-3 sm:flex-col sm:items-end">
                   <p className="text-gold-deep tabular-nums sm:text-step-1">
                     {formatKWD(line.unitPriceFils * line.quantity, locale)}
                   </p>
-                  <QuantityStepper value={line.quantity} onChange={(q) => setLineQuantity(line.variantId, q)} compact />
+                  <QuantityStepper value={line.quantity} onChange={(q) => setLineQuantity(lineKey(line), q)} compact />
                   <button
                     type="button"
-                    onClick={() => removeLine(line.variantId)}
+                    onClick={() => removeLine(lineKey(line))}
                     className="min-h-11 px-1 text-step--1 text-ink-soft underline-offset-4 hover:text-ink hover:underline"
                   >
                     {dict.cart.remove}

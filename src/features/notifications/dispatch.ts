@@ -26,11 +26,27 @@ type Message = {
 
 type Db = ReturnType<typeof createServiceClient>;
 
+// "Free fragrances: Device 1: Oud, Musk; Device 2: …" (choices are preferences
+// confirmed on delivery; they carry no charge).
+function freeFragranceText(rows: Array<{ device_no: number; slot: number; name_ar: string; name_en: string }>, locale: Locale): string {
+  if (!rows.length) return "";
+  const devices = [...new Set(rows.map((r) => r.device_no))].sort((a, b) => a - b);
+  const parts = devices.map((device) => {
+    const names = rows
+      .filter((r) => r.device_no === device)
+      .sort((a, b) => a.slot - b.slot)
+      .map((r) => (locale === "ar" ? r.name_ar : r.name_en))
+      .join(locale === "ar" ? "، " : ", ");
+    return devices.length > 1 ? `${locale === "ar" ? "الجهاز" : "Device"} ${device}: ${names}` : names;
+  });
+  return `${locale === "ar" ? "عطور مجانية" : "Free fragrances"}: ${parts.join("; ")}`;
+}
+
 async function loadOrder(db: Db, orderId: string, locale: Locale) {
   const { data: o } = await db
     .from("orders")
     .select(
-      "id, number, access_token, customer_name, phone, payment_method, subtotal_fils, discount_fils, shipping_fils, total_fils, refunded_fils, shipping_address, courier, tracking_number, estimated_delivery, order_items(name_ar, name_en, variant_label_ar, variant_label_en, quantity, line_total_fils), payments(method, status, created_at)",
+      "id, number, access_token, customer_name, phone, payment_method, subtotal_fils, discount_fils, shipping_fils, total_fils, refunded_fils, shipping_address, courier, tracking_number, estimated_delivery, order_items(name_ar, name_en, variant_label_ar, variant_label_en, quantity, line_total_fils, order_item_fragrances(device_no, slot, name_ar, name_en)), payments(method, status, created_at)",
     )
     .eq("id", orderId)
     .maybeSingle();
@@ -49,7 +65,9 @@ async function loadOrder(db: Db, orderId: string, locale: Locale) {
     refundedFils: o.refunded_fils,
     items: (o.order_items ?? []).map((i) => ({
       name: locale === "ar" ? i.name_ar : i.name_en,
-      label: locale === "ar" ? i.variant_label_ar : i.variant_label_en,
+      label: [locale === "ar" ? i.variant_label_ar : i.variant_label_en, freeFragranceText(i.order_item_fragrances ?? [], locale)]
+        .filter(Boolean)
+        .join(" · "),
       quantity: i.quantity,
       lineTotalFils: i.line_total_fils,
     })),

@@ -1,6 +1,7 @@
 import { filterProducts, type CatalogFilter } from "./filters";
 import { loadCatalog } from "./source";
-import type { Category, Product } from "./types";
+import type { Localized } from "@/i18n/config";
+import type { Category, Product, ScentFamily } from "./types";
 
 export { catalogFilterSchema, filterProducts, parseCatalogFilter, sortOptions } from "./filters";
 export type { CatalogFilter, SortOption } from "./filters";
@@ -37,6 +38,17 @@ export async function listCategories(): Promise<Category[]> {
 
 export async function listHomeCategories(): Promise<Category[]> {
   return (await listCategories()).filter((category) => category.showOnHome);
+}
+
+export type FreeFragrance = { id: string; slug: string; name: Localized; family?: ScentFamily };
+
+// Fragrances a customer can choose for free with a diffuser: refills that are
+// published, eligible and in stock. The server re-checks every choice.
+export async function listFreeFragrances(): Promise<FreeFragrance[]> {
+  const { products } = await loadCatalog();
+  return products
+    .filter((p) => p.type === "refill" && p.freeFragranceEligible !== false && p.variants.some((v) => v.stock > 0))
+    .map((p) => ({ id: p.id, slug: p.slug, name: p.name, family: p.scentFamily }));
 }
 
 export async function getCategory(slug: string): Promise<Category | undefined> {

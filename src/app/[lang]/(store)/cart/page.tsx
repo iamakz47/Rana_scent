@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/layout/page-header";
 import { CartView } from "@/features/cart/cart-view";
+import { listFreeFragrances } from "@/features/catalog/queries";
 import { getDictionary } from "@/i18n/dictionaries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,12 +10,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CartPage() {
-  const dict = await getDictionary();
+  const [dict, fragrances] = await Promise.all([getDictionary(), listFreeFragrances()]);
   return (
     <>
       <PageHeader title={dict.cart.title} />
       <div className="container-page pb-24 pt-10">
-        <CartView />
+        <CartView fragrances={fragrances} />
       </div>
     </>
   );

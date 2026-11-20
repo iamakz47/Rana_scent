@@ -145,7 +145,66 @@
     "showImage": "Show image {index}",
     "deliveryNote": "Delivery across Kuwait. Rates are shown at checkout.",
     "breadcrumb": "Breadcrumb",
-    "specsProvisional": "Provisional specifications: to be confirmed by Rana Scent."
+    "specsProvisional": "Provisional specifications: to be confirmed by Rana Scent.",
+    "specLabels": {
+      "device_type": "Device type",
+      "coverage_m2": "Coverage",
+      "capacity_ml": "Fragrance capacity",
+      "dimensions": "Dimensions (W × H × D)",
+      "weight": "Weight",
+      "power_supply": "Power",
+      "power_consumption_w": "Power consumption",
+      "operating_method": "Operation",
+      "control_type": "Controls",
+      "colors": "Colours",
+      "material": "Material",
+      "installation": "Installation",
+      "fragrance_consumption": "Fragrance consumption",
+      "noise_db": "Noise level",
+      "environments": "Recommended spaces",
+      "maintenance": "Maintenance",
+      "warranty": "Warranty",
+      "package_contents": "In the box"
+    },
+    "specUnits": {
+      "cm": "cm",
+      "mm": "mm",
+      "g": "g",
+      "kg": "kg",
+      "m2": "m²",
+      "ml": "ml",
+      "w": "W",
+      "db": "dB"
+    },
+    "specUpTo": "Up to {value}",
+    "specsMore": "More details",
+    "information": "Product information",
+    "infoSections": {
+      "overview": "Product overview",
+      "features": "Features and benefits",
+      "coverage_usage": "Coverage and recommended use",
+      "operation": "How to operate",
+      "installation": "Installation",
+      "maintenance": "Maintenance and cleaning",
+      "cartridges": "Fragrance cartridges",
+      "in_the_box": "What's in the box",
+      "warranty_support": "Warranty and support",
+      "usage_notes": "Important usage notes"
+    },
+    "freeFragrancesOne": "Includes 1 free fragrance",
+    "freeFragrancesTwo": "Includes 2 free fragrances",
+    "freeCaution": "Fragrance selection will be confirmed with our delivery representative.",
+    "freeFirst": "Your First Free Fragrance",
+    "freeSecond": "Your Second Free Fragrance",
+    "chooseFragrance": "Choose a fragrance",
+    "freeRequired": "Choose your free fragrances to continue.",
+    "freeUnavailable": "Free fragrance choices aren't available right now. Please contact us to order this device.",
+    "chooseFragrances": "Choose fragrances",
+    "freeLabel": "Free",
+    "freeFragrances": "Free fragrances",
+    "device": "Device {number}",
+    "change": "Change",
+    "freeCharge": "Free fragrance charge"
   },
   "cart": {
     "title": "Your cart",
@@ -391,7 +450,11 @@
       "delivery_unavailable": "We don't deliver to this area yet.",
       "payment_unavailable": "Online payment isn't available right now. Your order is saved; please try again shortly.",
       "required": "Required",
-      "rate_limited": "Too many attempts. Please wait a few minutes and try again."
+      "rate_limited": "Too many attempts. Please wait a few minutes and try again.",
+      "fragrance_selection_required": "Choose the free fragrances for each device in your cart.",
+      "fragrance_unavailable": "One of your chosen free fragrances is no longer available. Please choose another in your cart.",
+      "fragrance_invalid": "Your free fragrance choices need updating. Please review your cart.",
+      "fragrance_duplicate": "Please choose different free fragrances."
     }
   },
   "order": {
@@ -526,5 +589,19 @@
     "claimOk": "This order is now in your account.",
     "claimFailed": "This order can't be added to your account. Orders are linked only when they were placed with your account's verified email.",
     "claimSignedOut": "Sign in with the email you used for this order to keep it in your account."
+  },
+  "policies": {
+    "title": "Policies",
+    "body": "How we handle orders, delivery, returns, refunds, warranty and your data.",
+    "lastUpdated": "Last updated {date}",
+    "pending": "This policy is being finalised and will be published soon. For any question, please contact us.",
+    "names": {
+      "returns": "Returns and exchanges",
+      "refunds": "Refunds",
+      "warranty": "Warranty",
+      "delivery": "Delivery",
+      "terms": "Terms and conditions",
+      "privacy": "Privacy policy"
+    }
   }
 }
