@@ -175,6 +175,8 @@ test.describe("homepage and media", () => {
     await signIn(page, accounts.editor);
     await page.goto("/en/admin/media");
     const before = await page.locator("main ul > li img").count();
+    // Choosing a file before hydration is lost (no change handler yet).
+    await page.waitForLoadState("networkidle");
     await page.locator("#media-upload").setInputFiles("public/images/products/rana-mini.jpg");
     await expect(page.getByText(/rana-mini\.jpg: Uploaded\./)).toBeVisible({ timeout: 20_000 });
     await expect(page.locator("main ul > li img")).toHaveCount(before + 1);

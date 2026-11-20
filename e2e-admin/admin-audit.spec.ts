@@ -33,7 +33,7 @@ test.describe("products", () => {
     await page.getByLabel("Name (Arabic)", { exact: true }).fill("عطر دورة الحياة");
     await page.getByLabel("Name (English)", { exact: true }).fill(`Lifecycle ${slug}`);
     await page.getByLabel("URL slug").fill(slug);
-    await page.getByLabel("Type").selectOption("refill");
+    await page.getByLabel("Type", { exact: true }).selectOption("refill");
     await page.getByLabel("SKU").fill(`RS-${slug.toUpperCase()}-A`);
     await page.getByLabel("Option label (Arabic)").fill("صغير");
     await page.getByLabel("Option label (English)").fill("Small");
