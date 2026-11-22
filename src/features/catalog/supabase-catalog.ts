@@ -19,6 +19,26 @@ import {
 type Pair = { ar?: string; en?: string };
 const pair = (value: Pair | undefined) => ({ ar: value?.ar ?? "", en: value?.en ?? "" });
 
+type MediaRow = { position: number; media_assets: { bucket: string; path: string; alt_ar: string; alt_en: string } | null };
+
+// Columns added by the colour-variant migration are read defensively, so the
+// catalogue still loads against a database that hasn't been updated yet.
+const variantOf = (row: object) => ((row as { variant_id?: string | null }).variant_id ?? null);
+const colorOf = (row: object) => {
+  const hex = (row as { color_hex?: string | null }).color_hex;
+  return hex && /^#[0-9A-Fa-f]{6}$/.test(hex) ? hex : undefined;
+};
+
+function photos(rows: MediaRow[], product: { name_ar: string; name_en: string }) {
+  return [...rows]
+    .sort((a, b) => a.position - b.position)
+    .filter((m) => m.media_assets)
+    .map((m) => ({
+      src: mediaUrl(m.media_assets! as Parameters<typeof mediaUrl>[0]),
+      alt: { ar: m.media_assets!.alt_ar || product.name_ar, en: m.media_assets!.alt_en || product.name_en },
+    }));
+}
+
 export type CatalogData = { products: Product[]; categories: Category[] };
 
 export async function loadSupabaseCatalog(): Promise<CatalogData> {
@@ -34,8 +54,8 @@ export async function loadSupabaseCatalog(): Promise<CatalogData> {
         `id, slug, type, name_ar, name_en, short_description_ar, short_description_en, description_ar, description_en,
          notes, specs, specs_confirmed, spaces, is_featured, is_new, position, published_at,
          device_specs, info_sections, free_fragrances, free_fragrance_eligible,
-         product_variants(id, sku, label_ar, label_en, price_fils, compare_at_fils, position, is_active, inventory(on_hand)),
-         product_media(position, media_assets(bucket, path, alt_ar, alt_en)),
+         product_variants(*, inventory(on_hand)),
+         product_media(*, media_assets(bucket, path, alt_ar, alt_en)),
          product_scents(position, scent_families(slug)),
          product_categories(is_primary, categories(slug))`,
       )
@@ -103,13 +123,8 @@ export async function loadSupabaseCatalog(): Promise<CatalogData> {
       compatibleWith: [...(links.get(row.slug) ?? [])],
       spaces: row.spaces.filter((s): s is Space => (allSpaces as readonly string[]).includes(s)),
       categories: row.product_categories.map((c) => c.categories?.slug).filter((s): s is string => Boolean(s)),
-      images: [...row.product_media]
-        .sort((a, b) => a.position - b.position)
-        .filter((m) => m.media_assets)
-        .map((m) => ({
-          src: mediaUrl(m.media_assets!),
-          alt: { ar: m.media_assets!.alt_ar || row.name_ar, en: m.media_assets!.alt_en || row.name_en },
-        })),
+      // Shared photos (no colour); colour photos are attached to their variant.
+      images: photos(row.product_media.filter((m) => !variantOf(m)), row),
       variants: [...row.product_variants]
         .filter((v) => v.is_active)
         .sort((a, b) => a.position - b.position)
@@ -120,6 +135,8 @@ export async function loadSupabaseCatalog(): Promise<CatalogData> {
           priceFils: v.price_fils,
           compareAtFils: v.compare_at_fils ?? undefined,
           stock: v.inventory?.on_hand ?? 0,
+          colorHex: colorOf(v),
+          images: photos(row.product_media.filter((m) => variantOf(m) === v.id), row),
         })),
       featured: row.is_featured,
       isNew: row.is_new,

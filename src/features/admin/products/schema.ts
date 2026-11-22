@@ -13,10 +13,13 @@ export const variantSchema = z
     id: z.union([uuid, z.literal("")]).optional(),
     sku: z.string().trim().toUpperCase().regex(/^[A-Z0-9]+(-[A-Z0-9]+)*$/).max(40),
     label_ar: required(60),
-    label_en: required(60),
+    label_en: text(60),
     price: z.string(),
     compare_at: z.string().optional(),
     is_active: z.boolean().default(true),
+    // Colour variants: swatch colour, and the stock the owner wants on hand.
+    color_hex: z.union([z.string().regex(/^#[0-9A-Fa-f]{6}$/), z.literal("")]).optional(),
+    stock: z.union([z.string().regex(/^\d{1,6}$/), z.literal("")]).optional(),
   })
   .transform((v, ctx) => {
     const price = parseKwdToFils(v.price);
@@ -34,10 +37,12 @@ export const variantSchema = z
       id: v.id || undefined,
       sku: v.sku,
       label_ar: v.label_ar,
-      label_en: v.label_en,
+      label_en: v.label_en || v.label_ar,
       price_fils: price,
       compare_at_fils: compare,
       is_active: v.is_active,
+      color_hex: v.color_hex ? v.color_hex.toLowerCase() : "",
+      stock: v.stock ? Number(v.stock) : null,
     };
   });
 
@@ -89,10 +94,12 @@ function jsonList<T extends z.ZodType>(item: T, { min = 0 } = {}) {
 
 export const productFormSchema = z.object({
   id: z.union([uuid, z.literal("")]).optional(),
-  slug: z.string().trim().toLowerCase().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/).max(80),
+  // Optional in the form: generated from the name when left empty.
+  slug: z.union([z.string().trim().toLowerCase().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/).max(80), z.literal("")]),
   type: z.enum(productTypes),
   name_ar: required(120),
-  name_en: required(120),
+  // Optional: the Arabic name is used when no English name is given.
+  name_en: text(120),
   short_description_ar: text(200),
   short_description_en: text(200),
   description_ar: text(5000),
@@ -117,6 +124,7 @@ export const productFormSchema = z.object({
   seo_description_en: text(170),
   variants: jsonList(variantSchema, { min: 1 }),
   media: jsonList(uuid),
+  media_variants: jsonList(z.object({ media_id: uuid, variant_sku: z.string().trim().toUpperCase().max(40) })),
   scents: jsonList(uuid),
   compatible: jsonList(uuid),
 });
@@ -128,7 +136,7 @@ const stringFields = [
   "description_ar", "description_en", "notes_top_ar", "notes_top_en", "notes_heart_ar", "notes_heart_en",
   "notes_base_ar", "notes_base_en", "specs_ar", "specs_en", "position", "category_id",
   "seo_title_ar", "seo_title_en", "seo_description_ar", "seo_description_en",
-  "variants", "media", "scents", "compatible",
+  "variants", "media", "media_variants", "scents", "compatible",
 ] as const;
 
 export function readProductForm(formData: FormData) {
@@ -146,14 +154,28 @@ export function readProductForm(formData: FormData) {
   return productFormSchema.safeParse(raw);
 }
 
+// "Rana Diffuser Pro" → "rana-diffuser-pro"; Arabic-only names get a short
+// random address that the owner can change under advanced settings.
+export function slugFromName(name: string): string {
+  const base = name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60)
+    .replace(/-+$/g, "");
+  const suffix = Math.random().toString(36).slice(2, 7);
+  return base.length >= 3 ? base : `product-${suffix}`;
+}
+
 export function toPayload(form: ProductForm, specs: ReturnType<typeof parseSpecs>) {
   const notes = [form.notes_top_ar, form.notes_top_en, form.notes_heart_ar, form.notes_heart_en, form.notes_base_ar, form.notes_base_en];
   return {
     id: form.id || undefined,
-    slug: form.slug,
+    slug: form.slug || slugFromName(form.name_en),
     type: form.type,
     name_ar: form.name_ar,
-    name_en: form.name_en,
+    name_en: form.name_en || form.name_ar,
     short_description_ar: form.short_description_ar,
     short_description_en: form.short_description_en,
     description_ar: form.description_ar,
@@ -176,8 +198,12 @@ export function toPayload(form: ProductForm, specs: ReturnType<typeof parseSpecs
     seo_title_en: form.seo_title_en,
     seo_description_ar: form.seo_description_ar,
     seo_description_en: form.seo_description_en,
-    variants: form.variants.map((variant, index) => ({ ...variant, position: index })),
+    variants: form.variants.map(({ stock, ...variant }, index) => {
+      void stock;
+      return { ...variant, position: index };
+    }),
     media: form.media,
+    media_variants: form.media_variants,
     scents: form.scents,
     compatible: form.compatible,
   };

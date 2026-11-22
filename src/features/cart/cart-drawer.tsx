@@ -1,5 +1,6 @@
 "use client";
 
+import { LineVariant } from "@/features/cart/line-variant";
 import { LineFragrances } from "./line-fragrances";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
@@ -103,7 +104,7 @@ export function CartDrawer() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="truncate font-medium">{line.name[locale]}</p>
-                          <p className="text-step--1 text-ink-soft">{line.variantLabel[locale]}</p>
+                          <p className="text-step--1 text-ink-soft"><LineVariant line={line} /></p>
                           <LineFragrances line={line} lineId={lineKey(line)} />
                         </div>
                         <p className="shrink-0 text-step--1 text-gold-deep tabular-nums">

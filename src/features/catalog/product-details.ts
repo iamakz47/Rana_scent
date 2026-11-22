@@ -5,7 +5,7 @@ import type { Locale, Localized } from "@/i18n/config";
 // optional: only values Rana Scent has entered are shown, nothing is guessed.
 // Shared by the storefront (display) and the admin (editing).
 
-const text = z.object({ ar: z.string().trim().max(400), en: z.string().trim().max(400) });
+const text = z.object({ ar: z.string().trim().max(400), en: z.string().trim().max(400).default("") });
 const positive = z.number().positive().max(1_000_000);
 
 export const dimensionUnits = ["cm", "mm"] as const;
@@ -13,6 +13,11 @@ export const weightUnits = ["g", "kg"] as const;
 
 export const deviceSpecsSchema = z.object({
   device_type: text.optional(),
+  // Phase 6: the six specifications the owner fills in, as plain text.
+  coverage: text.optional(),
+  screen: text.optional(),
+  capacity: text.optional(),
+  color: text.optional(),
   coverage_m2: positive.optional(),
   capacity_ml: positive.optional(),
   // Always width × height × depth, in one unit.
@@ -75,7 +80,7 @@ export const infoKeys = [
 ] as const;
 export type InfoKey = (typeof infoKeys)[number];
 
-const infoText = z.object({ ar: z.string().trim().max(5000), en: z.string().trim().max(5000) });
+const infoText = z.object({ ar: z.string().trim().max(5000), en: z.string().trim().max(5000).default("") });
 export const infoSectionsSchema = z.object(
   Object.fromEntries(infoKeys.map((key) => [key, infoText.optional()])) as Record<InfoKey, z.ZodOptional<typeof infoText>>,
 );
@@ -105,50 +110,44 @@ export function parseInfoSections(value: unknown): InfoSections {
   return out as InfoSections;
 }
 
-export type SpecLabels = Record<SpecKey, string> & {
-  units: { cm: string; mm: string; g: string; kg: string; m2: string; ml: string; w: string; db: string };
+// The six specifications shown on the storefront, in this order. Older
+// structured values (coverage in m², capacity in ml, colours) are used as a
+// fallback so existing products keep their information.
+export const simpleSpecKeys = ["device_type", "coverage", "screen", "capacity", "installation", "color"] as const;
+export type SimpleSpecKey = (typeof simpleSpecKeys)[number];
+
+export type SpecLabels = Record<SimpleSpecKey, string> & {
+  units: { m2: string; ml: string };
   upTo: string;
 };
 
 const number = (value: number) =>
   new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
 
-// Rows for the specification table, in a fixed order, skipping anything
-// without a value in the visitor's language.
-export function specRows(specs: DeviceSpecs, locale: Locale, labels: SpecLabels): Array<{ key: SpecKey; label: string; value: string }> {
-  const u = labels.units;
-  const rows: Array<{ key: SpecKey; label: string; value: string }> = [];
-  for (const key of specKeys) {
-    const raw = specs[key];
-    if (raw === undefined) continue;
-    let value = "";
-    switch (key) {
-      case "coverage_m2":
-        value = labels.upTo.replace("{value}", `${number(raw as number)} ${u.m2}`);
-        break;
-      case "capacity_ml":
-        value = `${number(raw as number)} ${u.ml}`;
-        break;
-      case "power_consumption_w":
-        value = `${number(raw as number)} ${u.w}`;
-        break;
-      case "noise_db":
-        value = `${number(raw as number)} ${u.db}`;
-        break;
-      case "dimensions": {
-        const d = raw as NonNullable<DeviceSpecs["dimensions"]>;
-        value = `${number(d.width)} × ${number(d.height)} × ${number(d.depth)} ${u[d.unit]}`;
-        break;
-      }
-      case "weight": {
-        const w = raw as NonNullable<DeviceSpecs["weight"]>;
-        value = `${number(w.value)} ${u[w.unit]}`;
-        break;
-      }
-      default:
-        value = ((raw as Localized)[locale] ?? "").trim();
-    }
-    if (value) rows.push({ key, label: labels[key], value });
+// A text value in the visitor's language; English falls back to Arabic so
+// the owner never has to type everything twice.
+export function specText(value: Localized | undefined, locale: Locale): string {
+  if (!value) return "";
+  return (value[locale] || value.ar || value.en || "").trim();
+}
+
+export function specValue(specs: DeviceSpecs, key: SimpleSpecKey, locale: Locale, labels: SpecLabels): string {
+  switch (key) {
+    case "coverage":
+      return specText(specs.coverage, locale) ||
+        (specs.coverage_m2 ? labels.upTo.replace("{value}", `${number(specs.coverage_m2)} ${labels.units.m2}`) : "");
+    case "capacity":
+      return specText(specs.capacity, locale) || (specs.capacity_ml ? `${number(specs.capacity_ml)} ${labels.units.ml}` : "");
+    case "color":
+      return specText(specs.color, locale) || specText(specs.colors, locale);
+    default:
+      return specText(specs[key], locale);
   }
-  return rows;
+}
+
+// Rows for the specification table, skipping anything without a value.
+export function specRows(specs: DeviceSpecs, locale: Locale, labels: SpecLabels): Array<{ key: SimpleSpecKey; label: string; value: string }> {
+  return simpleSpecKeys
+    .map((key) => ({ key, label: labels[key], value: specValue(specs, key, locale, labels) }))
+    .filter((row) => row.value);
 }

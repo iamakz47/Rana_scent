@@ -30,6 +30,8 @@ const cartLineSchema = z.object({
   // project's public media bucket. Nothing else is accepted from storage.
   image: z.string().refine(isAllowedImage).optional(),
   scentFamily: z.string().optional(),
+  // Colour variants: the swatch shown next to the colour name.
+  colorHex: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   // Free fragrance choices for EACH device on this line (a preference the
   // courier confirms). Names are a display snapshot; the server re-checks ids.
   fragrances: z.array(z.object({ id: z.string().min(1).max(64), name: localized })).max(2).optional(),

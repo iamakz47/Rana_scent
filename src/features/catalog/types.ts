@@ -25,6 +25,9 @@ export type ProductVariant = {
   priceFils: Fils;
   compareAtFils?: Fils;
   stock: number;
+  // Colour variants: swatch colour (#RRGGBB) and the photos of this colour.
+  colorHex?: string;
+  images?: ProductImage[];
 };
 
 export type Product = {
@@ -91,4 +94,19 @@ export function productStock(product: Product): number {
 
 export function lowestPrice(product: Product): Fils {
   return Math.min(...product.variants.map((variant) => variant.priceFils));
+}
+
+// A product offers a colour choice when at least two variants have a swatch.
+export function hasColorChoice(product: Product): boolean {
+  return product.variants.filter((variant) => variant.colorHex).length >= 2;
+}
+
+// Photos for one variant: its own, falling back to the shared product photos.
+export function variantImages(product: Product, variant: ProductVariant | undefined): ProductImage[] {
+  return variant?.images?.length ? variant.images : product.images;
+}
+
+// The variant shown first: the first one in stock, else the first one.
+export function defaultVariant(product: Product): ProductVariant {
+  return product.variants.find((variant) => variant.stock > 0) ?? product.variants[0];
 }

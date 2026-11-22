@@ -5,10 +5,11 @@ import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
 import { PurchasePanel } from "@/features/catalog/components/purchase-panel";
+import { SelectedColorSpec, VariantSelectionProvider } from "@/features/catalog/components/color-selection";
 import { getProduct, getProductsBySlug, getRelatedProducts, listFreeFragrances, listProducts } from "@/features/catalog/queries";
 import { infoKeys, specRows } from "@/features/catalog/product-details";
 import { RichText } from "@/components/ui/rich-text";
-import { lowestPrice, productStock } from "@/features/catalog/types";
+import { hasColorChoice, lowestPrice, productStock } from "@/features/catalog/types";
 import { localePath, locales } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { getSiteUrl } from "@/lib/env";
@@ -50,11 +51,16 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
     getProductsBySlug(product.bundleContents?.map((item) => item.slug) ?? []),
     product.freeFragrances ? listFreeFragrances() : Promise.resolve([]),
   ]);
+  const colors = hasColorChoice(product);
   const structured = specRows(product.deviceSpecs ?? {}, locale, {
     ...dict.product.specLabels,
     units: dict.product.specUnits,
     upTo: dict.product.specUpTo,
-  });
+  }).filter((row) => !(colors && row.key === "color"));
+  // With colour variants the "Colour" row always shows the selected colour,
+  // so it can never contradict the photos.
+  const showColorRow = colors;
+  const description = product.description[locale]?.trim() ?? "";
   const extraSpecs = product.specs ?? [];
   const infoSections = infoKeys
     .map((key) => ({ key, text: product.info?.[key]?.[locale]?.trim() ?? "" }))
@@ -114,6 +120,7 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
             </ol>
           </nav>
 
+          <VariantSelectionProvider product={product}>
           <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 xl:gap-24">
             <ProductGallery product={product} />
 
@@ -125,8 +132,7 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                 </p>
               )}
               <h1 className="mt-3 font-display text-step-5 leading-[1] text-ink">{product.name[locale]}</h1>
-              <p className="mt-4 text-step-1 text-ink-soft">{product.tagline[locale]}</p>
-              <p className="mt-4 max-w-prose text-ink-soft">{product.description[locale]}</p>
+              {product.tagline[locale] ? <p className="mt-4 text-step-1 text-ink-soft">{product.tagline[locale]}</p> : null}
               {product.isSample ? (
                 <p className="mt-4 inline-block rounded-full border border-ink/12 px-3 py-1 text-step--1 text-ink-soft">
                   {dict.common.sampleNotice}
@@ -153,24 +159,32 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                 </section>
               )}
 
-              {(product.type === "diffuser" || structured.length > 0 || extraSpecs.length > 0) && (
+              {(product.type === "diffuser" || structured.length > 0 || extraSpecs.length > 0 || showColorRow) && (
                 <section aria-labelledby="specs-title" className="mt-10 border-t border-ink/10 pt-8">
                   <h2 id="specs-title" className="font-display text-step-2 text-ink">
                     {dict.product.specs}
                   </h2>
-                  {structured.length || extraSpecs.length ? (
+                  {structured.length || extraSpecs.length || showColorRow ? (
                     <>
-                      <dl className="mt-5 divide-y divide-ink/10 border-y border-ink/10">
+                      <dl className="mt-5 overflow-hidden rounded-2xl border border-ink/10 bg-surface/50">
                         {structured.map((row) => (
-                          <div key={row.key} data-spec={row.key} className="grid grid-cols-[minmax(7rem,40%)_1fr] gap-4 py-3">
+                          <div key={row.key} data-spec={row.key} className="grid grid-cols-[minmax(6.5rem,38%)_1fr] gap-4 border-b border-ink/8 px-4 py-3.5 last:border-b-0 odd:bg-canvas/60">
                             <dt className="text-ink-soft">{row.label}</dt>
-                            <dd className="text-ink" dir="auto">
+                            <dd className="font-medium text-ink" dir="auto">
                               {row.value}
                             </dd>
                           </div>
                         ))}
+                        {showColorRow ? (
+                          <div data-spec="color" className="grid grid-cols-[minmax(6.5rem,38%)_1fr] gap-4 border-b border-ink/8 px-4 py-3.5 last:border-b-0 odd:bg-canvas/60">
+                            <dt className="text-ink-soft">{dict.product.specLabels.color}</dt>
+                            <dd className="font-medium text-ink">
+                              <SelectedColorSpec product={product} />
+                            </dd>
+                          </div>
+                        ) : null}
                         {extraSpecs.map((item) => (
-                          <div key={item.label.en} className="grid grid-cols-[minmax(7rem,40%)_1fr] gap-4 py-3">
+                          <div key={item.label.en} className="grid grid-cols-[minmax(6.5rem,38%)_1fr] gap-4 border-b border-ink/8 px-4 py-3.5 last:border-b-0">
                             <dt className="text-ink-soft">{item.label[locale]}</dt>
                             <dd className="text-ink">{item.value[locale]}</dd>
                           </div>
@@ -185,6 +199,15 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                   )}
                 </section>
               )}
+
+              {description ? (
+                <section aria-labelledby="description-title" className="mt-10 border-t border-ink/10 pt-8">
+                  <h2 id="description-title" className="font-display text-step-2 text-ink">
+                    {dict.product.descriptionTitle}
+                  </h2>
+                  <RichText text={description} className="mt-4 text-step-0" data-testid="product-description" />
+                </section>
+              ) : null}
 
               {infoSections.length > 0 && (
                 <section aria-labelledby="info-title" className="mt-10 border-t border-ink/10 pt-8">
@@ -233,6 +256,7 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
               )}
             </div>
           </div>
+          </VariantSelectionProvider>
         </div>
       </section>
 

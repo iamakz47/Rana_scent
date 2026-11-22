@@ -1,4 +1,4 @@
-import type { Product, ProductVariant } from "@/features/catalog/types";
+import { variantImages, type Product, type ProductVariant } from "@/features/catalog/types";
 import type { CartLine } from "./store";
 
 export function toCartLine(product: Product, variant: ProductVariant): Omit<CartLine, "quantity"> {
@@ -8,7 +8,9 @@ export function toCartLine(product: Product, variant: ProductVariant): Omit<Cart
     name: product.name,
     variantLabel: variant.label,
     unitPriceFils: variant.priceFils,
-    image: product.images[0]?.src,
+    // The photo of the chosen colour, so the cart shows the right device.
+    image: variantImages(product, variant)[0]?.src,
+    ...(variant.colorHex ? { colorHex: variant.colorHex } : {}),
     scentFamily: product.scentFamily,
   };
 }

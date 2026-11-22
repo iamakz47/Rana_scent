@@ -1,5 +1,6 @@
 "use client";
 
+import { LineVariant } from "@/features/cart/line-variant";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { useFormAction } from "@/lib/use-form-action";
@@ -276,7 +277,7 @@ export function CheckoutForm({
               <div className="min-w-0 flex-1">
                 <p className="truncate text-ink">{line.name[locale]}</p>
                 <p className="text-step--1 text-ink-soft">
-                  {line.variantLabel[locale]} × {line.quantity}
+                  <LineVariant line={line} /> × {line.quantity}
                 </p>
                 {line.fragrances?.length ? (
                   <p className="text-step--1 text-ink-soft" data-testid="summary-fragrances">

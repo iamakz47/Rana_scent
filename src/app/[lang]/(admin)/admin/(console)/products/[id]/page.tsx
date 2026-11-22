@@ -33,7 +33,9 @@ export default async function EditProductPage({ params, searchParams }: PageProp
           values={values}
           options={toProductOptions(options, locale)}
           canPublish={can(staff, "catalog.publish")}
+          canAdjust={can(staff, "inventory.adjust")}
           created={query.created === "1"}
+          duplicated={query.duplicated === "1"}
         />
       ) : (
         <p className="text-ink-soft">{t.common.readOnly}</p>

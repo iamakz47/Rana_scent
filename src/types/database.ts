@@ -511,14 +511,14 @@ isOneToOne: false
                   ]
                 },"product_media": {
                   Row: {
-                    "media_id": string,"position": number,"product_id": string
+                    "media_id": string,"position": number,"product_id": string,"variant_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "media_id": string,"position"?: number,"product_id": string
+                    "media_id": string,"position"?: number,"product_id": string,"variant_id"?: string | null
                   }
                   Update: {
-                    "media_id"?: string,"position"?: number,"product_id"?: string
+                    "media_id"?: string,"position"?: number,"product_id"?: string,"variant_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -532,6 +532,12 @@ isOneToOne: false
       columns: ["product_id"]
 isOneToOne: false
       referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "product_media_variant_id_fkey"
+      columns: ["variant_id"]
+isOneToOne: false
+      referencedRelation: "product_variants"
       referencedColumns: ["id"]
     }
                   ]
@@ -563,14 +569,14 @@ isOneToOne: false
                   ]
                 },"product_variants": {
                   Row: {
-                    "compare_at_fils": number | null,"created_at": string,"id": string,"is_active": boolean,"label_ar": string,"label_en": string,"position": number,"price_fils": number,"product_id": string,"sku": string,"updated_at": string
+                    "color_hex": string | null,"compare_at_fils": number | null,"created_at": string,"id": string,"is_active": boolean,"label_ar": string,"label_en": string,"position": number,"price_fils": number,"product_id": string,"sku": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "compare_at_fils"?: number | null,"created_at"?: string,"id"?: string,"is_active"?: boolean,"label_ar": string,"label_en": string,"position"?: number,"price_fils": number,"product_id": string,"sku": string,"updated_at"?: string
+                    "color_hex"?: string | null,"compare_at_fils"?: number | null,"created_at"?: string,"id"?: string,"is_active"?: boolean,"label_ar": string,"label_en": string,"position"?: number,"price_fils": number,"product_id": string,"sku": string,"updated_at"?: string
                   }
                   Update: {
-                    "compare_at_fils"?: number | null,"created_at"?: string,"id"?: string,"is_active"?: boolean,"label_ar"?: string,"label_en"?: string,"position"?: number,"price_fils"?: number,"product_id"?: string,"sku"?: string,"updated_at"?: string
+                    "color_hex"?: string | null,"compare_at_fils"?: number | null,"created_at"?: string,"id"?: string,"is_active"?: boolean,"label_ar"?: string,"label_en"?: string,"position"?: number,"price_fils"?: number,"product_id"?: string,"sku"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {

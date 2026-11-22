@@ -5,7 +5,31 @@ import { filsToKwdInput } from "@/features/admin/format";
 import type { getAdminProduct, getProductFormOptions } from "@/features/admin/data/catalog";
 import type { ProductOptions, ProductValues } from "./product-editor";
 import { formatSpecs } from "./schema";
-import { parseDeviceSpecs, parseInfoSections } from "@/features/catalog/product-details";
+import { parseDeviceSpecs, parseInfoSections, simpleSpecKeys, specValue, type DeviceSpecs, type SimpleSpecKey } from "@/features/catalog/product-details";
+import storeAr from "@/i18n/dictionaries/ar.json";
+import storeEn from "@/i18n/dictionaries/en.json";
+
+// The six specifications as editable text. Older numeric values (coverage in
+// m², capacity in ml) are shown as the text the store displays today.
+function simpleSpecs(specs: DeviceSpecs): ProductValues["simple_specs"] {
+  const labels = (d: typeof storeEn) => ({ ...d.product.specLabels, units: d.product.specUnits, upTo: d.product.specUpTo });
+  const legacyEn: Partial<Record<SimpleSpecKey, string>> = {
+    coverage: specs.coverage_m2 ? specValue({ coverage_m2: specs.coverage_m2 }, "coverage", "en", labels(storeEn)) : "",
+    capacity: specs.capacity_ml ? specValue({ capacity_ml: specs.capacity_ml }, "capacity", "en", labels(storeEn)) : "",
+    color: specs.colors?.en ?? "",
+  };
+  return Object.fromEntries(
+    simpleSpecKeys.map((key) => [
+      key,
+      {
+        ar: specValue(specs, key, "ar", labels(storeAr as typeof storeEn)),
+        en: specs[key]?.en || legacyEn[key] || "",
+      },
+    ]),
+  ) as ProductValues["simple_specs"];
+}
+
+const randomSku = () => `RS-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 type Notes = { top?: { ar?: string; en?: string }; heart?: { ar?: string; en?: string }; base?: { ar?: string; en?: string } };
 const pair = (value?: { ar?: string; en?: string }) => ({ ar: value?.ar ?? "", en: value?.en ?? "" });
@@ -25,6 +49,7 @@ export const emptyProduct: ProductValues = {
   specs_en: "",
   specs_confirmed: false,
   device_specs: {},
+  simple_specs: Object.fromEntries(simpleSpecKeys.map((key) => [key, { ar: "", en: "" }])) as ProductValues["simple_specs"],
   info_sections: {},
   free_fragrances: "",
   free_fragrance_eligible: true,
@@ -39,6 +64,7 @@ export const emptyProduct: ProductValues = {
   seo_description_en: "",
   variants: [],
   media: [],
+  new_sku: "",
   scents: [],
   compatible: [],
 };
@@ -61,6 +87,7 @@ export function toProductValues(row: NonNullable<Awaited<ReturnType<typeof getAd
     specs_en: formatSpecs(row.specs, "en"),
     specs_confirmed: row.specs_confirmed,
     device_specs: parseDeviceSpecs(row.device_specs),
+    simple_specs: simpleSpecs(parseDeviceSpecs(row.device_specs)),
     info_sections: parseInfoSections(row.info_sections),
     free_fragrances: row.free_fragrances === 1 ? "1" : row.free_fragrances === 2 ? "2" : "",
     free_fragrance_eligible: row.free_fragrance_eligible,
@@ -85,11 +112,31 @@ export function toProductValues(row: NonNullable<Awaited<ReturnType<typeof getAd
         compare_at: filsToKwdInput(variant.compare_at_fils),
         is_active: variant.is_active,
         on_hand: variant.inventory?.on_hand ?? 0,
+        stock: String(variant.inventory?.on_hand ?? 0),
+        color_hex: (variant as { color_hex?: string | null }).color_hex ?? "",
+        media: mediaFor(row, variant.id),
       })),
-    media: [...row.product_media].sort((a, b) => a.position - b.position).map((m) => m.media_assets?.id).filter((id): id is string => Boolean(id)),
+    // Shared photos: those not attached to a colour.
+    media: mediaFor(row, null),
+    new_sku: "",
     scents: [...row.product_scents].sort((a, b) => a.position - b.position).map((s) => s.scent_family_id),
     compatible: row.device_compatibility.map((d) => d.compatible_product_id),
   };
+}
+
+type Row = NonNullable<Awaited<ReturnType<typeof getAdminProduct>>>;
+
+function mediaFor(row: Row, variantId: string | null): string[] {
+  return [...row.product_media]
+    .filter((m) => ((m as { variant_id?: string | null }).variant_id ?? null) === variantId)
+    .sort((a, b) => a.position - b.position)
+    .map((m) => m.media_assets?.id)
+    .filter((id): id is string => Boolean(id));
+}
+
+// A fresh SKU suggestion for new products and colours.
+export function suggestSku(): string {
+  return randomSku();
 }
 
 export function toProductOptions(options: Awaited<ReturnType<typeof getProductFormOptions>>, locale: Locale): ProductOptions {

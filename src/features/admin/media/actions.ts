@@ -4,6 +4,7 @@ import { updateTag } from "next/cache";
 import sharp from "sharp";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { mediaUrl } from "@/features/media/url";
 import { CATALOG_TAG, HOMEPAGE_TAG } from "@/features/catalog/cache-tags";
 import { actionDictionary, dbErrorMessage } from "@/features/admin/action-locale";
 import { authorize } from "@/features/admin/auth/dal";
@@ -16,6 +17,9 @@ import {
   mediaPath,
   sniffImageType,
 } from "./validation";
+
+// A newly registered photo, returned so editors can use it immediately.
+export type UploadedAsset = { id: string; url: string; alt: string; width: number | null; height: number | null };
 
 type Prepared = { status: "ok"; path: string; token: string } | { status: "error"; message: string };
 
@@ -49,7 +53,7 @@ export async function registerUpload(input: {
   altAr: string;
   altEn: string;
   replaceId?: string;
-}): Promise<ActionResult> {
+}): Promise<ActionResult & { asset?: UploadedAsset }> {
   const form = new FormData();
   form.set("locale", input.locale);
   const t = actionDictionary(form);
@@ -96,7 +100,7 @@ export async function registerUpload(input: {
     if (error) return discard(dbErrorMessage(error, t));
     await storage.remove([old.path]);
   } else {
-    const { error } = await supabase.from("media_assets").insert({
+    const { data: created, error } = await supabase.from("media_assets").insert({
       bucket: "media",
       path: input.path,
       mime_type: mime,
@@ -105,8 +109,15 @@ export async function registerUpload(input: {
       height,
       alt_ar: altAr,
       alt_en: altEn,
-    });
-    if (error) return discard(dbErrorMessage(error, t));
+    }).select("id").single();
+    if (error || !created) return discard(dbErrorMessage(error, t));
+    updateTag(CATALOG_TAG);
+    updateTag(HOMEPAGE_TAG);
+    return {
+      status: "ok",
+      message: t.media.uploadedOk,
+      asset: { id: created.id, url: mediaUrl({ bucket: "media", path: input.path }), alt: altEn || altAr, width, height },
+    };
   }
   updateTag(CATALOG_TAG);
   updateTag(HOMEPAGE_TAG);
