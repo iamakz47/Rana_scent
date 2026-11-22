@@ -25,7 +25,8 @@ export function ProductGallery({ product }: { product: Product }) {
       <div className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-beige">
         {/* Only the first image is the shared element morphing from the card. */}
         <ViewTransition name={`product-${product.slug}`} share="product-morph" default="none">
-          <div className="relative aspect-[4/5]">
+          {/* The photo being shown, for tests and debugging; stable during the fade. */}
+          <div className="relative aspect-[4/5]" data-testid="gallery-main" data-src={image?.src ?? ""}>
             <AnimatePresence initial={false} mode="popLayout">
               <m.div
                 key={image?.src ?? `empty-${variant.id}`}
@@ -34,8 +35,6 @@ export function ProductGallery({ product }: { product: Product }) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0"
-                data-testid="gallery-main"
-                data-src={image?.src ?? ""}
               >
                 <ProductVisual
                   src={image?.src}

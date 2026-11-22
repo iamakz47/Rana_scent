@@ -32,7 +32,7 @@ test.describe("products", () => {
     await page.goto("/en/admin/products/new");
     await page.getByLabel("Product name (Arabic)").fill("عطر دورة الحياة");
     await page.getByLabel("English name (optional)").fill(`Lifecycle ${slug}`);
-    await page.getByLabel("Type", { exact: true }).selectOption("refill");
+    await page.locator("#type").selectOption("refill");
     await page.getByText("Advanced settings").click();
     await page.getByLabel("URL slug").fill(slug);
     await page.getByLabel("SKU", { exact: true }).fill(`RS-${slug.toUpperCase()}-A`);
@@ -48,7 +48,7 @@ test.describe("products", () => {
     await expect(page.getByText("Product created as a draft.")).toBeVisible();
     const editUrl = page.url();
 
-    await page.getByRole("button", { name: "Publish" }).click();
+    await page.getByRole("button", { name: "Publish", exact: true }).click();
     await expect(page.getByText("Product published.")).toBeVisible();
     const shopper = await browser.newPage();
     await shopper.goto(`/en/products/${slug}`);

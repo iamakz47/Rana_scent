@@ -421,7 +421,7 @@ export function ProductEditor({
   options: ProductOptions;
   canPublish: boolean;
   canAdjust?: boolean;
-  created?: boolean;
+  created?: "draft" | "published";
   duplicated?: boolean;
 }) {
   const { locale, t } = useAdminI18n();
@@ -512,7 +512,7 @@ export function ProductEditor({
         <input type="hidden" name="media" value={JSON.stringify(mediaPayload)} />
         <input type="hidden" name="media_variants" value={JSON.stringify(mediaVariants)} />
         <input type="hidden" name="device_specs_keep" value={JSON.stringify(values.device_specs)} />
-        {created ? <Notice tone="success">{t.products.created}</Notice> : null}
+        {created ? <Notice tone="success">{created === "published" ? t.products.publishedOk : t.products.created}</Notice> : null}
         {duplicated ? <Notice tone="gold">{c.duplicated}</Notice> : null}
 
         {/* 1. Basic information */}

@@ -89,7 +89,7 @@ test.describe("catalog management", () => {
     const manager = await browser.newPage();
     await signIn(manager, accounts.manager);
     await manager.goto(editUrl);
-    await manager.getByRole("button", { name: "Publish" }).click();
+    await manager.getByRole("button", { name: "Publish", exact: true }).click();
     await expect(manager.getByText("Product published.")).toBeVisible();
 
     await shopper.goto(`/en/products/${slug}`);
@@ -219,8 +219,10 @@ test.describe("languages and layout", () => {
     await expect(page).toHaveURL(/\/en\/admin\/inventory/);
     for (const path of ["/en/admin", "/en/admin/products", "/en/admin/homepage", "/en/admin/staff"]) {
       await page.goto(path);
-      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-      expect(overflow, path).toBeLessThanOrEqual(1);
+      // Measured once the page has settled; a lasting overflow still fails.
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), { message: path })
+        .toBeLessThanOrEqual(1);
     }
   });
 });

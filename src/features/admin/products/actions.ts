@@ -73,19 +73,21 @@ export async function saveProduct(_prev: ActionResult, formData: FormData): Prom
   }
 
   // "Save and publish".
+  let published = false;
   if (formData.get("intent") === "publish") {
     if (!(await authorize("catalog.publish"))) {
       warning = t.products.publishRole;
     } else {
       const { error: publishError } = await supabase.from("products").update({ status: "published" }).eq("id", id);
       if (publishError) warning = publishError.code === "23514" ? t.products.publishNeedsVariant : dbErrorMessage(publishError, t);
+      else published = true;
     }
   }
 
   refreshStorefront();
-  if (!parsed.data.id) redirect(localePath(actionLocale(formData), `/admin/products/${id}?created=1`));
+  if (!parsed.data.id) redirect(localePath(actionLocale(formData), `/admin/products/${id}?created=${published ? "published" : "1"}`));
   if (warning) return { status: "error", message: `${t.products.savedOk} ${warning}` };
-  return { status: "ok", message: t.products.savedOk };
+  return { status: "ok", message: published ? t.products.publishedOk : t.products.savedOk };
 }
 
 // Copies a product into a new, unpublished draft: texts, specifications,
