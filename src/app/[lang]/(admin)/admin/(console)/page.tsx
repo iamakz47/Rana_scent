@@ -18,12 +18,13 @@ function Stat({ label, value, note, href }: { label: string; value: string; note
   const body = (
     <>
       <p className="text-[0.7rem] font-medium uppercase tracking-[0.2em] text-ink-soft">{label}</p>
-      <p className="mt-3 font-display text-step-4 leading-none text-ink tabular-nums">{value}</p>
+      {/* Smaller on phones so amounts like "KWD 1,234.500" fit a half-width tile. */}
+      <p className="mt-3 font-display text-step-2 leading-tight text-ink tabular-nums [overflow-wrap:anywhere] sm:text-step-4 sm:leading-none">{value}</p>
       {note ? <p className="mt-2 text-[0.78rem] text-ink-soft">{note}</p> : null}
     </>
   );
   const className =
-    "block rounded-2xl border border-ink/10 bg-canvas p-5 transition-colors " + (href ? "hover:border-gold/60" : "");
+    "block min-w-0 rounded-2xl border border-ink/10 bg-canvas p-4 transition-colors sm:p-5 " + (href ? "hover:border-gold/60" : "");
   return href ? (
     <Link href={href} className={className}>
       {body}

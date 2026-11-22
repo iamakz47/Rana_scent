@@ -219,10 +219,8 @@ test.describe("languages and layout", () => {
     await expect(page).toHaveURL(/\/en\/admin\/inventory/);
     for (const path of ["/en/admin", "/en/admin/products", "/en/admin/homepage", "/en/admin/staff"]) {
       await page.goto(path);
-      // Measured once the page has settled; a lasting overflow still fails.
-      await expect
-        .poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), { message: path })
-        .toBeLessThanOrEqual(1);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow, path).toBeLessThanOrEqual(1);
     }
   });
 });
