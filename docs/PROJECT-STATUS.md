@@ -103,6 +103,13 @@ confirmation and tracking pages, and admin orders, customers, discounts,
 delivery, payments settings and finance. Details and go-live steps:
 `docs/phase-3-commerce.md`. Not applied to production yet.
 
+### Phase 7: Offers & Bundles (PR pending)
+The owner builds a bundle offer (pick existing products and quantities,
+optionally lock a colour, type one final price) in the admin; customers
+browse and buy it as one cart line with correct colours, free fragrances,
+pricing and stock, built on the Phase 2 `bundle_items` table. Full details:
+`docs/phase-7-offers-bundles.md`. Not applied to production yet.
+
 ### Phase 4: accounts, email, refunds, launch readiness (awaiting review)
 - Customer accounts:
   - sign-up with email verification, sign-in, password reset (bilingual
