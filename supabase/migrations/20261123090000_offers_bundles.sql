@@ -408,9 +408,15 @@ begin
     where bi.bundle_id = p_bundle_id
   ),
   resolved as (
-    select item_product_id, coalesce(locked_variant_id, nullif(chosen_variant_text, '')::uuid) as variant_id,
-           per_bundle_qty, fragrances
-    from wanted
+    -- Every column is qualified with w.: RETURNS TABLE gives this function's
+    -- own output column names (item_product_id, fragrances, ...) the status
+    -- of PL/pgSQL variables for the whole function body, so an unqualified
+    -- reference here would be ambiguous between that variable and the CTE's
+    -- column of the same name.
+    select w.item_product_id as item_product_id,
+           coalesce(w.locked_variant_id, nullif(w.chosen_variant_text, '')::uuid) as variant_id,
+           w.per_bundle_qty as per_bundle_qty, w.fragrances as fragrances
+    from wanted w
   )
   select p.id, v.id, v.sku, p.name_ar, p.name_en, v.label_ar, v.label_en, v.color_hex,
          v.price_fils, (r.per_bundle_qty * greatest(p_quantity, 0))::integer, i.on_hand, i.track_inventory,
@@ -1033,6 +1039,8 @@ revoke all on function private.release_order(uuid) from public;
 -- Guest order confirmation: show the offer breakdown too
 -- ---------------------------------------------------------------------------
 
+-- Additive on top of the Phase 5 version: each item gains a `components`
+-- array (the real products behind an offer line), nothing else changes.
 create or replace function public.get_order_for_customer(order_number bigint, token uuid)
 returns jsonb
 language sql
@@ -1044,13 +1052,17 @@ as $$
     'number', o.number, 'status', o.status, 'payment_method', o.payment_method,
     'customer_name', o.customer_name, 'phone', o.phone, 'email', o.email, 'locale', o.locale,
     'subtotal_fils', o.subtotal_fils, 'discount_fils', o.discount_fils, 'shipping_fils', o.shipping_fils,
-    'total_fils', o.total_fils, 'shipping_address', o.shipping_address, 'placed_at', o.placed_at,
-    'expires_at', o.expires_at, 'tracking_number', o.tracking_number, 'courier', o.courier,
-    'estimated_delivery', o.estimated_delivery,
+    'total_fils', o.total_fils, 'refunded_fils', o.refunded_fils, 'shipping_address', o.shipping_address,
+    'placed_at', o.placed_at, 'expires_at', o.expires_at, 'tracking_number', o.tracking_number,
+    'courier', o.courier, 'estimated_delivery', o.estimated_delivery,
+    'delivery_instructions', o.delivery_instructions, 'has_account', o.user_id is not null,
     'items', (select coalesce(jsonb_agg(jsonb_build_object(
                 'name', jsonb_build_object('ar', i.name_ar, 'en', i.name_en),
                 'label', jsonb_build_object('ar', i.variant_label_ar, 'en', i.variant_label_en),
                 'quantity', i.quantity, 'unit_price_fils', i.unit_price_fils, 'line_total_fils', i.line_total_fils,
+                'free_fragrances', (select coalesce(jsonb_agg(jsonb_build_object('device', f.device_no, 'slot', f.slot,
+                    'name', jsonb_build_object('ar', f.name_ar, 'en', f.name_en)) order by f.device_no, f.slot), '[]'::jsonb)
+                  from public.order_item_fragrances f where f.order_item_id = i.id),
                 'components', (select coalesce(jsonb_agg(jsonb_build_object(
                                  'name', jsonb_build_object('ar', c.name_ar, 'en', c.name_en),
                                  'label', jsonb_build_object('ar', c.variant_label_ar, 'en', c.variant_label_en),
@@ -1058,6 +1070,9 @@ as $$
                                from public.order_item_components c where c.order_item_id = i.id))
                 order by i.name_en), '[]'::jsonb)
               from public.order_items i where i.order_id = o.id),
+    'timeline', (select coalesce(jsonb_agg(jsonb_build_object('status', h.to_status, 'at', h.created_at)
+                order by h.created_at), '[]'::jsonb)
+              from public.order_status_history h where h.order_id = o.id),
     'payment_status', (select p.status from public.payments p where p.order_id = o.id
                        order by p.created_at desc limit 1)
   )
