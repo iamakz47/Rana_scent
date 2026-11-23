@@ -33,6 +33,12 @@ const bundleComponentSchema = z.object({
   variantLabel: localized,
   colorHex: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   fragrances: fragranceChoices.optional(),
+  // Display only: how many of this product one bundle includes (the offer's
+  // own OfferItem.quantity at the time it was added), so the cart can show
+  // "x N" per component. Optional and additive: checkout maps named fields
+  // only and never reads this, and an older persisted line without it still
+  // parses.
+  quantity: z.number().int().min(1).max(50).optional(),
 });
 
 const cartLineSchema = z.object({
