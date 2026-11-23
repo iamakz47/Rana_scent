@@ -68,15 +68,16 @@ test.describe("catalog management", () => {
     const slug = `e2e-${unique()}`;
     await signIn(page, accounts.editor);
     await page.goto("/en/admin/products/new");
-    await page.getByLabel("Name (Arabic)", { exact: true }).fill("فواح تجريبي");
-    await page.getByLabel("Name (English)", { exact: true }).fill("E2E Diffuser");
+    await page.getByLabel("Product name (Arabic)").fill("فواح تجريبي");
+    await page.getByLabel("English name (optional)").fill("E2E Diffuser");
+    await page.getByText("Advanced settings").click();
     await page.getByLabel("URL slug").fill(slug);
-    await page.getByLabel("SKU").fill(`RS-E2E-${unique().toUpperCase()}`);
-    await page.getByLabel("Option label (Arabic)").fill("أسود");
-    await page.getByLabel("Option label (English)").fill("Black");
+    await page.getByLabel("SKU", { exact: true }).fill(`RS-E2E-${unique().toUpperCase()}`);
     await page.getByLabel("Price (KWD)", { exact: true }).fill("24.750");
     await page.getByLabel("Number of free fragrances").selectOption("1");
-    await page.getByRole("button", { name: "Create" }).click();
+    // Editors can't publish: they only get "Save as draft".
+    await expect(page.getByRole("button", { name: "Save and publish" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Save as draft" }).click();
     await expect(page.getByText("Product created as a draft.")).toBeVisible();
     await expect(page.getByText("Publishing needs a Manager, Admin or Owner.")).toBeVisible();
     const editUrl = page.url();
@@ -88,7 +89,7 @@ test.describe("catalog management", () => {
     const manager = await browser.newPage();
     await signIn(manager, accounts.manager);
     await manager.goto(editUrl);
-    await manager.getByRole("button", { name: "Publish" }).click();
+    await manager.getByRole("button", { name: "Publish", exact: true }).click();
     await expect(manager.getByText("Product published.")).toBeVisible();
 
     await shopper.goto(`/en/products/${slug}`);
@@ -102,14 +103,9 @@ test.describe("catalog management", () => {
   test("prices must be valid KWD amounts", async ({ page }) => {
     await signIn(page, accounts.editor);
     await page.goto("/en/admin/products/new");
-    await page.getByLabel("Name (Arabic)", { exact: true }).fill("اختبار");
-    await page.getByLabel("Name (English)", { exact: true }).fill("Bad price");
-    await page.getByLabel("URL slug").fill(`e2e-bad-${unique()}`);
-    await page.getByLabel("SKU").fill(`RS-BAD-${unique().toUpperCase()}`);
-    await page.getByLabel("Option label (Arabic)").fill("قياسي");
-    await page.getByLabel("Option label (English)").fill("Standard");
+    await page.getByLabel("Product name (Arabic)").fill("اختبار");
     await page.getByLabel("Price (KWD)", { exact: true }).fill("12.3456");
-    await page.getByRole("button", { name: "Create" }).click();
+    await page.getByRole("button", { name: "Save as draft" }).click();
     await expect(page.getByRole("alert").filter({ hasText: "Nothing was changed" })).toBeVisible();
   });
 

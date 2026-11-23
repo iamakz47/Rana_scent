@@ -26,7 +26,12 @@ const accept = Object.keys(imageTypes).join(",");
 
 // Uploads one file: signed URL from the server → direct upload → server
 // verification and registration.
-async function uploadOne(file: File, folder: string, locale: string, replaceId?: string): Promise<ActionResult> {
+export async function uploadOne(
+  file: File,
+  folder: string,
+  locale: string,
+  replaceId?: string,
+): Promise<Awaited<ReturnType<typeof registerUpload>>> {
   const prepared = await prepareUpload({ locale, folder, type: file.type, size: file.size });
   if (prepared.status === "error") return { status: "error", message: prepared.message };
   const supabase = createClient();

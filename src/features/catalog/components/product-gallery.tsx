@@ -6,26 +6,34 @@ import { ProductVisual } from "@/components/brand/product-visual";
 import { useI18n } from "@/i18n/client";
 import { format } from "@/i18n/format";
 import { cn } from "@/lib/cn";
-import type { Product } from "../types";
+import { variantImages, type Product } from "../types";
+import { useVariantSelection } from "./color-selection";
 
 export function ProductGallery({ product }: { product: Product }) {
   const { locale, dict } = useI18n();
-  const [index, setIndex] = useState(0);
-  const image = product.images[index];
+  const { variant } = useVariantSelection(product);
+  // Only the selected colour's photos (or the shared photos as a fallback).
+  const images = variantImages(product, variant);
+  const [picked, setPicked] = useState({ variantId: variant.id, index: 0 });
+  // A colour change starts again at that colour's main photo.
+  const index = picked.variantId === variant.id ? Math.min(picked.index, Math.max(0, images.length - 1)) : 0;
+  const setIndex = (next: number) => setPicked({ variantId: variant.id, index: next });
+  const image = images[index];
 
   return (
     <div className="space-y-3" aria-label={dict.product.gallery} role="group">
       <div className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-beige">
         {/* Only the first image is the shared element morphing from the card. */}
         <ViewTransition name={`product-${product.slug}`} share="product-morph" default="none">
-          <div className="relative aspect-[4/5]">
+          {/* The photo being shown, for tests and debugging; stable during the fade. */}
+          <div className="relative aspect-[4/5]" data-testid="gallery-main" data-src={image?.src ?? ""}>
             <AnimatePresence initial={false} mode="popLayout">
               <m.div
-                key={index}
-                initial={{ opacity: 0, scale: 1.04 }}
+                key={image?.src ?? `empty-${variant.id}`}
+                initial={{ opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0"
               >
                 <ProductVisual
@@ -42,11 +50,11 @@ export function ProductGallery({ product }: { product: Product }) {
         </ViewTransition>
       </div>
 
-      {product.images.length > 1 && (
-      <div className="grid grid-cols-3 gap-3">
-        {product.images.map((thumb, thumbIndex) => (
+      {images.length > 1 && (
+      <div className="grid grid-cols-3 gap-3" data-testid="gallery-thumbs">
+        {images.map((thumb, thumbIndex) => (
           <button
-            key={thumbIndex}
+            key={`${variant.id}-${thumb.src}`}
             type="button"
             onClick={() => setIndex(thumbIndex)}
             aria-label={format(dict.product.showImage, { index: thumbIndex + 1 })}

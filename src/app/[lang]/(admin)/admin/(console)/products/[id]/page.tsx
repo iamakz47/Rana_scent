@@ -30,10 +30,14 @@ export default async function EditProductPage({ params, searchParams }: PageProp
       />
       {can(staff, "catalog.write") ? (
         <ProductEditor
+          // A different product (e.g. a fresh duplicate) starts a fresh form.
+          key={values.id}
           values={values}
           options={toProductOptions(options, locale)}
           canPublish={can(staff, "catalog.publish")}
-          created={query.created === "1"}
+          canAdjust={can(staff, "inventory.adjust")}
+          created={query.created === "1" ? "draft" : query.created === "published" ? "published" : undefined}
+          duplicated={query.duplicated === "1"}
         />
       ) : (
         <p className="text-ink-soft">{t.common.readOnly}</p>

@@ -1,5 +1,6 @@
 "use client";
 
+import { LineVariant } from "@/features/cart/line-variant";
 import Link from "next/link";
 import { useEffect } from "react";
 import { AnimatePresence, m } from "motion/react";
@@ -81,7 +82,7 @@ export function CartView({ fragrances }: { fragrances?: FreeFragrance[] }) {
                   >
                     {line.name[locale]}
                   </Link>
-                  <p className="text-step--1 text-ink-soft">{line.variantLabel[locale]}</p>
+                  <p className="text-step--1 text-ink-soft"><LineVariant line={line} /></p>
                   <p className="mt-1 text-step--1 text-ink-soft tabular-nums">{formatKWD(line.unitPriceFils, locale)}</p>
                   <LineFragrances line={line} lineId={lineKey(line)} fragrances={fragrances} />
                 </div>

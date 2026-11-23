@@ -82,23 +82,23 @@ test.beforeAll(async ({ request }) => {
 });
 
 test.describe("product information", () => {
-  test("structured specifications with dimensions; missing values aren't shown", async ({ page }) => {
+  test("only the six specifications are shown, older values included; missing values aren't shown", async ({ page }) => {
     await page.goto(`/en/products/${two.slug}`);
     const specs = page.locator("dl").first();
-    await expect(specs.locator("[data-spec=dimensions]")).toContainText("Dimensions (W × H × D)");
-    await expect(specs.locator("[data-spec=dimensions]")).toContainText("20 × 15 × 8 cm");
-    await expect(specs.locator("[data-spec=coverage_m2]")).toContainText("Up to 1,000 m²");
-    await expect(specs.locator("[data-spec=control_type]")).toContainText("Touch button");
-    await expect(specs.locator("[data-spec=weight]")).toHaveCount(0);
-    await expect(specs.locator("[data-spec=noise_db]")).toHaveCount(0);
+    await expect(specs.locator("[data-spec=coverage]")).toContainText("Up to 1,000 m²");
+    await expect(specs.locator("[data-spec=capacity]")).toContainText("500 ml");
+    // Fields outside the six (dimensions, control type) are kept but not shown.
+    await expect(specs.locator("[data-spec=dimensions]")).toHaveCount(0);
+    await expect(specs.locator("[data-spec=control_type]")).toHaveCount(0);
+    await expect(specs.locator("[data-spec=screen]")).toHaveCount(0);
     await expect(page.getByText("Provisional specifications")).toHaveCount(0);
     // Information sections expand.
     await expect(page.getByText("How to operate")).toBeVisible();
     await expect(page.getByText("Press the power button once.")).toBeVisible();
 
     await page.goto(`/ar/products/${two.slug}`);
-    await expect(page.locator("[data-spec=dimensions]")).toContainText("20 × 15 × 8 سم");
-    await expect(page.locator("[data-spec=dimensions]")).toContainText("الأبعاد");
+    await expect(page.locator("[data-spec=coverage]")).toContainText("التغطية");
+    await expect(page.locator("[data-spec=coverage]")).toContainText("حتى 1,000 م²");
 
     // A device without specifications says they're pending.
     await page.goto(`/en/products/${one.slug}`);
@@ -239,31 +239,34 @@ test.describe("free fragrance selection", () => {
 });
 
 test.describe("admin product details", () => {
-  test("the owner edits dimensions, specs, free fragrances and information; invalid input keeps what was typed", async ({ page, browser }) => {
+  test("the owner fills the six specifications in Arabic and one long description", async ({ page, browser }) => {
     await staffSignIn(page, accounts.owner);
     await page.goto(`/en/admin/products/${one.id}`);
-    await page.locator("#spec_dim_width").fill("12");
-    await page.locator("#spec_dim_height").fill("30");
-    // Depth missing: rejected, nothing lost.
-    await page.locator("#spec_material_en").fill("Aluminium");
-    await page.locator("#spec_material_ar").fill("ألمنيوم");
-    await page.getByRole("button", { name: "Save", exact: true }).first().click();
-    await expect(page.getByText("Enter width, height and depth, or leave all three empty.")).toBeVisible();
-    await expect(page.locator("#spec_material_en")).toHaveValue("Aluminium");
-    await page.locator("#spec_dim_depth").fill("6.5");
-    await page.locator("#spec_dim_unit").selectOption("mm");
+    await page.locator("#spec_device_type_ar").fill("فواح للمساحات الكبيرة");
+    await page.locator("#spec_screen_ar").fill("شاشة LCD ومؤقت قابل للبرمجة");
+    await page.locator("#spec_installation_ar").fill("قائم أو معلّق على الجدار");
     await page.locator("#free_fragrances").selectOption("2");
-    await page.locator("#info_maintenance_en").fill("Wipe with a dry cloth.");
-    await page.locator("#info_maintenance_ar").fill("امسحه بقطعة قماش جافة.");
+    const description = "المميزات:\n1. تشغيل وضبط الجهاز من خلال الهاتف.\n2. يعمل عن طريق البلوتوث.\n\nطريقة الاستخدام:\nيتم توصيل الجهاز بالكهرباء\nثم ضبط المؤقت.";
+    await page.locator("#description_ar").fill(description);
+    await page.getByRole("tab", { name: "English (optional)" }).click();
+    await expect(page.locator("#description_en")).toBeVisible();
+    await expect(page.locator("#description_ar")).toBeHidden();
     await page.getByRole("button", { name: "Save", exact: true }).first().click();
     await expect(page.getByText("Product saved.")).toBeVisible();
 
     const shopper = await browser.newPage();
+    await shopper.goto(`/ar/products/${one.slug}`);
+    await expect(shopper.locator("[data-spec=device_type]")).toContainText("النوع");
+    await expect(shopper.locator("[data-spec=screen]")).toContainText("شاشة LCD ومؤقت قابل للبرمجة");
+    const text = shopper.getByTestId("product-description");
+    await expect(text.getByRole("heading", { name: "المميزات:" })).toBeVisible();
+    await expect(text.locator("ol > li")).toHaveCount(2);
+    // Line breaks inside a paragraph are kept.
+    expect(await text.locator("p").last().innerText()).toBe("يتم توصيل الجهاز بالكهرباء\nثم ضبط المؤقت.");
+    await expect(shopper.getByLabel("عطرك المجاني الثاني")).toBeVisible();
+    // English visitors see the Arabic text rather than nothing (no invented translation).
     await shopper.goto(`/en/products/${one.slug}`);
-    await expect(shopper.locator("[data-spec=dimensions]")).toContainText("12 × 30 × 6.5 mm");
-    await expect(shopper.locator("[data-spec=material]")).toContainText("Aluminium");
-    await expect(shopper.getByText("Maintenance and cleaning")).toBeVisible();
-    await expect(shopper.getByLabel("Your Second Free Fragrance")).toBeVisible();
+    await expect(shopper.locator("[data-spec=installation]")).toContainText("قائم أو معلّق على الجدار");
 
     // Put the one-fragrance device back for the other tests.
     await service.from("products").update({ free_fragrances: 1 }).eq("id", one.id);

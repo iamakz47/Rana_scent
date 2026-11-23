@@ -56,7 +56,7 @@ export async function getAdminProduct(id: string) {
     .from("products")
     .select(
       `*, product_variants(*, inventory(on_hand)),
-       product_media(position, media_assets(${mediaColumns})),
+       product_media(*, media_assets(${mediaColumns})),
        product_categories(category_id, is_primary),
        product_scents(scent_family_id, position),
        device_compatibility!device_compatibility_product_id_fkey(compatible_product_id)`,

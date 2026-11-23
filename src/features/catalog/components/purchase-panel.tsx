@@ -13,16 +13,16 @@ import { WishlistButton } from "@/features/wishlist/wishlist-button";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import type { FreeFragrance } from "../queries";
-import type { Product } from "../types";
+import { hasColorChoice, type Product } from "../types";
+import { Swatch, useVariantSelection } from "./color-selection";
 import { FreeFragrancePicker } from "./free-fragrance-picker";
 
 export function PurchasePanel({ product, fragrances = [] }: { product: Product; fragrances?: FreeFragrance[] }) {
   const { locale, dict } = useI18n();
-  const initial = product.variants.find((variant) => variant.stock > 0) ?? product.variants[0];
-  const [variantId, setVariantId] = useState(initial.id);
+  const { variant, select } = useVariantSelection(product);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
-  const variant = product.variants.find((item) => item.id === variantId) ?? initial;
+  const colors = hasColorChoice(product);
   const soldOut = variant.stock <= 0;
   const freeCount = product.freeFragrances;
   const [choices, setChoices] = useState<string[]>([]);
@@ -45,7 +45,43 @@ export function PurchasePanel({ product, fragrances = [] }: { product: Product; 
         />
       </div>
 
-      {product.variants.length > 1 && (
+      {colors ? (
+        <fieldset className="min-w-0" data-testid="color-choice">
+          <legend className="mb-3 text-step--1 text-ink-soft">
+            {dict.product.colorsAvailable}: <span className="font-medium text-ink">{variant.label[locale]}</span>
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {product.variants.map((item) => {
+              const checked = item.id === variant.id;
+              return (
+                <label
+                  key={item.id}
+                  className={cn(
+                    "relative inline-flex min-h-12 cursor-pointer items-center gap-2.5 rounded-full border px-4 transition-colors duration-300 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold-deep",
+                    checked ? "border-gold bg-gold/8 text-gold-deep" : "border-ink/12 text-ink hover:border-ink/25",
+                    item.stock <= 0 && "opacity-55",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name={`variant-${product.id}`}
+                    value={item.id}
+                    checked={checked}
+                    onChange={() => {
+                      select(item.id);
+                      setQuantity(1);
+                    }}
+                    className="sr-only"
+                  />
+                  <Swatch hex={item.colorHex ?? "#d9d2c5"} className={cn("size-6", checked && "ring-2 ring-gold ring-offset-2 ring-offset-canvas")} />
+                  {item.label[locale]}
+                  {item.stock <= 0 && <span className="text-step--1">({dict.product.colorUnavailable})</span>}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+      ) : product.variants.length > 1 && (
         <fieldset className="min-w-0">
           <legend className="mb-3 text-step--1 text-ink-soft">{dict.product.option}</legend>
           <div className="flex flex-wrap gap-2">
@@ -66,7 +102,7 @@ export function PurchasePanel({ product, fragrances = [] }: { product: Product; 
                     value={item.id}
                     checked={checked}
                     onChange={() => {
-                      setVariantId(item.id);
+                      select(item.id);
                       setQuantity(1);
                     }}
                     className="sr-only"

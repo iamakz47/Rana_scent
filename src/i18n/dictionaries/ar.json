@@ -147,34 +147,16 @@
     "breadcrumb": "مسار التصفح",
     "specsProvisional": "مواصفات مبدئية: ستؤكدها رنا سنت لاحقاً.",
     "specLabels": {
-      "device_type": "نوع الجهاز",
-      "coverage_m2": "التغطية",
-      "capacity_ml": "سعة العطر",
-      "dimensions": "الأبعاد (العرض × الارتفاع × العمق)",
-      "weight": "الوزن",
-      "power_supply": "مصدر الطاقة",
-      "power_consumption_w": "استهلاك الطاقة",
-      "operating_method": "طريقة التشغيل",
-      "control_type": "التحكم",
-      "colors": "الألوان",
-      "material": "الخامة",
+      "device_type": "النوع",
+      "coverage": "التغطية",
+      "screen": "الشاشة",
+      "capacity": "سعة العبوة",
       "installation": "التركيب",
-      "fragrance_consumption": "استهلاك العطر",
-      "noise_db": "مستوى الضجيج",
-      "environments": "الأماكن المناسبة",
-      "maintenance": "الصيانة",
-      "warranty": "الضمان",
-      "package_contents": "محتويات العلبة"
+      "color": "اللون"
     },
     "specUnits": {
-      "cm": "سم",
-      "mm": "مم",
-      "g": "غ",
-      "kg": "كغ",
       "m2": "م²",
-      "ml": "مل",
-      "w": "واط",
-      "db": "ديسيبل"
+      "ml": "مل"
     },
     "specUpTo": "حتى {value}",
     "specsMore": "تفاصيل إضافية",
@@ -204,7 +186,11 @@
     "freeFragrances": "العطور المجانية",
     "device": "الجهاز {number}",
     "change": "تغيير",
-    "freeCharge": "رسوم العطور المجانية"
+    "freeCharge": "رسوم العطور المجانية",
+    "color": "اللون",
+    "colorsAvailable": "الألوان المتوفرة",
+    "colorUnavailable": "غير متوفر",
+    "descriptionTitle": "وصف المنتج"
   },
   "cart": {
     "title": "سلتك",

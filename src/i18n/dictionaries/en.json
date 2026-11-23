@@ -147,34 +147,16 @@
     "breadcrumb": "Breadcrumb",
     "specsProvisional": "Provisional specifications: to be confirmed by Rana Scent.",
     "specLabels": {
-      "device_type": "Device type",
-      "coverage_m2": "Coverage",
-      "capacity_ml": "Fragrance capacity",
-      "dimensions": "Dimensions (W × H × D)",
-      "weight": "Weight",
-      "power_supply": "Power",
-      "power_consumption_w": "Power consumption",
-      "operating_method": "Operation",
-      "control_type": "Controls",
-      "colors": "Colours",
-      "material": "Material",
+      "device_type": "Type",
+      "coverage": "Coverage",
+      "screen": "Display",
+      "capacity": "Bottle capacity",
       "installation": "Installation",
-      "fragrance_consumption": "Fragrance consumption",
-      "noise_db": "Noise level",
-      "environments": "Recommended spaces",
-      "maintenance": "Maintenance",
-      "warranty": "Warranty",
-      "package_contents": "In the box"
+      "color": "Colour"
     },
     "specUnits": {
-      "cm": "cm",
-      "mm": "mm",
-      "g": "g",
-      "kg": "kg",
       "m2": "m²",
-      "ml": "ml",
-      "w": "W",
-      "db": "dB"
+      "ml": "ml"
     },
     "specUpTo": "Up to {value}",
     "specsMore": "More details",
@@ -204,7 +186,11 @@
     "freeFragrances": "Free fragrances",
     "device": "Device {number}",
     "change": "Change",
-    "freeCharge": "Free fragrance charge"
+    "freeCharge": "Free fragrance charge",
+    "color": "Colour",
+    "colorsAvailable": "Available colours",
+    "colorUnavailable": "Unavailable",
+    "descriptionTitle": "Description"
   },
   "cart": {
     "title": "Your cart",

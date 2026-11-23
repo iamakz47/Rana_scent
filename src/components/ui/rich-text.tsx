@@ -15,7 +15,8 @@ export function parseRichText(input: string): Block[] {
   const lines = input.replace(/\r\n?/g, "\n").split("\n");
   let paragraph: string[] = [];
   const flush = () => {
-    if (paragraph.length) blocks.push({ kind: "p", text: paragraph.join(" ") });
+    // Line breaks inside a paragraph are kept as typed.
+    if (paragraph.length) blocks.push({ kind: "p", text: paragraph.join("\n") });
     paragraph = [];
   };
   for (const raw of lines) {
@@ -24,7 +25,8 @@ export function parseRichText(input: string): Block[] {
       flush();
       continue;
     }
-    const heading = line.match(/^#{1,3}\s+(.*)$/);
+    // "## Heading", or a short line ending with a colon ("المميزات:").
+    const heading = line.match(/^#{1,3}\s+(.*)$/) ?? line.match(/^([^.!؟?]{1,60}[:：])$/);
     const bullet = line.match(/^[-•*]\s+(.*)$/);
     const numbered = line.match(/^\d+[.)]\s+(.*)$/);
     if (heading) {
@@ -45,7 +47,12 @@ export function parseRichText(input: string): Block[] {
   return blocks;
 }
 
-export function RichText({ text, className, headingLevel = 3 }: { text: string; className?: string; headingLevel?: 2 | 3 }) {
+export function RichText({
+  text,
+  className,
+  headingLevel = 3,
+  ...rest
+}: { text: string; className?: string; headingLevel?: 2 | 3; "data-testid"?: string }) {
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const blocks = parseRichText(text);
   const out: ReactNode[] = blocks.map((block, index) => {
@@ -73,8 +80,16 @@ export function RichText({ text, className, headingLevel = 3 }: { text: string; 
           </ol>
         );
       default:
-        return <p key={index}>{block.text}</p>;
+        return (
+          <p key={index} className="whitespace-pre-line">
+            {block.text}
+          </p>
+        );
     }
   });
-  return <div className={cn("space-y-3 leading-relaxed text-ink-soft", className)}>{out}</div>;
+  return (
+    <div className={cn("space-y-3 leading-relaxed text-ink-soft", className)} {...rest}>
+      {out}
+    </div>
+  );
 }
