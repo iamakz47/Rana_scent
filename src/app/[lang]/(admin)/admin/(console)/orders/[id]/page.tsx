@@ -399,37 +399,57 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
 
 type Db = Awaited<ReturnType<typeof createClient>>;
 
-// Free-fragrance choices and offer breakdowns live in tables added by later
-// migrations. Until they are applied, load the order without them rather
-// than failing.
+type Fragrance = { device_no: number; slot: number; name_ar: string; name_en: string };
+
+// Free-fragrance choices live in a table added by the Phase 5 migration.
+// Until it is applied, load the order without them rather than failing.
+// This query is unchanged from before offers existed: the offer breakdown
+// (added by a later migration) is fetched separately below, rather than
+// folded into this same nested select, so it can never affect it.
 async function loadOrder(supabase: Db, id: string) {
   const full = await supabase
     .from("orders")
-    .select(
-      `*, order_items(*, order_item_fragrances(device_no, slot, name_ar, name_en),
-         order_item_components(*, order_item_component_fragrances(device_no, slot, name_ar, name_en))), payments(*)`,
-    )
+    .select("*, order_items(*, order_item_fragrances(device_no, slot, name_ar, name_en)), payments(*)")
     .eq("id", id)
     .maybeSingle();
-  if (!full.error) return full;
-  const basic = await supabase.from("orders").select("*, order_items(*), payments(*)").eq("id", id).maybeSingle();
-  if (!basic.data) return { data: null, error: basic.error };
-  const data = {
-    ...basic.data,
-    order_items: basic.data.order_items.map((item) => ({
-      ...item,
-      order_item_fragrances: [] as Array<{ device_no: number; slot: number; name_ar: string; name_en: string }>,
-      order_item_components: [] as Array<{
-        id: number;
-        name_ar: string;
-        name_en: string;
-        variant_label_ar: string;
-        variant_label_en: string;
-        color_hex: string | null;
-        quantity: number;
-        order_item_component_fragrances: Array<{ device_no: number; slot: number; name_ar: string; name_en: string }>;
-      }>,
-    })),
+
+  let orderData: (typeof full.data & { order_items: Array<{ id: string; order_item_fragrances: Fragrance[] }> }) | null = null;
+  let orderError = full.error;
+  if (!full.error && full.data) {
+    orderData = full.data;
+    orderError = null;
+  } else {
+    const basic = await supabase.from("orders").select("*, order_items(*), payments(*)").eq("id", id).maybeSingle();
+    if (basic.data) {
+      orderData = {
+        ...basic.data,
+        order_items: basic.data.order_items.map((item) => ({ ...item, order_item_fragrances: [] as Fragrance[] })),
+      };
+      orderError = null;
+    } else {
+      orderError = basic.error;
+    }
+  }
+  if (!orderData) return { data: null, error: orderError };
+
+  const itemIds = orderData.order_items.map((item) => item.id);
+  const components = itemIds.length
+    ? await supabase
+        .from("order_item_components")
+        .select("*, order_item_component_fragrances(device_no, slot, name_ar, name_en)")
+        .in("order_item_id", itemIds)
+        .order("position")
+    : { data: [] };
+  const byOrderItem = new Map<string, NonNullable<typeof components.data>>();
+  for (const row of components.data ?? []) {
+    byOrderItem.set(row.order_item_id, [...(byOrderItem.get(row.order_item_id) ?? []), row]);
+  }
+
+  return {
+    data: {
+      ...orderData,
+      order_items: orderData.order_items.map((item) => ({ ...item, order_item_components: byOrderItem.get(item.id) ?? [] })),
+    },
+    error: null,
   };
-  return { data, error: null };
 }
