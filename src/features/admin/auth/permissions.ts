@@ -51,6 +51,7 @@ export const adminSections = [
   { key: "customers", href: "/admin/customers", permission: "customers.read" },
   { key: "homepage", href: "/admin/homepage", permission: "content.write" },
   { key: "media", href: "/admin/media", permission: "media.write" },
+  { key: "offers", href: "/admin/offers", permission: "catalog.read" },
   { key: "promotions", href: "/admin/promotions", permission: "marketing.write" },
   { key: "finance", href: "/admin/finance", permission: "finance.read" },
   { key: "settings", href: "/admin/settings", permission: "settings.write" },

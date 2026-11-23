@@ -20,6 +20,19 @@ export function normalizeKuwaitPhone(input: string): string | null {
 
 const text = (min: number, max: number) => z.string().trim().min(min).max(max);
 
+// An offer added to cart as one bundle: the item's own variant_id/quantity
+// are the offer's own placeholder (billed at the owner's flat price); this
+// carries the real included products the cart line resolved to, so the
+// server can reserve their stock. Quantities per component, and which
+// products the offer contains, are never taken from the browser: the server
+// re-derives them from the offer itself and only trusts which colour/
+// fragrances the customer picked.
+const bundleComponentInputSchema = z.object({
+  item_product_id: z.uuid(),
+  variant_id: z.uuid(),
+  fragrances: z.array(z.uuid()).max(2).optional(),
+});
+
 export const cartItemsSchema = z
   .array(
     z.object({
@@ -27,6 +40,7 @@ export const cartItemsSchema = z
       quantity: z.number().int().min(1).max(20),
       // Free fragrance choices per device; the server checks the count.
       fragrances: z.array(z.uuid()).max(2).optional(),
+      bundle: z.object({ components: z.array(bundleComponentInputSchema).min(1).max(20) }).optional(),
     }),
   )
   .min(1)
@@ -89,5 +103,5 @@ export const knownCheckoutErrors = new Set([
   "payment_method_unavailable", "too_many_orders", "cart_empty", "cart_invalid", "item_unavailable",
   "out_of_stock", "quantity_invalid", "discount_invalid", "discount_used_up", "discount_minimum",
   "delivery_unavailable", "fragrance_selection_required", "fragrance_unavailable", "fragrance_invalid",
-  "fragrance_duplicate",
+  "fragrance_duplicate", "discount_blocked_by_offer",
 ]);

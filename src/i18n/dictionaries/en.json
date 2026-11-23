@@ -441,7 +441,8 @@
       "fragrance_selection_required": "Choose the free fragrances for each device in your cart.",
       "fragrance_unavailable": "One of your chosen free fragrances is no longer available. Please choose another in your cart.",
       "fragrance_invalid": "Your free fragrance choices need updating. Please review your cart.",
-      "fragrance_duplicate": "Please choose different free fragrances."
+      "fragrance_duplicate": "Please choose different free fragrances.",
+      "discount_blocked_by_offer": "Discount codes can't be combined with an offer in your cart."
     }
   },
   "order": {

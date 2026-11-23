@@ -148,6 +148,34 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
                             ))}
                         </span>
                       ) : null}
+                      {item.order_item_components.length ? (
+                        <span className="mt-1 block rounded-lg bg-ink/5 px-2 py-1 text-[0.75rem] text-ink-soft" data-testid="admin-offer-components">
+                          {t.offers.orderIncludes}
+                          {item.order_item_components.map((comp) => (
+                            <span key={comp.id} className="flex items-center gap-1.5 py-0.5">
+                              {comp.color_hex ? (
+                                <span
+                                  aria-hidden
+                                  className="inline-block size-2.5 shrink-0 rounded-full border border-ink/15"
+                                  style={{ backgroundColor: comp.color_hex }}
+                                />
+                              ) : null}
+                              <span>
+                                {comp.quantity}× {locale === "ar" ? comp.name_ar : comp.name_en}
+                                {comp.variant_label_ar || comp.variant_label_en
+                                  ? ` (${locale === "ar" ? comp.variant_label_ar : comp.variant_label_en})`
+                                  : ""}
+                                {comp.order_item_component_fragrances.length
+                                  ? ` — ${comp.order_item_component_fragrances
+                                      .sort((a, b) => a.device_no - b.device_no || a.slot - b.slot)
+                                      .map((f) => (locale === "ar" ? f.name_ar : f.name_en))
+                                      .join(locale === "ar" ? "، " : ", ")}`
+                                  : ""}
+                              </span>
+                            </span>
+                          ))}
+                        </span>
+                      ) : null}
                     </td>
                     <td className="py-2 text-end tabular-nums">{item.quantity}</td>
                     <td className="py-2 text-end tabular-nums">{money(item.unit_price_fils)}</td>
@@ -371,12 +399,16 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
 
 type Db = Awaited<ReturnType<typeof createClient>>;
 
-// Free-fragrance choices live in a table added by the Phase 5 migration. Until
-// that migration is applied, load the order without them rather than failing.
+// Free-fragrance choices and offer breakdowns live in tables added by later
+// migrations. Until they are applied, load the order without them rather
+// than failing.
 async function loadOrder(supabase: Db, id: string) {
   const full = await supabase
     .from("orders")
-    .select("*, order_items(*, order_item_fragrances(device_no, slot, name_ar, name_en)), payments(*)")
+    .select(
+      `*, order_items(*, order_item_fragrances(device_no, slot, name_ar, name_en),
+         order_item_components(*, order_item_component_fragrances(device_no, slot, name_ar, name_en))), payments(*)`,
+    )
     .eq("id", id)
     .maybeSingle();
   if (!full.error) return full;
@@ -384,7 +416,20 @@ async function loadOrder(supabase: Db, id: string) {
   if (!basic.data) return { data: null, error: basic.error };
   const data = {
     ...basic.data,
-    order_items: basic.data.order_items.map((item) => ({ ...item, order_item_fragrances: [] as Array<{ device_no: number; slot: number; name_ar: string; name_en: string }> })),
+    order_items: basic.data.order_items.map((item) => ({
+      ...item,
+      order_item_fragrances: [] as Array<{ device_no: number; slot: number; name_ar: string; name_en: string }>,
+      order_item_components: [] as Array<{
+        id: number;
+        name_ar: string;
+        name_en: string;
+        variant_label_ar: string;
+        variant_label_en: string;
+        color_hex: string | null;
+        quantity: number;
+        order_item_component_fragrances: Array<{ device_no: number; slot: number; name_ar: string; name_en: string }>;
+      }>,
+    })),
   };
   return { data, error: null };
 }

@@ -48,7 +48,8 @@ export const adminEn = {
     customers: "Customers",
     homepage: "Homepage",
     media: "Media library",
-    promotions: "Promotions",
+    offers: "Offers",
+    promotions: "Discount codes",
     finance: "Finance",
     settings: "Settings",
     policies: "Policies",
@@ -400,8 +401,8 @@ export const adminEn = {
       body: "Customer accounts and addresses will appear here once sign-up and checkout launch.",
     },
     promotions: {
-      title: "Promotions",
-      body: "Discount codes and promotional banners are modelled in the database. Their editor arrives with checkout, so codes can be validated server-side.",
+      title: "Discount codes",
+      body: "Enter a code, its kind (percentage or fixed amount) and its conditions. Product bundles themselves have their own section, \"Offers\".",
     },
     finance: {
       title: "Finance",
@@ -575,6 +576,10 @@ export const adminEn = {
     copySuffixEn: "copy",
     noColorsYet: "No colours yet: the product is sold as one item.",
     olderInfo: "Older information sections",
+  },
+  offers: {
+    // Order detail: the real products behind one offer line.
+    orderIncludes: "Includes:",
   },
   p5: {
     freeFragrances: "Free fragrances (customer preference, confirm on delivery)",

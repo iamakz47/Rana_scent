@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
@@ -44,6 +44,9 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
   const [{ slug }, locale, dict] = await Promise.all([params, getLocale(), getDictionary()]);
   const product = await getProduct(slug);
   if (!product) notFound();
+  // An offer is a product under the hood, but it is only ever shown and
+  // bought on its own dedicated page.
+  if (product.type === "bundle") redirect(localePath(locale, `/offers/${slug}`));
 
   const [related, compatible, contents, fragrances] = await Promise.all([
     getRelatedProducts(product),

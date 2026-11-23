@@ -50,7 +50,8 @@ export const adminAr: AdminDictionary = {
     customers: "العملاء",
     homepage: "الصفحة الرئيسية",
     media: "مكتبة الوسائط",
-    promotions: "العروض",
+    offers: "العروض",
+    promotions: "رموز الخصم",
     finance: "المالية",
     settings: "الإعدادات",
     policies: "السياسات",
@@ -402,8 +403,8 @@ export const adminAr: AdminDictionary = {
       body: "ستظهر حسابات العملاء وعناوينهم هنا عند إطلاق التسجيل والدفع.",
     },
     promotions: {
-      title: "العروض",
-      body: "رموز الخصم والعروض مصممة في قاعدة البيانات، ويأتي محررها مع الدفع ليتم التحقق من الرموز على الخادم.",
+      title: "رموز الخصم",
+      body: "أدخل كود الخصم ونوعه (نسبة أو مبلغ ثابت) وشروطه. عروض المنتجات نفسها (الباقات) لها صفحة خاصة في \"العروض\".",
     },
     finance: {
       title: "المالية",
@@ -577,6 +578,10 @@ export const adminAr: AdminDictionary = {
     copySuffixEn: "copy",
     noColorsYet: "لا توجد ألوان بعد: يُباع المنتج كقطعة واحدة.",
     olderInfo: "أقسام المعلومات السابقة",
+  },
+  offers: {
+    // Order detail: the real products behind one offer line.
+    orderIncludes: "يشمل:",
   },
   p5: {
     freeFragrances: "العطور المجانية (تفضيل العميل، تُؤكد عند التوصيل)",

@@ -14,7 +14,10 @@ export async function listProducts(
 ): Promise<Product[]> {
   const { products } = await loadCatalog();
   const { category, ...rest } = filter ?? {};
-  const scoped = category ? products.filter((product) => product.categories?.includes(category)) : products;
+  // Offers have their own dedicated listing (/offers) and purchase flow;
+  // they never appear in the regular shop grid.
+  const base = products.filter((product) => product.type !== "bundle");
+  const scoped = category ? base.filter((product) => product.categories?.includes(category)) : base;
   return filterProducts(scoped, { type: [], family: [], inStock: false, ...rest });
 }
 
@@ -65,7 +68,7 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
 
   const { products } = await loadCatalog();
   return products
-    .filter((candidate) => candidate.id !== product.id)
+    .filter((candidate) => candidate.id !== product.id && candidate.type !== "bundle")
     .map((candidate) => ({ candidate, value: score(candidate) }))
     .sort((a, b) => b.value - a.value)
     .slice(0, limit)
