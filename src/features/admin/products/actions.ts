@@ -186,11 +186,13 @@ export async function deleteProduct(_prev: ActionResult, formData: FormData): Pr
   if (!id.success) return { status: "error", message: t.common.error };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.from("products").delete().eq("id", id.data).neq("status", "published").select("id");
+  const { data, error } = await supabase.from("products").delete().eq("id", id.data).neq("status", "published").select("id, type");
   if (error) {
     return { status: "error", message: error.code === "23503" ? t.products.cannotDelete : dbErrorMessage(error, t) };
   }
   if (!data?.length) return { status: "error", message: t.common.noPermissionAction };
   refreshStorefront();
-  redirect(localePath(actionLocale(formData), "/admin/products"));
+  // An offer is a product (type='bundle') but lives under its own section.
+  const back = data[0].type === "bundle" ? "/admin/offers" : "/admin/products";
+  redirect(localePath(actionLocale(formData), back));
 }
