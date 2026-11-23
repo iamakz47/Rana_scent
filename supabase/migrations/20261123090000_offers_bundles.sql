@@ -145,6 +145,10 @@ create policy "Customers and order staff read bundle components" on public.order
   );
 revoke all on public.order_item_components from anon;
 revoke insert, update, delete, truncate on public.order_item_components from authenticated;
+-- Production does not grant table privileges to the API roles
+-- automatically; RLS still decides which rows are visible.
+grant select on public.order_item_components to authenticated;
+grant all on public.order_item_components to service_role;
 
 -- Free-fragrance preferences of a component, same shape as order_item_fragrances
 -- but scoped to one included product within one bundle line.
@@ -173,6 +177,8 @@ create policy "Customers and order staff read bundle fragrance choices" on publi
   );
 revoke all on public.order_item_component_fragrances from anon;
 revoke insert, update, delete, truncate on public.order_item_component_fragrances from authenticated;
+grant select on public.order_item_component_fragrances to authenticated;
+grant all on public.order_item_component_fragrances to service_role;
 
 -- ---------------------------------------------------------------------------
 -- Admin write: save_offer
