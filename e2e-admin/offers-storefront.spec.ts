@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
+import { CRON_SECRET } from "../playwright.admin.config";
 
 // Offers (bundles) only ever come from the live Supabase catalogue
 // (features/offers/data.ts returns [] against the Phase 1 sample catalog),
@@ -166,8 +167,11 @@ async function removeOffer(db: SupabaseClient) {
 test.describe("offers", () => {
   test.skip(!supabase, "needs CATALOG_SOURCE=supabase against the local Supabase stack (see e2e-admin/global-setup.ts)");
 
-  test.beforeAll(async () => {
+  test.beforeAll(async ({ request }) => {
     await seedOffer(supabase!);
+    // The storefront caches the catalogue: refresh it so the new offer shows.
+    const res = await request.post("/api/revalidate", { headers: { Authorization: `Bearer ${CRON_SECRET}` } });
+    expect(res.status()).toBe(200);
   });
 
   test.afterAll(async () => {
