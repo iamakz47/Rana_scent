@@ -6,9 +6,10 @@ import { isLiveCatalog } from "@/features/catalog/source";
 import { accountsEnabled } from "@/features/account/config";
 import { getDirection } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
+import { getStoreContact } from "@/features/contact/store-contact";
 
 export default async function StoreLayout({ children }: LayoutProps<"/[lang]">) {
-  const [locale, dict] = await Promise.all([getLocale(), getDictionary()]);
+  const [locale, dict, contact] = await Promise.all([getLocale(), getDictionary(), getStoreContact()]);
 
   return (
     <StoreProviders locale={locale} dir={getDirection(locale)} dict={dict} checkoutEnabled={isLiveCatalog()}
@@ -31,7 +32,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/[lang]">) 
           {dict.common.sampleNotice}
         </p>
       )}
-      <SiteFooter locale={locale} dict={dict} />
+      <SiteFooter locale={locale} dict={dict} contact={contact} />
       <CartDrawer />
     </StoreProviders>
   );

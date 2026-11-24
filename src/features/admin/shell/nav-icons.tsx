@@ -72,6 +72,18 @@ const paths: Record<AdminSectionKey, ReactNode> = {
       <path d="M12 3.5v2.2M12 18.3v2.2M20.5 12h-2.2M5.7 12H3.5M18 6l-1.6 1.6M7.6 16.4 6 18M18 18l-1.6-1.6M7.6 7.6 6 6" />
     </>
   ),
+  messages: (
+    <>
+      <path d="M4 5.5h16v11H9l-5 4z" />
+      <path d="M8 10h8M8 13h5" />
+    </>
+  ),
+  pages: (
+    <>
+      <path d="M5 3.5h10l4 4v13H5z" />
+      <path d="M8.5 11h7M8.5 14.5h7M8.5 18h4" />
+    </>
+  ),
   policies: (
     <>
       <path d="M7 3.5h7.5L19 8v12.5H7z" />

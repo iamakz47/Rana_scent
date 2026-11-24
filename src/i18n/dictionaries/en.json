@@ -259,7 +259,28 @@
       "emailField": "Email",
       "message": "Message",
       "send": "Send message",
-      "formSoon": "The contact form will be connected before launch."
+      "formIntro": "Leave an email or a phone number so we can reply.",
+      "phoneField": "Phone (optional)",
+      "emailOptional": "Email (optional)",
+      "sending": "Sending…",
+      "sent": "Thank you. Your message has reached us, and we'll get back to you soon.",
+      "sendAnother": "Send another message",
+      "whatsapp": "Chat on WhatsApp",
+      "call": "Call us",
+      "emailUs": "Email us",
+      "instagram": "Instagram",
+      "quickContact": "Prefer to talk?",
+      "errors": {
+        "name": "Please enter your name.",
+        "replyTo": "Please leave an email or a phone number so we can reply.",
+        "email": "Please check the email address.",
+        "phone": "Please check the phone number.",
+        "message": "Please write a message of at least 10 characters.",
+        "spam": "Your message looks like spam. Please remove the links and try again.",
+        "rateLimited": "You've sent several messages already. Please try again a little later, or reach us on WhatsApp.",
+        "unavailable": "The form isn't available right now. Please reach us on WhatsApp or by phone.",
+        "generic": "Something went wrong. Please try again."
+      }
     },
     "faq": {
       "title": "Frequently asked questions",

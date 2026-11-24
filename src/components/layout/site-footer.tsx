@@ -2,8 +2,11 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { localePath, type Locale } from "@/i18n/config";
+import { telHref, whatsappHref, type StoreContact } from "@/features/contact/channels";
 
-export function SiteFooter({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+export function SiteFooter({ locale, dict, contact }: { locale: Locale; dict: Dictionary; contact?: StoreContact }) {
+  const whatsapp = contact?.whatsapp ? whatsappHref(contact.whatsapp) : null;
+  const call = contact?.phone ? telHref(contact.phone) : null;
   const columns = [
     {
       title: dict.footer.shop,
@@ -39,6 +42,21 @@ export function SiteFooter({ locale, dict }: { locale: Locale; dict: Dictionary 
         <div className="max-w-xs">
           <Logo label={dict.meta.title} className="text-[1.15rem]" />
           <p className="mt-6 text-ink-soft">{dict.footer.tagline}</p>
+          {/* Quick contact, from Admin → Settings. */}
+          {whatsapp || call ? (
+            <div className="mt-6 flex flex-wrap gap-2" data-testid="footer-contact">
+              {whatsapp ? (
+                <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full border border-ink/20 px-4 text-step--1 text-ink transition-colors hover:border-gold">
+                  {dict.pages.contact.whatsapp}
+                </a>
+              ) : null}
+              {call ? (
+                <a href={call} className="inline-flex min-h-11 items-center rounded-full border border-ink/20 px-4 text-step--1 text-ink transition-colors hover:border-gold">
+                  {dict.pages.contact.call}
+                </a>
+              ) : null}
+            </div>
+          ) : null}
         </div>
         {columns.map((column) => (
           <nav key={column.title} aria-label={column.title}>
