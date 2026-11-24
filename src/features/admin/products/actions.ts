@@ -36,6 +36,11 @@ export async function saveProduct(_prev: ActionResult, formData: FormData): Prom
   }
 
   const supabase = await createClient();
+  // An offer is never edited (or converted) through the product editor.
+  if (parsed.data.id) {
+    const { data: existing } = await supabase.from("products").select("type").eq("id", parsed.data.id).maybeSingle();
+    if (existing?.type === "bundle") return { status: "error", message: t.common.noPermissionAction };
+  }
   const { data: id, error } = await supabase.rpc("save_product", {
     payload: {
       ...toPayload(parsed.data, specs),
@@ -99,7 +104,8 @@ export async function duplicateProduct(_prev: ActionResult, formData: FormData):
   const sourceId = z.uuid().safeParse(formData.get("entity_id"));
   if (!sourceId.success) return { status: "error", message: t.common.error };
   const row = await getAdminProduct(sourceId.data);
-  if (!row) return { status: "error", message: t.common.error };
+  // Offers have their own duplicate (it also copies what they include).
+  if (!row || row.type === "bundle") return { status: "error", message: t.common.error };
 
   const tag = Math.random().toString(36).slice(2, 6).toUpperCase();
   const variants = [...row.product_variants].sort((a, b) => a.position - b.position);

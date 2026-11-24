@@ -20,6 +20,8 @@ export async function listAdminProducts(status?: ProductStatus, options: { searc
        product_variants(id, price_fils, is_active, inventory(on_hand)),
        product_media(position, media_assets(${mediaColumns}))`,
     )
+    // Offers are products too (type "bundle") but are managed in Admin → Offers.
+    .neq("type", "bundle")
     .order("position")
     .order("created_at");
   query = status ? query.eq("status", status) : query.neq("status", "archived");
@@ -72,7 +74,7 @@ export async function getProductFormOptions(excludeId?: string) {
   const [categories, scents, products, media] = await Promise.all([
     supabase.from("categories").select("id, name_ar, name_en, product_type").is("archived_at", null).order("position"),
     supabase.from("scent_families").select("id, slug, name_ar, name_en").order("position"),
-    supabase.from("products").select("id, name_ar, name_en, type").neq("status", "archived").order("position"),
+    supabase.from("products").select("id, name_ar, name_en, type").neq("status", "archived").neq("type", "bundle").order("position"),
     supabase.from("media_assets").select(mediaColumns).order("created_at", { ascending: false }).limit(200),
   ]);
   return {

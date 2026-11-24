@@ -326,7 +326,7 @@ export const adminAr: AdminDictionary = {
       scent_library: "تجربة العطر",
       story: "قصة العلامة",
       finder: "اعثر على فواحك",
-      sets: "المجموعات",
+      sets: "العروض",
     } as Record<string, string>,
     sectionsSaved: "تم حفظ الأقسام.",
     featuredHint: "تُختار المنتجات المميزة من صفحة كل منتج (مميز في الصفحة الرئيسية).",

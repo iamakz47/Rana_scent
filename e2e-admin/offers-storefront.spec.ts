@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 // Offers (bundles) only ever come from the live Supabase catalogue
 // (features/offers/data.ts returns [] against the Phase 1 sample catalog),
@@ -147,6 +147,16 @@ async function seedOffer(db: SupabaseClient): Promise<Seeded> {
   return { bundleId: bundle.id, diffuserId: diffuser.id, accessoryId: accessory.id, refillId: refill.id };
 }
 
+// Clicks a colour pill (the visible label; the radio itself is visually
+// hidden) until the page has hydrated and the selection shows it.
+async function chooseColour(page: Page, label: string) {
+  const control = page.getByTestId(`offer-item-color-${DIFFUSER_SLUG}`);
+  await expect(async () => {
+    await control.getByText(label, { exact: true }).click();
+    await expect(control.locator("legend")).toContainText(label, { timeout: 1_000 });
+  }).toPass();
+}
+
 async function removeOffer(db: SupabaseClient) {
   const { data: bundle } = await db.from("products").select("id").eq("slug", BUNDLE_SLUG).maybeSingle();
   if (bundle) await db.from("products").delete().eq("id", bundle.id);
@@ -186,15 +196,18 @@ test.describe("offers", () => {
     await page.goto(`/en/offers/${BUNDLE_SLUG}`);
     const colorControl = page.getByTestId(`offer-item-color-${DIFFUSER_SLUG}`);
     await expect(colorControl).toContainText("Gold");
-    await colorControl.getByRole("radio", { name: "Silver" }).click();
-    await expect(colorControl).toContainText("Silver");
+    await chooseColour(page, "Silver");
+    await expect(colorControl.locator("legend")).toContainText("Silver");
   });
 
   test("add-to-cart is blocked until the required fragrance is chosen", async ({ page }) => {
     await page.goto(`/en/offers/${BUNDLE_SLUG}`);
     const addButton = page.getByTestId("offer-add-to-cart");
-    await addButton.click();
-    await expect(page.getByRole("alert")).toContainText("Complete your colour and fragrance choices");
+    const reminder = page.getByRole("alert").filter({ hasText: "Complete your colour and fragrance choices" });
+    await expect(async () => {
+      await addButton.click();
+      await expect(reminder).toBeVisible({ timeout: 1_000 });
+    }).toPass();
     await expect(page.getByRole("dialog", { name: /Your cart/ })).toBeHidden();
 
     await page.getByTestId(`offer-item-fragrances-${DIFFUSER_SLUG}`).getByRole("combobox").selectOption({ label: "E2E Offer Fragrance" });
@@ -218,20 +231,21 @@ test.describe("offers", () => {
 
     // Same offer again, this time with the Silver diffuser: a second, distinct line.
     await page.goto(`/en/offers/${BUNDLE_SLUG}`);
-    await page.getByTestId(`offer-item-color-${DIFFUSER_SLUG}`).getByRole("radio", { name: "Silver" }).click();
+    await chooseColour(page, "Silver");
     await page.getByTestId(`offer-item-fragrances-${DIFFUSER_SLUG}`).getByRole("combobox").selectOption({ label: "E2E Offer Fragrance" });
     await page.getByTestId("offer-add-to-cart").click();
 
     await page.goto("/en/cart");
-    const lines = page.getByTestId("line-bundle");
+    // The cart page itself (the closed drawer repeats the same lines).
+    const lines = page.locator("main").getByTestId("line-bundle");
     await expect(lines).toHaveCount(2);
     await expect(lines.filter({ hasText: "Gold" })).toHaveCount(1);
     await expect(lines.filter({ hasText: "Silver" })).toHaveCount(1);
 
     // Adjust quantity on one line, then remove it.
-    const firstLine = page.locator("li").filter({ has: lines.first() }).first();
+    const firstLine = page.locator("main li").filter({ has: page.getByTestId("line-bundle") }).first();
     await firstLine.getByRole("button", { name: "Increase quantity" }).click();
     await firstLine.getByRole("button", { name: "Remove" }).click();
-    await expect(page.getByTestId("line-bundle")).toHaveCount(1);
+    await expect(lines).toHaveCount(1);
   });
 });

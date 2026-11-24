@@ -12,6 +12,7 @@ import { RichText } from "@/components/ui/rich-text";
 import { hasColorChoice, lowestPrice, productStock } from "@/features/catalog/types";
 import { localePath, locales } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
+import { isLiveCatalog } from "@/features/catalog/source";
 import { getSiteUrl } from "@/lib/env";
 import { FILS_PER_KWD } from "@/lib/money";
 
@@ -46,7 +47,8 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
   if (!product) notFound();
   // An offer is a product under the hood, but it is only ever shown and
   // bought on its own dedicated page.
-  if (product.type === "bundle") redirect(localePath(locale, `/offers/${slug}`));
+  // (With the preview catalogue there are no offers, so sample sets stay here.)
+  if (product.type === "bundle" && isLiveCatalog()) redirect(localePath(locale, `/offers/${slug}`));
 
   const [related, compatible, contents, fragrances] = await Promise.all([
     getRelatedProducts(product),

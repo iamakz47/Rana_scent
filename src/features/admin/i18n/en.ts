@@ -324,7 +324,7 @@ export const adminEn = {
       scent_library: "Scent experience",
       story: "Brand story",
       finder: "Find your diffuser",
-      sets: "Sets",
+      sets: "Offers",
     } as Record<string, string>,
     sectionsSaved: "Sections saved.",
     featuredHint: "Featured products are chosen on each product (Featured on the homepage).",

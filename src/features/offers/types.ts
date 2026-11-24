@@ -12,6 +12,8 @@ export type OfferItemChoice = {
   colorHex?: string;
   priceFils: Fils;
   stock: number;
+  // This colour's own main photo (or the product's shared photo).
+  image?: ProductImage;
 };
 
 export type OfferItem = {

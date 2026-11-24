@@ -2,7 +2,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 import { CATALOG_TAG } from "@/features/catalog/cache-tags";
 import { isLiveCatalog, loadCatalog } from "@/features/catalog/source";
-import { defaultVariant as defaultProductVariant, type Product, type ProductVariant } from "@/features/catalog/types";
+import { defaultVariant as defaultProductVariant, variantImages, type Product, type ProductVariant } from "@/features/catalog/types";
 import { computeSavings, type Offer, type OfferItem, type OfferItemChoice } from "./types";
 
 // Offers are read from Supabase directly (locked colours and scheduling
@@ -35,8 +35,17 @@ async function loadBundleRows(): Promise<Map<string, BundleRow>> {
   return new Map(data.map((row) => [row.id, row as BundleRow]));
 }
 
-function toChoice(variant: ProductVariant): OfferItemChoice {
-  return { variantId: variant.id, label: variant.label, colorHex: variant.colorHex, priceFils: variant.priceFils, stock: variant.stock };
+// Each colour carries its own photo, so the offer page can switch photos
+// instantly when the customer changes colour (colour-only photos included).
+function toChoice(product: Product, variant: ProductVariant): OfferItemChoice {
+  return {
+    variantId: variant.id,
+    label: variant.label,
+    colorHex: variant.colorHex,
+    priceFils: variant.priceFils,
+    stock: variant.stock,
+    image: variantImages(product, variant)[0],
+  };
 }
 
 function isCurrentlyValid(row: BundleRow): boolean {
@@ -46,7 +55,14 @@ function isCurrentlyValid(row: BundleRow): boolean {
   return true;
 }
 
+// Cached for a few minutes: the schedule check reads the clock, which may
+// only happen inside a cache scope (never while prerendering a page), and
+// start/end times then take effect within minutes. Admin saves refresh it
+// through CATALOG_TAG.
 async function buildOffers(): Promise<Offer[]> {
+  "use cache";
+  cacheTag(CATALOG_TAG);
+  cacheLife("minutes");
   if (!isLiveCatalog()) return [];
   const [{ products }, bundleRows] = await Promise.all([loadCatalog(), loadBundleRows()]);
   const byId = new Map(products.map((p) => [p.id, p] as [string, Product]));
@@ -81,11 +97,11 @@ async function buildOffers(): Promise<Offer[]> {
         productId: item.id,
         productSlug: item.slug,
         name: item.name,
-        image: item.images[0],
+        image: variantImages(item, unit)[0] ?? item.images[0],
         quantity: link.quantity,
-        lockedVariant: lockedVariant ? toChoice(lockedVariant) : undefined,
-        choices: lockedVariant ? [] : item.variants.map(toChoice),
-        defaultVariant: toChoice(unit),
+        lockedVariant: lockedVariant ? toChoice(item, lockedVariant) : undefined,
+        choices: lockedVariant ? [] : item.variants.map((v) => toChoice(item, v)),
+        defaultVariant: toChoice(item, unit),
         freeFragrances: item.freeFragrances,
       });
     }
@@ -98,7 +114,8 @@ async function buildOffers(): Promise<Offer[]> {
       variantId: placeholder.id,
       name: product.name,
       description: product.description,
-      image: product.images[0],
+      // The offer's own photo, else the first included product's photo.
+      image: product.images[0] ?? items[0]?.image,
       priceFils: placeholder.priceFils,
       originalPriceFils,
       savingsFils,

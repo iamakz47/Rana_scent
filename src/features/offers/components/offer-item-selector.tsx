@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, m } from "motion/react";
 import { ProductVisual } from "@/components/brand/product-visual";
 import { Swatch } from "@/features/catalog/components/color-selection";
 import { FreeFragrancePicker } from "@/features/catalog/components/free-fragrance-picker";
@@ -33,16 +34,35 @@ export function OfferItemSelector({
   const { locale, dict } = useI18n();
   const selected: OfferItemChoice =
     item.lockedVariant ?? item.choices.find((choice) => choice.variantId === colorValue) ?? item.defaultVariant;
+  const photo = selected.image ?? item.image;
 
   return (
     <li className="flex gap-4 border-b border-ink/10 py-6 last:border-b-0">
-      <ProductVisual
-        src={item.image?.src}
-        alt={item.image?.alt[locale] ?? item.name[locale]}
-        pendingLabel={dict.common.photoComingSoon}
-        sizes="112px"
-        className="size-24 shrink-0 rounded-2xl bg-beige sm:size-28"
-      />
+      {/* The selected colour's photo, fading in when the colour changes. */}
+      <div
+        className="relative size-24 shrink-0 overflow-hidden rounded-2xl bg-beige sm:size-28"
+        data-testid={`offer-item-photo-${item.productSlug}`}
+        data-src={photo?.src ?? ""}
+      >
+        <AnimatePresence initial={false} mode="popLayout">
+          <m.div
+            key={photo?.src ?? "none"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0"
+          >
+            <ProductVisual
+              src={photo?.src}
+              alt={photo?.alt[locale] ?? item.name[locale]}
+              pendingLabel={dict.common.photoComingSoon}
+              sizes="112px"
+              className="h-full w-full"
+            />
+          </m.div>
+        </AnimatePresence>
+      </div>
       <div className="min-w-0 flex-1 space-y-3">
         <div className="flex items-baseline justify-between gap-3">
           <p className="font-medium text-ink">{item.name[locale]}</p>
