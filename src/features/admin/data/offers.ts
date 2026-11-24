@@ -140,6 +140,17 @@ function toDatetimeLocal(value: string | null): string {
   return local.slice(0, 16);
 }
 
+// False until the offers (and colour) database updates are applied, so the
+// admin can say so instead of failing.
+export async function offersAvailable(): Promise<boolean> {
+  const supabase = await createClient();
+  const [offers, colours] = await Promise.all([
+    supabase.from("products").select("offer_starts_at").limit(1),
+    supabase.from("product_variants").select("color_hex").limit(1),
+  ]);
+  return !offers.error && !colours.error;
+}
+
 export async function getOfferFormOptions(): Promise<OfferOptions> {
   const supabase = await createClient();
   const { data } = await supabase.from("media_assets").select(mediaColumns).order("created_at", { ascending: false }).limit(200);

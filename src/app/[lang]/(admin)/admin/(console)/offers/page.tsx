@@ -9,7 +9,7 @@ import { format } from "@/i18n/format";
 import { getAdminDictionary } from "@/features/admin/i18n";
 import { mediaUrl } from "@/features/media/url";
 import { OfferRowActions } from "@/features/admin/offers/offer-editor";
-import { AdminPageHeader, adminButton, Badge, EmptyState, statusTone } from "@/features/admin/ui/primitives";
+import { AdminPageHeader, adminButton, Badge, EmptyState, Notice, statusTone } from "@/features/admin/ui/primitives";
 import { cn } from "@/lib/cn";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,7 +24,16 @@ export default async function OffersPage({ searchParams }: PageProps<"/[lang]/ad
   const [{ locale, t }, query] = await Promise.all([getAdminDictionary(), searchParams]);
   const status = filters.includes(query.status as never) && query.status !== "all" ? (query.status as ProductStatus) : undefined;
   const q = typeof query.q === "string" ? query.q.trim().slice(0, 60) : "";
-  const offers = await listAdminOffers(status, { search: q });
+  // Before the offers database update, show a notice instead of an error page.
+  const offers = await listAdminOffers(status, { search: q }).catch(() => null);
+  if (!offers) {
+    return (
+      <div className="space-y-6">
+        <AdminPageHeader title={t.offers.title} body={t.offers.body} />
+        <Notice tone="danger">{t.offers.unavailable}</Notice>
+      </div>
+    );
+  }
   const writable = can(staff, "catalog.write");
   const href = (path: string) => localePath(locale, path);
   const listHref = (next: { status?: ProductStatus }) => {

@@ -582,6 +582,7 @@ export const adminAr: AdminDictionary = {
   offers: {
     // Order detail: the real products behind one offer line.
     orderIncludes: "يشمل:",
+    unavailable: "العروض غير متاحة بعد: لم يُطبَّق تحديث قاعدة البيانات الخاص بالعروض.",
 
     title: "العروض",
     body: "حزم من منتجات موجودة بسعر خاص واحد.",

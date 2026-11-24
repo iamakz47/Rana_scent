@@ -5,7 +5,7 @@ import { can, requireStaff } from "@/features/admin/auth/dal";
 import { getAdminOffer, getOfferFormOptions } from "@/features/admin/data/offers";
 import { getAdminDictionary } from "@/features/admin/i18n";
 import { OfferEditor } from "@/features/admin/offers/offer-editor";
-import { AdminPageHeader, Badge, statusTone } from "@/features/admin/ui/primitives";
+import { AdminPageHeader, Badge, Notice, statusTone } from "@/features/admin/ui/primitives";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getAdminDictionary();
@@ -16,7 +16,20 @@ export default async function EditOfferPage({ params, searchParams }: PageProps<
   const staff = await requireStaff("catalog.read");
   const [{ id }, query] = await Promise.all([params, searchParams]);
   if (!z.uuid().safeParse(id).success) notFound();
-  const [{ locale, t }, offer, options] = await Promise.all([getAdminDictionary(), getAdminOffer(id), getOfferFormOptions()]);
+  const [{ locale, t }, offer, options] = await Promise.all([
+    getAdminDictionary(),
+    // Before the offers database update this fails: show a notice instead.
+    getAdminOffer(id).catch(() => "unavailable" as const),
+    getOfferFormOptions(),
+  ]);
+  if (offer === "unavailable") {
+    return (
+      <div className="space-y-6">
+        <AdminPageHeader title={t.offers.title} />
+        <Notice tone="danger">{t.offers.unavailable}</Notice>
+      </div>
+    );
+  }
   if (!offer) notFound();
 
   return (

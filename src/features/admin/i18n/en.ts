@@ -580,6 +580,7 @@ export const adminEn = {
   offers: {
     // Order detail: the real products behind one offer line.
     orderIncludes: "Includes:",
+    unavailable: "Offers are not available yet: the database update for offers has not been applied.",
 
     title: "Offers",
     body: "Bundles of existing products at one special price.",
