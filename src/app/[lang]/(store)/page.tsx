@@ -91,7 +91,7 @@ export default async function HomePage() {
   ) as Record<Space, React.ReactNode>;
 
   const sections: Record<HomepageSectionKey, React.ReactNode> = {
-    categories: categories.length > 0 && <CategoryShowcase categories={categories} locale={locale} dict={dict} />,
+    categories: <CategoryShowcase categories={categories} locale={locale} dict={dict} offerImage={offers.find((offer) => offer.image)?.image} />,
     featured: featured.length > 0 && (
       <section aria-labelledby="featured-title" className="bg-canvas pb-24 lg:pb-32">
         <div className="container-page">
