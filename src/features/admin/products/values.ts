@@ -29,6 +29,15 @@ function simpleSpecs(specs: DeviceSpecs): ProductValues["simple_specs"] {
   ) as ProductValues["simple_specs"];
 }
 
+// The length × width × height inputs, as the text each one should show.
+function boxDimensions(specs: DeviceSpecs): ProductValues["dimensions"] {
+  return {
+    length: specs.length_cm !== undefined ? String(specs.length_cm) : "",
+    width: specs.width_cm !== undefined ? String(specs.width_cm) : "",
+    height: specs.height_cm !== undefined ? String(specs.height_cm) : "",
+  };
+}
+
 const randomSku = () => `RS-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 type Notes = { top?: { ar?: string; en?: string }; heart?: { ar?: string; en?: string }; base?: { ar?: string; en?: string } };
@@ -50,6 +59,7 @@ export const emptyProduct: ProductValues = {
   specs_confirmed: false,
   device_specs: {},
   simple_specs: Object.fromEntries(simpleSpecKeys.map((key) => [key, { ar: "", en: "" }])) as ProductValues["simple_specs"],
+  dimensions: { length: "", width: "", height: "" },
   info_sections: {},
   free_fragrances: "",
   free_fragrance_eligible: true,
@@ -88,6 +98,7 @@ export function toProductValues(row: NonNullable<Awaited<ReturnType<typeof getAd
     specs_confirmed: row.specs_confirmed,
     device_specs: parseDeviceSpecs(row.device_specs),
     simple_specs: simpleSpecs(parseDeviceSpecs(row.device_specs)),
+    dimensions: boxDimensions(parseDeviceSpecs(row.device_specs)),
     info_sections: parseInfoSections(row.info_sections),
     free_fragrances: row.free_fragrances === 1 ? "1" : row.free_fragrances === 2 ? "2" : "",
     free_fragrance_eligible: row.free_fragrance_eligible,

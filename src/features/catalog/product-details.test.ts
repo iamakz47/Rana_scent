@@ -5,7 +5,7 @@ import { productFormSchema, slugFromName } from "@/features/admin/products/schem
 import { toCartLine } from "@/features/cart/to-cart-line";
 import en from "@/i18n/dictionaries/en.json";
 import ar from "@/i18n/dictionaries/ar.json";
-import { parseDeviceSpecs, parseInfoSections, specRows } from "./product-details";
+import { boxDimensionsCm, boxDimensionsText, parseDeviceSpecs, parseInfoSections, specRows } from "./product-details";
 import { defaultVariant, hasColorChoice, variantImages, type Product } from "./types";
 
 const labels = (dict: typeof en) => ({ ...dict.product.specLabels, units: dict.product.specUnits, upTo: dict.product.specUpTo });
@@ -49,6 +49,26 @@ describe("the six device specifications", () => {
   });
 });
 
+describe("box dimensions (length × width × height, cm)", () => {
+  it("shows the formatted text only once all three are given", () => {
+    const specs = parseDeviceSpecs({ length_cm: 20, width_cm: 15, height_cm: 30 });
+    expect(boxDimensionsCm(specs)).toEqual({ length: 20, width: 15, height: 30 });
+    expect(boxDimensionsText(specs, "cm")).toBe("20 × 15 × 30 cm");
+    expect(boxDimensionsText(specs, "سم")).toBe("20 × 15 × 30 سم");
+  });
+
+  it("is hidden when any measurement is missing", () => {
+    expect(boxDimensionsCm(parseDeviceSpecs({ length_cm: 20, width_cm: 15 }))).toBeNull();
+    expect(boxDimensionsText(parseDeviceSpecs({}), "cm")).toBe("");
+    expect(boxDimensionsText(parseDeviceSpecs(null), "cm")).toBe("");
+  });
+
+  it("rejects a non-positive or oversized value, keeping other fields", () => {
+    const specs = parseDeviceSpecs({ length_cm: 20, width_cm: -5, height_cm: 2_000_000 });
+    expect(specs).toEqual({ length_cm: 20 });
+  });
+});
+
 describe("admin product details form", () => {
   const form = (entries: Record<string, string>) => {
     const data = new FormData();
@@ -81,6 +101,23 @@ describe("admin product details form", () => {
     expect(r.device_specs.warranty).toEqual({ ar: "سنة", en: "1 year" });
     // The old number is replaced by the text the owner now sees and edits.
     expect(r.device_specs.coverage_m2).toBeUndefined();
+  });
+
+  it("saves whichever of the three box dimensions are filled in, rejecting a non-positive value", () => {
+    const ok = readProductDetails(form({ length_cm: "20", height_cm: "30" }), "diffuser");
+    expect(ok.errors).toEqual({});
+    expect(ok.device_specs).toMatchObject({ length_cm: 20, height_cm: 30 });
+    expect(ok.device_specs.width_cm).toBeUndefined();
+
+    const noDimensions = readProductDetails(form({}), "diffuser");
+    expect(noDimensions.errors).toEqual({});
+    expect(noDimensions.device_specs.length_cm).toBeUndefined();
+
+    const negative = readProductDetails(form({ width_cm: "-5" }), "diffuser");
+    expect(negative.errors.dimensions).toBe("dimensions");
+
+    const notANumber = readProductDetails(form({ height_cm: "abc" }), "diffuser");
+    expect(notANumber.errors.dimensions).toBe("dimensions");
   });
 
   it("validates colour swatches and stock, and makes the English names optional", () => {

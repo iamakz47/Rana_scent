@@ -13,7 +13,7 @@ type Result = {
   info_sections: InfoSections;
   free_fragrances: "" | "1" | "2";
   free_fragrance_eligible: boolean;
-  errors: Record<string, "freeCount">;
+  errors: Record<string, "freeCount" | "dimensions">;
 };
 
 const get = (formData: FormData, key: string) => {
@@ -23,6 +23,9 @@ const get = (formData: FormData, key: string) => {
 
 // Values written before Phase 6 that the six simple fields now replace.
 const replacedKeys = ["coverage_m2", "capacity_ml", "colors"] as const;
+
+// The optional length × width × height box dimensions, in centimetres.
+const dimensionKeys = ["length_cm", "width_cm", "height_cm"] as const;
 
 export function readProductDetails(formData: FormData, type: string): Result {
   const errors: Result["errors"] = {};
@@ -35,13 +38,25 @@ export function readProductDetails(formData: FormData, type: string): Result {
     kept = {};
   }
   const specs: Record<string, unknown> = { ...kept };
-  for (const key of [...simpleSpecKeys, ...replacedKeys]) delete specs[key];
+  for (const key of [...simpleSpecKeys, ...replacedKeys, ...dimensionKeys]) delete specs[key];
 
   // The six specifications: Arabic is enough; English is optional.
   for (const key of simpleSpecKeys) {
     const ar = get(formData, `spec_${key}_ar`).slice(0, 400);
     const en = get(formData, `spec_${key}_en`).slice(0, 400);
     if (ar || en) specs[key] = { ar, en };
+  }
+
+  // Dimensions: each is optional, but a filled-in value must be a positive number.
+  for (const key of dimensionKeys) {
+    const raw = get(formData, key);
+    if (!raw) continue;
+    const value = Number(raw);
+    if (!Number.isFinite(value) || value <= 0 || value > 1_000_000) {
+      errors.dimensions = "dimensions";
+      continue;
+    }
+    specs[key] = value;
   }
 
   const info: Record<string, { ar: string; en: string }> = {};
