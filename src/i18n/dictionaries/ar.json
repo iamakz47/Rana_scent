@@ -42,6 +42,10 @@
   "home": {
     "libraryTitle": "تجربة العطر",
     "libraryBody": "خمس عائلات عطرية، لكل منها لونها. اختر المزاج، ثم العبوة.",
+    "libraryCta": "عرض العطر",
+    "libraryPrevious": "العطر السابق",
+    "libraryNext": "العطر التالي",
+    "libraryGoTo": "الانتقال إلى {name}",
     "storyTitle": "من العبوة إلى الأجواء",
     "storySteps": [
       {
