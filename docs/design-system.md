@@ -2,8 +2,8 @@
 
 A premium home-fragrance identity: warm ivory and beige carry the page,
 espresso carries type and primary actions, and muted gold is a quiet accent
-taken from the logo. Deep espresso sections (scent experience, footer,
-announcement bar) give the page contrast so it never reads as one flat beige.
+taken from the logo. Deep espresso sections (footer, announcement bar) give
+the page contrast so it never reads as one flat beige.
 
 ## Principles
 
@@ -45,8 +45,8 @@ Type scale: fluid `text-step--1` … `text-step-6`.
 ## Layout
 
 Header → hero slider → category quick access → featured products →
-fragrance collections → scent experience (dark) → find your diffuser →
-brand story → featured sets → footer (dark).
+fragrance collections → scent experience (light carousel) → find your
+diffuser → brand story → featured sets → footer (dark).
 
 The header is sticky and always visible; it never hides on scroll and has its
 own view-transition layer so navigation never cross-fades it.
@@ -59,7 +59,7 @@ own view-transition layer so navigation never cross-fades it.
 | Motion (`motion/react`) | Cart line items, badges, finder pill, wishlist heart |
 | GSAP + ScrollTrigger | The pinned brand story (≥1024px only) |
 | React `<ViewTransition>` | Card-to-product image morph, list reorders |
-| WebGL (`ScentField`) | The mist in the dark scent-experience section |
+| WebGL (`ScentField`) | Available for a future `.theme-dark` section; not currently used |
 
 All motion respects `prefers-reduced-motion` (the slider does not autoplay).
 

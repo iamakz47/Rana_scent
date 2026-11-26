@@ -42,6 +42,10 @@
   "home": {
     "libraryTitle": "The scent experience",
     "libraryBody": "Five families, each with its own colour. Choose a mood, then a refill.",
+    "libraryCta": "View fragrance",
+    "libraryPrevious": "Previous fragrance",
+    "libraryNext": "Next fragrance",
+    "libraryGoTo": "Go to {name}",
     "storyTitle": "From refill to atmosphere",
     "storySteps": [
       {
