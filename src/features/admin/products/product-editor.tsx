@@ -60,6 +60,7 @@ export type ProductValues = {
   specs_confirmed: boolean;
   device_specs: DeviceSpecs;
   simple_specs: Record<SimpleSpecKey, { ar: string; en: string }>;
+  dimensions: { length: string; width: string; height: string };
   info_sections: InfoSections;
   free_fragrances: "" | "1" | "2";
   free_fragrance_eligible: boolean;
@@ -653,6 +654,56 @@ export function ProductEditor({
               )}
             </div>
             <Checkbox label={c.showEnglish} checked={showEnglish} onChange={(e) => setShowEnglish(e.target.checked)} />
+
+            <div>
+              <p className="mb-1 text-step--1 font-medium text-ink">{c.dimensions}</p>
+              <p className="mb-3 text-[0.78rem] text-ink-soft">{c.dimensionsHint}</p>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field label={c.dimensionLength} htmlFor="length_cm">
+                  <TextInput
+                    id="length_cm"
+                    name="length_cm"
+                    type="number"
+                    inputMode="decimal"
+                    dir="ltr"
+                    min={0.1}
+                    max={1000000}
+                    step="any"
+                    placeholder={c.dimensionPlaceholder}
+                    defaultValue={values.dimensions.length}
+                  />
+                </Field>
+                <Field label={c.dimensionWidth} htmlFor="width_cm">
+                  <TextInput
+                    id="width_cm"
+                    name="width_cm"
+                    type="number"
+                    inputMode="decimal"
+                    dir="ltr"
+                    min={0.1}
+                    max={1000000}
+                    step="any"
+                    placeholder={c.dimensionPlaceholder}
+                    defaultValue={values.dimensions.width}
+                  />
+                </Field>
+                <Field label={c.dimensionHeight} htmlFor="height_cm">
+                  <TextInput
+                    id="height_cm"
+                    name="height_cm"
+                    type="number"
+                    inputMode="decimal"
+                    dir="ltr"
+                    min={0.1}
+                    max={1000000}
+                    step="any"
+                    placeholder={c.dimensionPlaceholder}
+                    defaultValue={values.dimensions.height}
+                  />
+                </Field>
+              </div>
+              {state.fieldErrors?.dimensions ? <p className="mt-2 text-step--1 text-[#86352b]">{c.dimensionsError}</p> : null}
+            </div>
 
             <div>
               <div className="mb-2 flex flex-wrap items-end justify-between gap-2">

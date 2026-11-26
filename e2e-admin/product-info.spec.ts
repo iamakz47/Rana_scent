@@ -272,6 +272,49 @@ test.describe("admin product details", () => {
     await service.from("products").update({ free_fragrances: 1 }).eq("id", one.id);
     await refresh(page);
   });
+
+  test("dimensions: optional, editable, bilingual, and hidden until all three are given", async ({ page, browser }) => {
+    const tag = unique();
+    const product = await makeProduct("diffuser", `Carry Case ${tag}`, `حافظة ${tag}`, 5000);
+    const shopper = await browser.newPage();
+
+    // No dimensions were entered yet: the row doesn't show.
+    await shopper.goto(`/en/products/${product.slug}`);
+    await expect(shopper.locator("[data-spec=dimensions]")).toHaveCount(0);
+
+    // Create: fill in all three (length, width, height) and save.
+    await staffSignIn(page, accounts.owner);
+    await page.goto(`/en/admin/products/${product.id}`);
+    await page.locator("#length_cm").fill("20");
+    await page.locator("#width_cm").fill("15");
+    await page.locator("#height_cm").fill("30");
+    await page.getByRole("button", { name: "Save", exact: true }).first().click();
+    await expect(page.getByText("Product saved.")).toBeVisible();
+
+    await shopper.goto(`/en/products/${product.slug}`);
+    await expect(shopper.locator("[data-spec=dimensions]")).toContainText("Dimensions");
+    await expect(shopper.locator("[data-spec=dimensions]")).toContainText("20 × 15 × 30 cm");
+    await shopper.goto(`/ar/products/${product.slug}`);
+    await expect(shopper.locator("[data-spec=dimensions]")).toContainText("الأبعاد");
+    await expect(shopper.locator("[data-spec=dimensions]")).toContainText("20 × 15 × 30 سم");
+
+    // Edit: change one measurement, keep the others, and save again.
+    await page.reload();
+    await expect(page.locator("#length_cm")).toHaveValue("20");
+    await page.locator("#height_cm").fill("40");
+    await page.getByRole("button", { name: "Save", exact: true }).first().click();
+    await expect(page.getByText("Product saved.")).toBeVisible();
+    await shopper.goto(`/en/products/${product.slug}`);
+    await expect(shopper.locator("[data-spec=dimensions]")).toContainText("20 × 15 × 40 cm");
+
+    // Incomplete again (one cleared): the row disappears rather than guessing.
+    await page.reload();
+    await page.locator("#width_cm").fill("");
+    await page.getByRole("button", { name: "Save", exact: true }).first().click();
+    await expect(page.getByText("Product saved.")).toBeVisible();
+    await shopper.goto(`/en/products/${product.slug}`);
+    await expect(shopper.locator("[data-spec=dimensions]")).toHaveCount(0);
+  });
 });
 
 test.describe("policies", () => {

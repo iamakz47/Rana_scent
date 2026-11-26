@@ -151,11 +151,13 @@
       "screen": "الشاشة",
       "capacity": "سعة العبوة",
       "installation": "التركيب",
-      "color": "اللون"
+      "color": "اللون",
+      "dimensions": "الأبعاد"
     },
     "specUnits": {
       "m2": "م²",
-      "ml": "مل"
+      "ml": "مل",
+      "cm": "سم"
     },
     "specUpTo": "حتى {value}",
     "specsMore": "تفاصيل إضافية",

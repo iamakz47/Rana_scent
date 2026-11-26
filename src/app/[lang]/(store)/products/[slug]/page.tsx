@@ -7,7 +7,7 @@ import { ProductGallery } from "@/features/catalog/components/product-gallery";
 import { PurchasePanel } from "@/features/catalog/components/purchase-panel";
 import { SelectedColorSpec, VariantSelectionProvider } from "@/features/catalog/components/color-selection";
 import { getProduct, getProductsBySlug, getRelatedProducts, listFreeFragrances, listProducts } from "@/features/catalog/queries";
-import { infoKeys, specRows } from "@/features/catalog/product-details";
+import { boxDimensionsText, infoKeys, specRows } from "@/features/catalog/product-details";
 import { RichText } from "@/components/ui/rich-text";
 import { hasColorChoice, lowestPrice, productStock } from "@/features/catalog/types";
 import { localePath, locales } from "@/i18n/config";
@@ -62,6 +62,7 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
     units: dict.product.specUnits,
     upTo: dict.product.specUpTo,
   }).filter((row) => !(colors && row.key === "color"));
+  const dimensionsText = boxDimensionsText(product.deviceSpecs ?? {}, dict.product.specUnits.cm);
   // With colour variants the "Colour" row always shows the selected colour,
   // so it can never contradict the photos.
   const showColorRow = colors;
@@ -164,12 +165,12 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                 </section>
               )}
 
-              {(product.type === "diffuser" || structured.length > 0 || extraSpecs.length > 0 || showColorRow) && (
+              {(product.type === "diffuser" || structured.length > 0 || extraSpecs.length > 0 || showColorRow || dimensionsText) && (
                 <section aria-labelledby="specs-title" className="mt-10 border-t border-ink/10 pt-8">
                   <h2 id="specs-title" className="font-display text-step-2 text-ink">
                     {dict.product.specs}
                   </h2>
-                  {structured.length || extraSpecs.length || showColorRow ? (
+                  {structured.length || extraSpecs.length || showColorRow || dimensionsText ? (
                     <>
                       <dl className="mt-5 overflow-hidden rounded-2xl border border-ink/10 bg-surface/50">
                         {structured.map((row) => (
@@ -180,6 +181,14 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
                             </dd>
                           </div>
                         ))}
+                        {dimensionsText ? (
+                          <div data-spec="dimensions" className="grid grid-cols-[minmax(6.5rem,38%)_1fr] gap-4 border-b border-ink/8 px-4 py-3.5 last:border-b-0 odd:bg-canvas/60">
+                            <dt className="text-ink-soft">{dict.product.specLabels.dimensions}</dt>
+                            <dd className="font-medium text-ink" dir="ltr">
+                              {dimensionsText}
+                            </dd>
+                          </div>
+                        ) : null}
                         {showColorRow ? (
                           <div data-spec="color" className="grid grid-cols-[minmax(6.5rem,38%)_1fr] gap-4 border-b border-ink/8 px-4 py-3.5 last:border-b-0 odd:bg-canvas/60">
                             <dt className="text-ink-soft">{dict.product.specLabels.color}</dt>

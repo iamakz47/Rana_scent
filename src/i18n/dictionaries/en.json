@@ -151,11 +151,13 @@
       "screen": "Display",
       "capacity": "Bottle capacity",
       "installation": "Installation",
-      "color": "Colour"
+      "color": "Colour",
+      "dimensions": "Dimensions"
     },
     "specUnits": {
       "m2": "m²",
-      "ml": "ml"
+      "ml": "ml",
+      "cm": "cm"
     },
     "specUpTo": "Up to {value}",
     "specsMore": "More details",

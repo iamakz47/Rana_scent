@@ -22,6 +22,10 @@ export const deviceSpecsSchema = z.object({
   capacity_ml: positive.optional(),
   // Always width × height × depth, in one unit.
   dimensions: z.object({ width: positive, height: positive, depth: positive, unit: z.enum(dimensionUnits) }).optional(),
+  // The simple length × width × height box dimensions, always in centimetres.
+  length_cm: positive.optional(),
+  width_cm: positive.optional(),
+  height_cm: positive.optional(),
   weight: z.object({ value: positive, unit: z.enum(weightUnits) }).optional(),
   power_supply: text.optional(),
   power_consumption_w: positive.optional(),
@@ -150,4 +154,18 @@ export function specRows(specs: DeviceSpecs, locale: Locale, labels: SpecLabels)
   return simpleSpecKeys
     .map((key) => ({ key, label: labels[key], value: specValue(specs, key, locale, labels) }))
     .filter((row) => row.value);
+}
+
+// Length × width × height, in centimetres. Shown only once all three are
+// given; a partial measurement is never guessed or completed.
+export function boxDimensionsCm(specs: DeviceSpecs): { length: number; width: number; height: number } | null {
+  const { length_cm, width_cm, height_cm } = specs;
+  if (!length_cm || !width_cm || !height_cm) return null;
+  return { length: length_cm, width: width_cm, height: height_cm };
+}
+
+// "20 × 15 × 30 cm", always in that order regardless of locale.
+export function boxDimensionsText(specs: DeviceSpecs, unit: string): string {
+  const dims = boxDimensionsCm(specs);
+  return dims ? `${number(dims.length)} × ${number(dims.width)} × ${number(dims.height)} ${unit}` : "";
 }
