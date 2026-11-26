@@ -1,6 +1,7 @@
 "use client";
 
 import { LineVariant } from "@/features/cart/line-variant";
+import { LineBundle } from "./line-bundle";
 import { LineFragrances } from "./line-fragrances";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
@@ -88,7 +89,7 @@ export function CartDrawer() {
                     className="flex gap-4 rounded-2xl border border-ink/10 bg-beige/60 p-3"
                   >
                     <Link
-                      href={localePath(locale, `/products/${line.productSlug}`)}
+                      href={localePath(locale, `/${line.bundle ? "offers" : "products"}/${line.productSlug}`)}
                       onClick={close}
                       className="shrink-0"
                     >
@@ -103,9 +104,15 @@ export function CartDrawer() {
                     <div className="flex min-w-0 flex-1 flex-col">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="truncate font-medium">{line.name[locale]}</p>
-                          <p className="text-step--1 text-ink-soft"><LineVariant line={line} /></p>
-                          <LineFragrances line={line} lineId={lineKey(line)} />
+                          {line.bundle ? (
+                            <LineBundle line={{ ...line, bundle: line.bundle }} lineId={lineKey(line)} />
+                          ) : (
+                            <>
+                              <p className="truncate font-medium">{line.name[locale]}</p>
+                              <p className="text-step--1 text-ink-soft"><LineVariant line={line} /></p>
+                              <LineFragrances line={line} lineId={lineKey(line)} />
+                            </>
+                          )}
                         </div>
                         <p className="shrink-0 text-step--1 text-gold-deep tabular-nums">
                           {formatKWD(line.unitPriceFils * line.quantity, locale)}

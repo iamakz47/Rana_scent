@@ -20,6 +20,27 @@ function isAllowedImage(value: string): boolean {
   return /^[a-z]+\/[0-9a-f-]{36}\.(jpg|png|webp|avif)$/.test(value.slice(mediaPrefix.length));
 }
 
+const fragranceChoices = z.array(z.object({ id: z.string().min(1).max(64), name: localized })).max(2);
+
+// An offer added to cart as one bundle: the line's own variantId/price are
+// the owner's flat offer price; this carries the real included products so
+// the drawer/cart/checkout can show and submit the full breakdown. Checkout
+// re-validates every one of these on the server.
+const bundleComponentSchema = z.object({
+  itemProductId: z.string().min(1),
+  variantId: z.string().min(1),
+  name: localized,
+  variantLabel: localized,
+  colorHex: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  fragrances: fragranceChoices.optional(),
+  // Display only: how many of this product one bundle includes (the offer's
+  // own OfferItem.quantity at the time it was added), so the cart can show
+  // "x N" per component. Optional and additive: checkout maps named fields
+  // only and never reads this, and an older persisted line without it still
+  // parses.
+  quantity: z.number().int().min(1).max(50).optional(),
+});
+
 const cartLineSchema = z.object({
   variantId: z.string().min(1),
   productSlug: z.string().min(1),
@@ -34,18 +55,32 @@ const cartLineSchema = z.object({
   colorHex: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   // Free fragrance choices for EACH device on this line (a preference the
   // courier confirms). Names are a display snapshot; the server re-checks ids.
-  fragrances: z.array(z.object({ id: z.string().min(1).max(64), name: localized })).max(2).optional(),
+  fragrances: fragranceChoices.optional(),
   quantity: z.number().int().min(1).max(20),
+  bundle: z
+    .object({
+      offerId: z.string().min(1),
+      components: z.array(bundleComponentSchema).min(1).max(20),
+    })
+    .optional(),
 });
 
 export type CartLine = z.infer<typeof cartLineSchema>;
+export type BundleComponentLine = z.infer<typeof bundleComponentSchema>;
 
 export const MAX_LINE_QUANTITY = 20;
 
 // A line is one variant with one set of free-fragrance choices: the same
-// device with different choices stays a separate line.
-export function lineKey(line: Pick<CartLine, "variantId" | "fragrances">): string {
-  return `${line.variantId}|${(line.fragrances ?? []).map((f) => f.id).join(",")}`;
+// device with different choices stays a separate line. For an offer, the
+// chosen colour/fragrances of every included product are part of the key
+// too, so two bundles of the same offer with different colours never merge.
+export function lineKey(line: Pick<CartLine, "variantId" | "fragrances" | "bundle">): string {
+  const base = `${line.variantId}|${(line.fragrances ?? []).map((f) => f.id).join(",")}`;
+  if (!line.bundle) return base;
+  const parts = line.bundle.components
+    .map((c) => `${c.variantId}:${(c.fragrances ?? []).map((f) => f.id).join(",")}`)
+    .join("|");
+  return `${base}#${parts}`;
 }
 
 const cart = createPersistentStore("rana-cart-v1", z.array(cartLineSchema).max(50), []);
@@ -80,6 +115,37 @@ export function setLineFragrances(key: string, fragrances: NonNullable<CartLine[
     const line = lines.find((item) => lineKey(item) === key);
     if (!line) return lines;
     const updated = { ...line, fragrances };
+    const newKey = lineKey(updated);
+    if (newKey === key) return lines.map((item) => (lineKey(item) === key ? updated : item));
+    const twin = lines.find((item) => lineKey(item) === newKey);
+    if (twin) {
+      return lines
+        .filter((item) => lineKey(item) !== key)
+        .map((item) =>
+          lineKey(item) === newKey ? { ...item, quantity: Math.min(MAX_LINE_QUANTITY, item.quantity + line.quantity) } : item,
+        );
+    }
+    return lines.map((item) => (lineKey(item) === key ? updated : item));
+  });
+}
+
+// Changes the free-fragrance choices of one included product of an offer
+// line, merging it into an identical bundle line if one exists.
+export function setBundleComponentFragrances(
+  key: string,
+  itemProductId: string,
+  fragrances: NonNullable<CartLine["fragrances"]>,
+) {
+  cart.set((lines) => {
+    const line = lines.find((item) => lineKey(item) === key);
+    if (!line?.bundle) return lines;
+    const updated: CartLine = {
+      ...line,
+      bundle: {
+        ...line.bundle,
+        components: line.bundle.components.map((c) => (c.itemProductId === itemProductId ? { ...c, fragrances } : c)),
+      },
+    };
     const newKey = lineKey(updated);
     if (newKey === key) return lines.map((item) => (lineKey(item) === key ? updated : item));
     const twin = lines.find((item) => lineKey(item) === newKey);

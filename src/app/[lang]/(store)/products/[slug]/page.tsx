@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { GOLD_HEX, scentHex } from "@/components/brand/scent-colors";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
@@ -12,6 +12,7 @@ import { RichText } from "@/components/ui/rich-text";
 import { hasColorChoice, lowestPrice, productStock } from "@/features/catalog/types";
 import { localePath, locales } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
+import { isLiveCatalog } from "@/features/catalog/source";
 import { getSiteUrl } from "@/lib/env";
 import { FILS_PER_KWD } from "@/lib/money";
 
@@ -44,6 +45,10 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/product
   const [{ slug }, locale, dict] = await Promise.all([params, getLocale(), getDictionary()]);
   const product = await getProduct(slug);
   if (!product) notFound();
+  // An offer is a product under the hood, but it is only ever shown and
+  // bought on its own dedicated page.
+  // (With the preview catalogue there are no offers, so sample sets stay here.)
+  if (product.type === "bundle" && isLiveCatalog()) redirect(localePath(locale, `/offers/${slug}`));
 
   const [related, compatible, contents, fragrances] = await Promise.all([
     getRelatedProducts(product),

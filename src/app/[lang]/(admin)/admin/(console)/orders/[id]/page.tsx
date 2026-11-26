@@ -148,6 +148,34 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
                             ))}
                         </span>
                       ) : null}
+                      {item.order_item_components.length ? (
+                        <span className="mt-1 block rounded-lg bg-ink/5 px-2 py-1 text-[0.75rem] text-ink-soft" data-testid="admin-offer-components">
+                          {t.offers.orderIncludes}
+                          {item.order_item_components.map((comp) => (
+                            <span key={comp.id} className="flex items-center gap-1.5 py-0.5">
+                              {comp.color_hex ? (
+                                <span
+                                  aria-hidden
+                                  className="inline-block size-2.5 shrink-0 rounded-full border border-ink/15"
+                                  style={{ backgroundColor: comp.color_hex }}
+                                />
+                              ) : null}
+                              <span>
+                                {comp.quantity}× {locale === "ar" ? comp.name_ar : comp.name_en}
+                                {comp.variant_label_ar || comp.variant_label_en
+                                  ? ` (${locale === "ar" ? comp.variant_label_ar : comp.variant_label_en})`
+                                  : ""}
+                                {comp.order_item_component_fragrances.length
+                                  ? ` — ${comp.order_item_component_fragrances
+                                      .sort((a, b) => a.device_no - b.device_no || a.slot - b.slot)
+                                      .map((f) => (locale === "ar" ? f.name_ar : f.name_en))
+                                      .join(locale === "ar" ? "، " : ", ")}`
+                                  : ""}
+                              </span>
+                            </span>
+                          ))}
+                        </span>
+                      ) : null}
                     </td>
                     <td className="py-2 text-end tabular-nums">{item.quantity}</td>
                     <td className="py-2 text-end tabular-nums">{money(item.unit_price_fils)}</td>
@@ -371,20 +399,57 @@ export default async function OrderDetailPage({ params }: PageProps<"/[lang]/adm
 
 type Db = Awaited<ReturnType<typeof createClient>>;
 
-// Free-fragrance choices live in a table added by the Phase 5 migration. Until
-// that migration is applied, load the order without them rather than failing.
+type Fragrance = { device_no: number; slot: number; name_ar: string; name_en: string };
+
+// Free-fragrance choices live in a table added by the Phase 5 migration.
+// Until it is applied, load the order without them rather than failing.
+// This query is unchanged from before offers existed: the offer breakdown
+// (added by a later migration) is fetched separately below, rather than
+// folded into this same nested select, so it can never affect it.
 async function loadOrder(supabase: Db, id: string) {
   const full = await supabase
     .from("orders")
     .select("*, order_items(*, order_item_fragrances(device_no, slot, name_ar, name_en)), payments(*)")
     .eq("id", id)
     .maybeSingle();
-  if (!full.error) return full;
-  const basic = await supabase.from("orders").select("*, order_items(*), payments(*)").eq("id", id).maybeSingle();
-  if (!basic.data) return { data: null, error: basic.error };
-  const data = {
-    ...basic.data,
-    order_items: basic.data.order_items.map((item) => ({ ...item, order_item_fragrances: [] as Array<{ device_no: number; slot: number; name_ar: string; name_en: string }> })),
+
+  let orderData: (typeof full.data & { order_items: Array<{ id: string; order_item_fragrances: Fragrance[] }> }) | null = null;
+  let orderError = full.error;
+  if (!full.error && full.data) {
+    orderData = full.data;
+    orderError = null;
+  } else {
+    const basic = await supabase.from("orders").select("*, order_items(*), payments(*)").eq("id", id).maybeSingle();
+    if (basic.data) {
+      orderData = {
+        ...basic.data,
+        order_items: basic.data.order_items.map((item) => ({ ...item, order_item_fragrances: [] as Fragrance[] })),
+      };
+      orderError = null;
+    } else {
+      orderError = basic.error;
+    }
+  }
+  if (!orderData) return { data: null, error: orderError };
+
+  const itemIds = orderData.order_items.map((item) => item.id);
+  const components = itemIds.length
+    ? await supabase
+        .from("order_item_components")
+        .select("*, order_item_component_fragrances(device_no, slot, name_ar, name_en)")
+        .in("order_item_id", itemIds)
+        .order("position")
+    : { data: [] };
+  const byOrderItem = new Map<string, NonNullable<typeof components.data>>();
+  for (const row of components.data ?? []) {
+    byOrderItem.set(row.order_item_id, [...(byOrderItem.get(row.order_item_id) ?? []), row]);
+  }
+
+  return {
+    data: {
+      ...orderData,
+      order_items: orderData.order_items.map((item) => ({ ...item, order_item_components: byOrderItem.get(item.id) ?? [] })),
+    },
+    error: null,
   };
-  return { data, error: null };
 }

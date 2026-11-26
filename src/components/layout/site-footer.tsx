@@ -10,7 +10,7 @@ export function SiteFooter({ locale, dict }: { locale: Locale; dict: Dictionary 
       links: [
         { label: dict.nav.diffusers, path: "/collections/diffusers" },
         { label: dict.nav.refills, path: "/collections/refills" },
-        { label: dict.nav.sets, path: "/collections/bundles" },
+        { label: dict.nav.offers, path: "/offers" },
         { label: dict.nav.accessories, path: "/collections/accessories" },
       ],
     },

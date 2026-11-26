@@ -1,6 +1,7 @@
 "use client";
 
 import { LineVariant } from "@/features/cart/line-variant";
+import { LineBundle } from "./line-bundle";
 import Link from "next/link";
 import { useEffect } from "react";
 import { AnimatePresence, m } from "motion/react";
@@ -65,7 +66,10 @@ export function CartView({ fragrances }: { fragrances?: FreeFragrance[] }) {
               exit={{ opacity: 0, height: 0, transition: { duration: 0.3 } }}
               className="flex gap-4 py-6 sm:gap-6"
             >
-              <Link href={localePath(locale, `/products/${line.productSlug}`)} className="shrink-0">
+              <Link
+                href={localePath(locale, `/${line.bundle ? "offers" : "products"}/${line.productSlug}`)}
+                className="shrink-0"
+              >
                 <ProductVisual
                   src={line.image}
                   alt={line.name[locale]}
@@ -76,15 +80,32 @@ export function CartView({ fragrances }: { fragrances?: FreeFragrance[] }) {
               </Link>
               <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <Link
-                    href={localePath(locale, `/products/${line.productSlug}`)}
-                    className="font-display text-step-2 text-ink hover:text-gold-deep"
-                  >
-                    {line.name[locale]}
-                  </Link>
-                  <p className="text-step--1 text-ink-soft"><LineVariant line={line} /></p>
-                  <p className="mt-1 text-step--1 text-ink-soft tabular-nums">{formatKWD(line.unitPriceFils, locale)}</p>
-                  <LineFragrances line={line} lineId={lineKey(line)} fragrances={fragrances} />
+                  {line.bundle ? (
+                    <>
+                      <Link
+                        href={localePath(locale, `/offers/${line.productSlug}`)}
+                        className="font-display text-step-2 text-ink hover:text-gold-deep"
+                      >
+                        {line.name[locale]}
+                      </Link>
+                      <p className="mt-1 text-step--1 text-ink-soft tabular-nums">{formatKWD(line.unitPriceFils, locale)}</p>
+                      <div className="mt-2">
+                        <LineBundle line={{ ...line, bundle: line.bundle }} lineId={lineKey(line)} fragrances={fragrances} />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href={localePath(locale, `/products/${line.productSlug}`)}
+                        className="font-display text-step-2 text-ink hover:text-gold-deep"
+                      >
+                        {line.name[locale]}
+                      </Link>
+                      <p className="text-step--1 text-ink-soft"><LineVariant line={line} /></p>
+                      <p className="mt-1 text-step--1 text-ink-soft tabular-nums">{formatKWD(line.unitPriceFils, locale)}</p>
+                      <LineFragrances line={line} lineId={lineKey(line)} fragrances={fragrances} />
+                    </>
+                  )}
                 </div>
                 <div className="flex items-center gap-3 sm:flex-col sm:items-end">
                   <p className="text-gold-deep tabular-nums sm:text-step-1">

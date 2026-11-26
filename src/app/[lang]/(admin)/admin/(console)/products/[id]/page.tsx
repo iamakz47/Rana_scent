@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { localePath } from "@/i18n/config";
 import { z } from "zod";
 import { can, requireStaff } from "@/features/admin/auth/dal";
 import { getAdminProduct, getProductFormOptions } from "@/features/admin/data/catalog";
@@ -19,6 +20,8 @@ export default async function EditProductPage({ params, searchParams }: PageProp
   if (!z.uuid().safeParse(id).success) notFound();
   const [{ locale, t }, product, options] = await Promise.all([getAdminDictionary(), getAdminProduct(id), getProductFormOptions(id)]);
   if (!product) notFound();
+  // Offers are edited only in Admin → Offers (which also manages their contents).
+  if (product.type === "bundle") redirect(localePath(locale, `/admin/offers/${id}`));
   const values = toProductValues(product);
 
   return (
