@@ -40,6 +40,14 @@ type CustomerOrder = {
     quantity: number;
     line_total_fils: number;
     free_fragrances?: Array<{ device: number; slot: number; name: { ar: string; en: string } }>;
+    // Offer (bundle) lines only: the real included products this line
+    // resolved to, recorded at order time.
+    components?: Array<{
+      name: { ar: string; en: string };
+      label: { ar: string; en: string };
+      color_hex: string | null;
+      quantity: number;
+    }>;
   }>;
 };
 
@@ -171,6 +179,26 @@ async function Order({ searchParams }: { searchParams: PageProps<"/[lang]/order"
                           .join(locale === "ar" ? "، " : ", ")}
                       </span>
                     ))}
+                  </span>
+                ) : null}
+                {item.components?.length ? (
+                  <span className="mt-1 block text-step--1" data-testid="order-bundle-components">
+                    <span className="text-ink-soft">{dict.offers.includedBreakdown}:</span>
+                    <ol className="mt-0.5 ms-3 list-disc text-ink">
+                      {item.components.map((component, componentIndex) => (
+                        <li key={componentIndex}>
+                          {component.color_hex ? (
+                            <span
+                              aria-hidden
+                              className="me-1 inline-block size-2.5 rounded-full border border-ink/20 align-middle"
+                              style={{ background: component.color_hex }}
+                            />
+                          ) : null}
+                          {component.name[locale]} · {component.label[locale]}
+                          {component.quantity > 1 ? ` × ${component.quantity}` : ""}
+                        </li>
+                      ))}
+                    </ol>
                   </span>
                 ) : null}
               </span>

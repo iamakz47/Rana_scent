@@ -20,7 +20,7 @@
     "shop": "Shop",
     "diffusers": "Diffusers",
     "refills": "Refills",
-    "sets": "Sets",
+    "offers": "Offers",
     "accessories": "Accessories",
     "about": "Our story",
     "faq": "FAQ",
@@ -61,16 +61,15 @@
     "finderBody": "Tell us where the scent will live.",
     "finderDevice": "Recommended device",
     "finderRefills": "Pairs well with",
-    "setsTitle": "Sets, ready to give",
-    "setsBody": "A device and chosen fragrances, wrapped as one.",
-    "setsCta": "Shop sets",
+    "setsTitle": "Rana Scent Offers",
+    "setsBody": "Devices and fragrances together, for less than buying them separately.",
+    "setsCta": "View All Offers",
     "pageTitle": "Rana Scent: electronic diffusers, fragrance refills and accessories",
     "categoriesTitle": "Shop by category",
     "featuredTitle": "Featured",
     "featuredBody": "Pieces our customers return to.",
     "collectionsTitle": "Fragrance collections",
-    "collectionsBody": "Five families, each with its own character. Start with the one that feels like home.",
-    "setsImageAlt": "Rana Tower with a 500 ml Aroma Oil refill"
+    "collectionsBody": "Five families, each with its own character. Start with the one that feels like home."
   },
   "spaces": {
     "majlis": "Majlis",
@@ -213,6 +212,29 @@
     "empty": "Nothing saved yet",
     "emptyBody": "Tap the heart on any product to keep it here.",
     "moveToCart": "Add to cart"
+  },
+  "offers": {
+    "title": "Offers & bundles",
+    "subtitle": "Save more with hand-picked device and refill bundles.",
+    "emptyTitle": "No offers right now",
+    "emptyBody": "Check back soon, or browse the full shop in the meantime.",
+    "browseShop": "Browse the shop",
+    "detailsButton": "View offer",
+    "includes": "Includes {count} products",
+    "includesOne": "Includes 1 product",
+    "whatsIncluded": "What's included",
+    "includedBreakdown": "Included in this bundle",
+    "chooseColor": "Choose a colour",
+    "colorRequired": "Choose a colour for every item to continue.",
+    "originalPrice": "Original price",
+    "offerPrice": "Offer price",
+    "youSave": "You save",
+    "percentOff": "{percent}% off",
+    "addToCart": "Add bundle to cart",
+    "added": "Added to cart",
+    "selectionRequired": "Complete your colour and fragrance choices to add this offer to cart.",
+    "unavailable": "This offer is no longer available.",
+    "breadcrumb": "Offer breadcrumb"
   },
   "footer": {
     "tagline": "Fragrance technology for the spaces you live in.",
@@ -462,7 +484,8 @@
       "fragrance_selection_required": "Choose the free fragrances for each device in your cart.",
       "fragrance_unavailable": "One of your chosen free fragrances is no longer available. Please choose another in your cart.",
       "fragrance_invalid": "Your free fragrance choices need updating. Please review your cart.",
-      "fragrance_duplicate": "Please choose different free fragrances."
+      "fragrance_duplicate": "Please choose different free fragrances.",
+      "discount_blocked_by_offer": "Discount codes can't be combined with an offer in your cart."
     }
   },
   "order": {

@@ -107,6 +107,17 @@ export function CheckoutForm({
         variant_id: line.variantId,
         quantity: line.quantity,
         ...(line.fragrances?.length ? { fragrances: line.fragrances.map((f) => f.id) } : {}),
+        ...(line.bundle
+          ? {
+              bundle: {
+                components: line.bundle.components.map((c) => ({
+                  item_product_id: c.itemProductId,
+                  variant_id: c.variantId,
+                  ...(c.fragrances?.length ? { fragrances: c.fragrances.map((f) => f.id) } : {}),
+                })),
+              },
+            }
+          : {}),
       })),
     [lines],
   );

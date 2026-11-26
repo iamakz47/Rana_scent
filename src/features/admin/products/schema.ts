@@ -6,6 +6,9 @@ const required = (max: number) => z.string().trim().min(1).max(max);
 const uuid = z.uuid();
 
 export const productTypes = ["diffuser", "refill", "accessory", "bundle"] as const;
+// Types the product editor offers. Offers ("bundle") are created and edited
+// only in Admin → Offers, which also manages what they include.
+export const editorProductTypes = ["diffuser", "refill", "accessory"] as const;
 export const spaces = ["majlis", "living", "bedroom", "office", "car"] as const;
 
 export const variantSchema = z
@@ -96,7 +99,7 @@ export const productFormSchema = z.object({
   id: z.union([uuid, z.literal("")]).optional(),
   // Optional in the form: generated from the name when left empty.
   slug: z.union([z.string().trim().toLowerCase().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/).max(80), z.literal("")]),
-  type: z.enum(productTypes),
+  type: z.enum(editorProductTypes),
   name_ar: required(120),
   // Optional: the Arabic name is used when no English name is given.
   name_en: text(120),

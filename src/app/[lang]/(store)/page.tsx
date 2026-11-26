@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { Fragment } from "react";
-import { ProductVisual } from "@/components/brand/product-visual";
 import { ButtonLink } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ProductCard } from "@/features/catalog/components/product-card";
@@ -13,9 +11,10 @@ import { Story } from "@/features/home/story";
 import { CategoryShowcase } from "@/features/merchandising/category-showcase";
 import { HeroSlider } from "@/features/merchandising/hero-slider";
 import { getHomepageContent, type HomepageSectionKey } from "@/features/merchandising/homepage-content";
+import { OfferCard } from "@/features/offers/components/offer-card";
+import { listOffers } from "@/features/offers/data";
 import { localePath, locales } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
-import { formatKWD } from "@/lib/money";
 
 // Curated pairings for the space finder (sample merchandising). With the
 // live catalog, picks come from published products tagged with each space.
@@ -38,13 +37,13 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  const [locale, dict, categories, all, refills, sets, content] = await Promise.all([
+  const [locale, dict, categories, all, refills, offers, content] = await Promise.all([
     getLocale(),
     getDictionary(),
     listHomeCategories(),
     listProducts(),
     listProducts({ type: ["refill"] }),
-    listProducts({ type: ["bundle"] }),
+    listOffers(),
     getHomepageContent(),
   ]);
   const isSampleCatalog = all.some((product) => product.isSample);
@@ -138,40 +137,30 @@ export default async function HomePage() {
       <SpaceFinder spaces={picks.map(([space]) => space)} panels={panels} />
     ),
     story: <Story />,
-    sets: sets.length > 0 && (
-<section aria-labelledby="sets-title" className="relative overflow-hidden bg-beige">
-          <div className="container-page grid items-center gap-10 py-20 md:grid-cols-2 lg:py-28">
-            <div className="reveal max-w-lg">
+    // The admin's "sets" slot now shows the current offers (hidden when there are none).
+    sets: offers.length > 0 && (
+      <section aria-labelledby="sets-title" className="relative overflow-hidden bg-beige" data-testid="home-offers">
+        <div className="container-page py-20 lg:py-28">
+          <div className="reveal flex flex-wrap items-end justify-between gap-6">
+            <div className="max-w-xl">
               <h2 id="sets-title" className="font-display text-step-5 leading-[1] text-ink">
                 {dict.home.setsTitle}
               </h2>
               <p className="mt-5 text-step-1 text-ink-soft">{dict.home.setsBody}</p>
-              <ul className="mt-8 space-y-3">
-                {sets.map((set) => (
-                  <li key={set.id}>
-                    <Link
-                      href={localePath(locale, `/products/${set.slug}`)}
-                      className="flex min-h-11 items-baseline justify-between gap-4 border-b border-ink/15 pb-3 transition-colors hover:border-gold-deep"
-                    >
-                      <span className="font-display text-step-2 text-ink">{set.name[locale]}</span>
-                      <span className="text-ink tabular-nums">{formatKWD(lowestPrice(set), locale)}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <ButtonLink href={localePath(locale, "/collections/bundles")} className="mt-9" size="lg">
-                {dict.home.setsCta}
-              </ButtonLink>
             </div>
-            <ProductVisual
-              src="/images/products/rana-tower.jpg"
-              alt={dict.home.setsImageAlt}
-              pendingLabel={dict.common.photoComingSoon}
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="reveal aspect-square rounded-[2.5rem] bg-canvas"
-            />
+            <ButtonLink href={localePath(locale, "/offers")} size="lg" variant="outline">
+              {dict.home.setsCta}
+            </ButtonLink>
           </div>
-        </section>
+          <ul className="mt-12 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 lg:grid-cols-3">
+            {offers.slice(0, 3).map((offer) => (
+              <li key={offer.id}>
+                <OfferCard offer={offer} locale={locale} dict={dict} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     ),
   };
 

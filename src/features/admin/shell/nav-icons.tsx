@@ -55,6 +55,13 @@ const paths: Record<AdminSectionKey, ReactNode> = {
       <path d="m4 18 5.5-5 4 3.5 2.5-2 4 3.5" />
     </>
   ),
+  offers: (
+    <>
+      <rect x="3.5" y="8.5" width="17" height="4" rx="1" />
+      <path d="M4.5 12.5v7a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-7M12 8.5v12" />
+      <path d="M12 8.5c-1-2.5-3-4-4.5-3.5S6 7.5 8 8.5M12 8.5c1-2.5 3-4 4.5-3.5S18 7.5 16 8.5" />
+    </>
+  ),
   promotions: (
     <>
       <path d="M20.5 12.5 12.5 20.5a1.5 1.5 0 0 1-2 0l-7-7V3.5h10l7 7a1.5 1.5 0 0 1 0 2z" />

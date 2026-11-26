@@ -35,14 +35,14 @@ export type Database = {
                   ]
                 },"bundle_items": {
                   Row: {
-                    "bundle_id": string,"item_product_id": string,"position": number,"quantity": number
+                    "bundle_id": string,"item_product_id": string,"locked_variant_id": string | null,"position": number,"quantity": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "bundle_id": string,"item_product_id": string,"position"?: number,"quantity"?: number
+                    "bundle_id": string,"item_product_id": string,"locked_variant_id"?: string | null,"position"?: number,"quantity"?: number
                   }
                   Update: {
-                    "bundle_id"?: string,"item_product_id"?: string,"position"?: number,"quantity"?: number
+                    "bundle_id"?: string,"item_product_id"?: string,"locked_variant_id"?: string | null,"position"?: number,"quantity"?: number
                   }
                   Relationships: [
                     {
@@ -56,6 +56,12 @@ isOneToOne: false
       columns: ["item_product_id"]
 isOneToOne: false
       referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bundle_items_locked_variant_id_fkey"
+      columns: ["locked_variant_id"]
+isOneToOne: false
+      referencedRelation: "product_variants"
       referencedColumns: ["id"]
     }
                   ]
@@ -312,6 +318,64 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"order_item_component_fragrances": {
+                  Row: {
+                    "device_no": number,"fragrance_product_id": string | null,"id": number,"name_ar": string,"name_en": string,"order_item_component_id": number,"slot": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "device_no": number,"fragrance_product_id"?: string | null,"id"?: never,"name_ar": string,"name_en": string,"order_item_component_id": number,"slot": number
+                  }
+                  Update: {
+                    "device_no"?: number,"fragrance_product_id"?: string | null,"id"?: never,"name_ar"?: string,"name_en"?: string,"order_item_component_id"?: number,"slot"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_item_component_fragrances_fragrance_product_id_fkey"
+      columns: ["fragrance_product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_component_fragrances_order_item_component_id_fkey"
+      columns: ["order_item_component_id"]
+isOneToOne: false
+      referencedRelation: "order_item_components"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"order_item_components": {
+                  Row: {
+                    "color_hex": string | null,"id": number,"item_product_id": string | null,"name_ar": string,"name_en": string,"order_item_id": string,"position": number,"quantity": number,"sku": string,"unit_price_fils": number,"variant_id": string | null,"variant_label_ar": string,"variant_label_en": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "color_hex"?: string | null,"id"?: never,"item_product_id"?: string | null,"name_ar": string,"name_en": string,"order_item_id": string,"position"?: number,"quantity": number,"sku": string,"unit_price_fils": number,"variant_id"?: string | null,"variant_label_ar": string,"variant_label_en": string
+                  }
+                  Update: {
+                    "color_hex"?: string | null,"id"?: never,"item_product_id"?: string | null,"name_ar"?: string,"name_en"?: string,"order_item_id"?: string,"position"?: number,"quantity"?: number,"sku"?: string,"unit_price_fils"?: number,"variant_id"?: string | null,"variant_label_ar"?: string,"variant_label_en"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_item_components_item_product_id_fkey"
+      columns: ["item_product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_components_order_item_id_fkey"
+      columns: ["order_item_id"]
+isOneToOne: false
+      referencedRelation: "order_items"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_components_variant_id_fkey"
+      columns: ["variant_id"]
+isOneToOne: false
+      referencedRelation: "product_variants"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"order_item_fragrances": {
                   Row: {
@@ -603,14 +667,14 @@ isOneToOne: false
                   ]
                 },"products": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"description_ar": string,"description_en": string,"device_specs": NonNullable<Json>,"free_fragrance_eligible": boolean,"free_fragrances": number | null,"id": string,"info_sections": NonNullable<Json>,"is_featured": boolean,"is_new": boolean,"name_ar": string,"name_en": string,"notes": Json | null,"position": number,"published_at": string | null,"seo_description_ar": string,"seo_description_en": string,"seo_title_ar": string,"seo_title_en": string,"short_description_ar": string,"short_description_en": string,"slug": string,"spaces": (string)[],"specs": NonNullable<Json>,"specs_confirmed": boolean,"status": Database["public"]['Enums']["publish_status"],"type": Database["public"]['Enums']["product_type"],"updated_at": string,"updated_by": string | null
+                    "allow_discount_stacking": boolean,"created_at": string,"created_by": string | null,"description_ar": string,"description_en": string,"device_specs": NonNullable<Json>,"free_fragrance_eligible": boolean,"free_fragrances": number | null,"id": string,"info_sections": NonNullable<Json>,"is_featured": boolean,"is_new": boolean,"name_ar": string,"name_en": string,"notes": Json | null,"offer_ends_at": string | null,"offer_starts_at": string | null,"position": number,"published_at": string | null,"seo_description_ar": string,"seo_description_en": string,"seo_title_ar": string,"seo_title_en": string,"short_description_ar": string,"short_description_en": string,"slug": string,"spaces": (string)[],"specs": NonNullable<Json>,"specs_confirmed": boolean,"status": Database["public"]['Enums']["publish_status"],"type": Database["public"]['Enums']["product_type"],"updated_at": string,"updated_by": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"description_ar"?: string,"description_en"?: string,"device_specs"?: NonNullable<Json>,"free_fragrance_eligible"?: boolean,"free_fragrances"?: number | null,"id"?: string,"info_sections"?: NonNullable<Json>,"is_featured"?: boolean,"is_new"?: boolean,"name_ar": string,"name_en": string,"notes"?: Json | null,"position"?: number,"published_at"?: string | null,"seo_description_ar"?: string,"seo_description_en"?: string,"seo_title_ar"?: string,"seo_title_en"?: string,"short_description_ar"?: string,"short_description_en"?: string,"slug": string,"spaces"?: (string)[],"specs"?: NonNullable<Json>,"specs_confirmed"?: boolean,"status"?: Database["public"]['Enums']["publish_status"],"type": Database["public"]['Enums']["product_type"],"updated_at"?: string,"updated_by"?: string | null
+                    "allow_discount_stacking"?: boolean,"created_at"?: string,"created_by"?: string | null,"description_ar"?: string,"description_en"?: string,"device_specs"?: NonNullable<Json>,"free_fragrance_eligible"?: boolean,"free_fragrances"?: number | null,"id"?: string,"info_sections"?: NonNullable<Json>,"is_featured"?: boolean,"is_new"?: boolean,"name_ar": string,"name_en": string,"notes"?: Json | null,"offer_ends_at"?: string | null,"offer_starts_at"?: string | null,"position"?: number,"published_at"?: string | null,"seo_description_ar"?: string,"seo_description_en"?: string,"seo_title_ar"?: string,"seo_title_en"?: string,"short_description_ar"?: string,"short_description_en"?: string,"slug": string,"spaces"?: (string)[],"specs"?: NonNullable<Json>,"specs_confirmed"?: boolean,"status"?: Database["public"]['Enums']["publish_status"],"type": Database["public"]['Enums']["product_type"],"updated_at"?: string,"updated_by"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"description_ar"?: string,"description_en"?: string,"device_specs"?: NonNullable<Json>,"free_fragrance_eligible"?: boolean,"free_fragrances"?: number | null,"id"?: string,"info_sections"?: NonNullable<Json>,"is_featured"?: boolean,"is_new"?: boolean,"name_ar"?: string,"name_en"?: string,"notes"?: Json | null,"position"?: number,"published_at"?: string | null,"seo_description_ar"?: string,"seo_description_en"?: string,"seo_title_ar"?: string,"seo_title_en"?: string,"short_description_ar"?: string,"short_description_en"?: string,"slug"?: string,"spaces"?: (string)[],"specs"?: NonNullable<Json>,"specs_confirmed"?: boolean,"status"?: Database["public"]['Enums']["publish_status"],"type"?: Database["public"]['Enums']["product_type"],"updated_at"?: string,"updated_by"?: string | null
+                    "allow_discount_stacking"?: boolean,"created_at"?: string,"created_by"?: string | null,"description_ar"?: string,"description_en"?: string,"device_specs"?: NonNullable<Json>,"free_fragrance_eligible"?: boolean,"free_fragrances"?: number | null,"id"?: string,"info_sections"?: NonNullable<Json>,"is_featured"?: boolean,"is_new"?: boolean,"name_ar"?: string,"name_en"?: string,"notes"?: Json | null,"offer_ends_at"?: string | null,"offer_starts_at"?: string | null,"position"?: number,"published_at"?: string | null,"seo_description_ar"?: string,"seo_description_en"?: string,"seo_title_ar"?: string,"seo_title_en"?: string,"short_description_ar"?: string,"short_description_en"?: string,"slug"?: string,"spaces"?: (string)[],"specs"?: NonNullable<Json>,"specs_confirmed"?: boolean,"status"?: Database["public"]['Enums']["publish_status"],"type"?: Database["public"]['Enums']["product_type"],"updated_at"?: string,"updated_by"?: string | null
                   }
                   Relationships: [
                     
@@ -972,6 +1036,9 @@ isOneToOne: false
                            },
 "retry_email":
 { Args: { "p_id": string }; Returns: undefined
+                           },
+"save_offer":
+{ Args: { "payload": Json }; Returns: string
                            },
 "save_policy_draft":
 { Args: { "p_body_ar": string,"p_body_en": string,"p_key": string,"p_title_ar": string,"p_title_en": string }; Returns: undefined

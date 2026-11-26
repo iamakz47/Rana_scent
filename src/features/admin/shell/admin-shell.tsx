@@ -16,7 +16,7 @@ type NavItem = { key: AdminSectionKey; href: string };
 const groups: Array<{ key: "overview" | "catalog" | "sales" | "content" | "store"; items: AdminSectionKey[] }> = [
   { key: "overview", items: ["dashboard"] },
   { key: "catalog", items: ["products", "categories", "inventory"] },
-  { key: "sales", items: ["orders", "customers", "messages", "promotions"] },
+  { key: "sales", items: ["orders", "customers", "messages", "offers", "promotions"] },
   { key: "content", items: ["homepage", "pages", "media"] },
   { key: "store", items: ["finance", "settings", "policies", "staff"] },
 ];

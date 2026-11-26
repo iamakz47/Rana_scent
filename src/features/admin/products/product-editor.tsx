@@ -25,7 +25,7 @@ import { InfoSectionsFields } from "./details-fields";
 import { PhotoPicker } from "./photo-picker";
 import { simpleSpecKeys, type DeviceSpecs, type InfoSections, type SimpleSpecKey } from "@/features/catalog/product-details";
 import { useFormAction } from "@/lib/use-form-action";
-import { productTypes, spaces } from "./schema";
+import { editorProductTypes, productTypes, spaces } from "./schema";
 
 export type VariantValue = {
   key: string;
@@ -529,7 +529,7 @@ export function ProductEditor({
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={t.products.type} htmlFor="type">
                 <Select id="type" name="type" value={type} onChange={(e) => setType(e.target.value as ProductValues["type"])}>
-                  {productTypes.map((productType) => (
+                  {editorProductTypes.map((productType) => (
                     <option key={productType} value={productType}>
                       {t.products.types[productType]}
                     </option>

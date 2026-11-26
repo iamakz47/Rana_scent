@@ -73,8 +73,9 @@ jobs:
           psql -v ON_ERROR_STOP=1 "$DB" -f supabase/migrations/20261112090300_phase3_api_grants.sql
           psql -v ON_ERROR_STOP=1 "$DB" -f supabase/migrations/20261115090300_phase4_api_grants.sql
           psql -v ON_ERROR_STOP=1 "$DB" -f supabase/migrations/20261120090100_phase5_api_grants.sql
+          psql -v ON_ERROR_STOP=1 "$DB" -f supabase/migrations/20261123090100_offers_api_grants.sql
           psql -v ON_ERROR_STOP=1 "$DB" -f supabase/migrations/20261124090100_contact_pages_api_grants.sql
-          for phase in phase2 phase3 phase4 phase5 phase6 phase8; do
+          for phase in phase2 phase3 phase4 phase5 phase6 phase7 phase8; do
             psql -v ON_ERROR_STOP=1 -tA "$DB" -f "supabase/verify/${phase}_verify.sql" | tee -a verify.txt
           done
           ! grep -q '|f|' verify.txt
