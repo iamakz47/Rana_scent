@@ -83,6 +83,53 @@ test.describe("offers across the store", () => {
     });
   }
 
+  for (const lang of ["ar", "en"] as const) {
+    test(`homepage category cards end with the offers card (${lang})`, async ({ page }) => {
+      await page.goto(`/${lang}`);
+      const cards = page.getByTestId("home-categories").locator("li");
+      // The seed's three categories plus the offers card; other specs may add
+      // more homepage categories, so the count is a lower bound.
+      await expect(cards.nth(3)).toBeAttached();
+      await expect(page.getByTestId("home-offers-card")).toHaveCount(1);
+      const offers = page.getByTestId("home-offers-card");
+      await expect(offers).toContainText(lang === "ar" ? "العروض والباقات" : "Offers & Bundles");
+      await expect(offers).toHaveAttribute("href", `/${lang}/offers`);
+      // The whole card is the link, and it is the last card in reading order.
+      await expect(cards.last().getByRole("link")).toHaveAttribute("href", `/${lang}/offers`);
+      await expect(cards.first().getByRole("link")).toHaveAttribute("href", new RegExp(`^/${lang}/collections/`));
+      await offers.click();
+      await page.waitForURL(new RegExp(`/${lang}/offers$`));
+    });
+  }
+
+  test("on a phone the category cards swipe sideways and snap, without widening the page", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    for (const lang of ["ar", "en"] as const) {
+      await page.goto(`/${lang}`);
+      const list = page.getByTestId("home-categories");
+      await expect(list).toBeVisible();
+      expect(await list.evaluate((el) => getComputedStyle(el).scrollSnapType)).toContain("x");
+      expect(await list.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+      // Swiping to the end reaches the offers card.
+      await list.scrollIntoViewIfNeeded();
+      await list.evaluate((el) => el.scrollTo({ left: (getComputedStyle(el).direction === "rtl" ? -1 : 1) * el.scrollWidth, behavior: "instant" }));
+      await expect(page.getByTestId("home-offers-card")).toBeInViewport();
+    }
+  });
+
+  test("draft offers never appear on the homepage or the offers page", async ({ page, request }) => {
+    await db.from("products").update({ status: "draft" }).eq("id", offerId);
+    await request.post("/api/revalidate", { headers: { Authorization: `Bearer ${CRON_SECRET}` } });
+    for (const path of ["/en", "/en/offers"]) {
+      await page.goto(path);
+      await expect(page.getByText(`Colour Offer ${tag}`)).toHaveCount(0);
+    }
+    expect((await page.goto(`/en/offers/${OFFER}`))?.status()).toBe(404);
+    await db.from("products").update({ status: "published" }).eq("id", offerId);
+    await request.post("/api/revalidate", { headers: { Authorization: `Bearer ${CRON_SECRET}` } });
+  });
+
   test("an offer without its own photo shows its device's photo; colour photos switch instantly", async ({ page }) => {
     await page.goto("/en/offers");
     const card = page.getByTestId("offer-card").filter({ hasText: `Colour Offer ${tag}` });

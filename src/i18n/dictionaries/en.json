@@ -73,7 +73,10 @@
     "featuredTitle": "Featured",
     "featuredBody": "Pieces our customers return to.",
     "collectionsTitle": "Fragrance collections",
-    "collectionsBody": "Five families, each with its own character. Start with the one that feels like home."
+    "collectionsBody": "Five families, each with its own character. Start with the one that feels like home.",
+    "offersCardTitle": "Offers & Bundles",
+    "offersCardBody": "Devices and fragrances together, for less.",
+    "offersCardBadge": "Save more"
   },
   "spaces": {
     "majlis": "Majlis",

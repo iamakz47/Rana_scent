@@ -73,7 +73,10 @@
     "featuredTitle": "مختارات",
     "featuredBody": "قطع يعود إليها عملاؤنا دائماً.",
     "collectionsTitle": "مجموعات العطور",
-    "collectionsBody": "خمس عائلات لكل منها شخصيتها. ابدأ بالعائلة التي تشعرك بالبيت."
+    "collectionsBody": "خمس عائلات لكل منها شخصيتها. ابدأ بالعائلة التي تشعرك بالبيت.",
+    "offersCardTitle": "العروض والباقات",
+    "offersCardBody": "أجهزة وعطور معًا بسعر أقل.",
+    "offersCardBadge": "وفّر أكثر"
   },
   "spaces": {
     "majlis": "المجلس",
