@@ -85,6 +85,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"contact_messages": {
+                  Row: {
+                    "client_hash": string,"created_at": string,"email": string,"handled_at": string | null,"handled_by": string | null,"id": string,"locale": string,"message": string,"name": string,"phone": string,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "client_hash"?: string,"created_at"?: string,"email"?: string,"handled_at"?: string | null,"handled_by"?: string | null,"id"?: string,"locale"?: string,"message": string,"name": string,"phone"?: string,"status"?: string
+                  }
+                  Update: {
+                    "client_hash"?: string,"created_at"?: string,"email"?: string,"handled_at"?: string | null,"handled_by"?: string | null,"id"?: string,"locale"?: string,"message"?: string,"name"?: string,"phone"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"customer_addresses": {
                   Row: {
                     "apartment": string,"area": string,"avenue": string,"block": string,"building": string,"created_at": string,"floor": string,"governorate": string,"id": string,"is_default": boolean,"label": string,"notes": string,"phone": string,"recipient_name": string,"street": string,"updated_at": string,"user_id": string
@@ -344,16 +358,16 @@ isOneToOne: false
                   }
                   Relationships: [
                     {
-      foreignKeyName: "order_item_components_order_item_id_fkey"
-      columns: ["order_item_id"]
-isOneToOne: false
-      referencedRelation: "order_items"
-      referencedColumns: ["id"]
-    },{
       foreignKeyName: "order_item_components_item_product_id_fkey"
       columns: ["item_product_id"]
 isOneToOne: false
       referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_components_order_item_id_fkey"
+      columns: ["order_item_id"]
+isOneToOne: false
+      referencedRelation: "order_items"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "order_item_components_variant_id_fkey"
@@ -813,6 +827,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"site_pages": {
+                  Row: {
+                    "draft_content": NonNullable<Json>,"draft_updated_at": string,"draft_updated_by": string | null,"key": string,"published_at": string | null,"published_by": string | null,"published_content": Json | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "draft_content"?: NonNullable<Json>,"draft_updated_at"?: string,"draft_updated_by"?: string | null,"key": string,"published_at"?: string | null,"published_by"?: string | null,"published_content"?: Json | null
+                  }
+                  Update: {
+                    "draft_content"?: NonNullable<Json>,"draft_updated_at"?: string,"draft_updated_by"?: string | null,"key"?: string,"published_at"?: string | null,"published_by"?: string | null,"published_content"?: Json | null
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"site_policies": {
                   Row: {
                     "draft_body_ar": string,"draft_body_en": string,"draft_title_ar": string,"draft_title_en": string,"draft_updated_at": string,"draft_updated_by": string | null,"key": string,"position": number,"published_at": string | null,"published_body_ar": string,"published_body_en": string,"published_by": string | null,"published_title_ar": string,"published_title_en": string
@@ -929,6 +957,9 @@ isOneToOne: false
 "get_policy":
 { Args: { "p_key": string }; Returns: Json
                            },
+"get_site_page":
+{ Args: { "p_key": string }; Returns: Json
+                           },
 "list_customers":
 { Args: { "p_search"?: string }; Returns: {
               "customer_name": string,"email": string,"has_account": boolean,"last_order_at": string,"orders_count": number,"paid_total_fils": number,"phone": string
@@ -973,6 +1004,9 @@ isOneToOne: false
 "publish_policy":
 { Args: { "p_key": string }; Returns: undefined
                            },
+"publish_site_page":
+{ Args: { "p_key": string }; Returns: undefined
+                           },
 "quote_order":
 { Args: { "p_area"?: string,"p_discount_code"?: string,"p_governorate"?: string,"p_items": Json }; Returns: Json
                            },
@@ -1003,19 +1037,31 @@ isOneToOne: false
 "retry_email":
 { Args: { "p_id": string }; Returns: undefined
                            },
+"save_offer":
+{ Args: { "payload": Json }; Returns: string
+                           },
 "save_policy_draft":
 { Args: { "p_body_ar": string,"p_body_en": string,"p_key": string,"p_title_ar": string,"p_title_en": string }; Returns: undefined
                            },
 "save_product":
 { Args: { "payload": Json }; Returns: string
                            },
-"save_offer":
-{ Args: { "payload": Json }; Returns: string
+"save_site_page_draft":
+{ Args: { "p_content": Json,"p_key": string }; Returns: undefined
+                           },
+"set_contact_message_status":
+{ Args: { "p_id": string,"p_status": string }; Returns: undefined
                            },
 "set_default_address":
 { Args: { "p_address": string }; Returns: undefined
                            },
+"submit_contact_message":
+{ Args: { "p_client_hash"?: string,"p_email": string,"p_locale": string,"p_message": string,"p_name": string,"p_phone": string }; Returns: string
+                           },
 "unpublish_policy":
+{ Args: { "p_key": string }; Returns: undefined
+                           },
+"unpublish_site_page":
 { Args: { "p_key": string }; Returns: undefined
                            },
 "withdraw_account_deletion":
